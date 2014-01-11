@@ -1,5 +1,7 @@
 *.pro.user*
-Makefile*
+Makefile
+Makefile.Debug
+Makefile.Release
 /build
 /release
 /debug

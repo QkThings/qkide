@@ -1,0 +1,166 @@
+@font-face
+{
+font-family: PT-Sans;
+src: url('../fonts/PTSans.ttf')
+} 
+
+@font-face
+{
+font-family: OpenSans;
+src: url('../fonts/OpenSans-Regular.ttf')
+} 
+
+@font-face
+{
+font-family: CartoGothic;
+src: url('../fonts/CartoGothicStd-Book.otf')
+} 
+
+
+body{
+	font-family: OpenSans;
+	font-size: 13px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	overflow: hidden;
+	height: 100%; 
+	max-height: 100%; 
+	color: #222;
+}
+
+#framecontent{
+	position: absolute;
+	top: 0;
+	bottom: 0; 
+	left: 0;
+	width: 160px; /*Width of frame div*/
+	height: 100%;
+	overflow: hidden; /*Disable scrollbars. Set to "scroll" to enable*/
+	background: #f7f7f7;
+	color: #aaa;
+	text-align: center;
+}
+
+#maincontent{
+	position: fixed;
+	top: 0; 
+	left: 160px; /*Set left value to WidthOfFrameDiv*/
+	right: 0;
+	bottom: 0;
+	overflow: auto; 
+	background: #fff;
+}
+
+.innertube{
+	margin: 10px; /*Margins for inner DIV inside each DIV (to provide padding)*/
+}
+
+.footer {
+    position:fixed;
+    bottom: 0;
+    height: 40px;
+    background-color:#eee;
+    width: auto;
+	height: auto;
+	padding: 10px;
+}
+
+h1 {
+	font-family: PT-Sans;
+	font-size: 20px;
+	color: #666;
+}
+h2 {
+	font-size: 16px;
+}
+h3 {
+	font-size: 14px;
+}
+
+a {
+	text-decoration: none;
+	/*color: #265da1;*/
+	color: #1185e0;
+}
+
+a:hover {
+	text-decoration: underline;
+	/*color: #265da1;*/
+}
+
+li
+{
+color: #aaa;
+list-style:none;
+/*margin-left: 15px;*/
+padding:1px 0;
+}
+
+li#recent
+{
+	font-size: 11px;
+	width:auto;
+	overflow:hidden;
+} 
+
+li a { font-size: 13px; margin: 0px; display: inline-block; width: 100%; height: 100%; }
+
+li:hover {
+	background: #f4faff;
+}
+
+img#logo {
+	padding-top: 10px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    /*height: 30px; */
+}
+
+a#website {
+	font-size: 12px;
+}
+
+a.website {
+	color: #1185e0;
+}
+
+.buttons {
+	display:inherit;
+	padding-top: 20px;
+}
+
+a#button {
+	/*font-family: CartoGothic;*/
+	font-size: 12px;
+	border-radius: 6px;
+	padding: 4px;
+	margin: 4px auto;
+	/*background: #4a79ad;*/
+	background: #eee;
+	color: #666;
+	text-decoration: none;
+	display:block;
+	/*width: 100px;*/
+	
+}
+
+a#button:hover {
+	color: #fff;
+	border-radius: 6px;
+	background: #187cd0;
+	text-decoration: none;
+}
+
+
+a:active
+{
+outline: none;
+}
+
+a:focus
+{
+outline-style: none;
+}
+

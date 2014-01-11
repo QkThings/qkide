@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <title>Home</title>
+		<link rel="stylesheet" type="text/css" media="all" href="../css/reset.css" />
+		<link rel="stylesheet" type="text/css" media="all" href="../css/text.css" />
+		<link rel="stylesheet" type="text/css" media="all" href="../css/960.css" />
+		<link rel="stylesheet" type="text/css" media="all" href="../css/style.css" />
+    </head>
+
+  <body>
+	<div class="container_12">
+	  <div class="clear"></div>
+	  <div class="grid_2">
+		<div class="grid_2">
+		<img id="logo" alt="Logo" src="../img/qk_logo_100.png" />
+		<p><a href="">qk-things.com</a></p>
+		</div>
+		<div class="grid_2">
+		<!--<img id="logo" alt="Logo" src="../img/qk_logo_100.png" />-->
+		</div>
+	  </div>
+	  <!-- end .grid_2 -->
+	  <div class="grid_5">
+		<!--<a id="button" href="prj:open">Open Project...</a> <a id="button" href="prj:create">Create Project...</a>-->
+		<div class="recent">
+			<h4>Recently Edited Projects</h4>
+			<ul>
+			{{recentProjects}}
+			<!--<li><a href="prj:recent:dummy"><b>dummy</b></a></li>
+			<li><a href="prj:recent:bareminimum"><b>BareMinimum</b></a><br></li>-->
+			</ul>
+		</div>
+		<div class="clear"></div>
+	  </div>
+	  <div class="clear"></div>
+	</div>
+	<div class="container_12">
+	</div>
+    <div id="wrapper" class="ui-widget-content ui-corner-all">
+		 <!-- <hr id="title-separator" />
+    <img id="logo" alt="Logo" src="../img/qk_logo_100.png" />
+      <h1 id="title">{{ applicationName }}</h1>
+      
+
+      <div id="links-box" class="ui-widget-header ui-corner-all">
+        <table>
+          <tr><td>Arduino homepage:</td><td><a href="http://arduino.cc/">http://arduino.cc/</td></tr>
+          <tr><td>IDE homepage: </td><td><a href="{{ applicationUrl }}">{{ applicationUrl }}</a></td></tr>
+        </table>
+      </div>
+
+      {% block content %}{% endblock %}-->
+    </div>
+  </body>
+</html>

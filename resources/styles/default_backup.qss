@@ -1,0 +1,124 @@
+QTabBar {
+    background-color: #eee;
+    border: none;
+}
+QTabBar::close-button {
+}
+
+QTabBar::tab {
+    color: #888;
+    padding: 6px 8px;
+    background: #eee;
+	border: 0;
+	height: 12px;
+	/*border-left: 1px solid #aaa;*/
+}
+
+QTabBar::tab:only-one {
+
+}
+
+QTabBar::tab:top,
+QTabBar::tab:bottom {
+    padding: 6px 8px;
+    border-right: 1px solid #aaa;
+}
+QTabBar::tab:left,
+QTabBar::tab:right {
+    padding: 8px 6px;
+    border-top: 1px solid #aaa;
+}
+
+QTabBar::tab:top {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom: 3px solid #bbb;
+    margin: 1px 1px 0 0;
+}
+
+QTabBar::tab:bottom {
+    border-top-right-radius: 0px;
+    border-top-left-radius: 0px;
+    border-top: 4px solid transparent;
+    margin: 0 2px 2px 0;
+}
+
+QTabBar::tab:right {
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-right: 2px solid transparent;
+    margin: 0 0 1px 1px;
+}
+
+QTabBar::tab:left {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-left: 1px solid transparent;
+    margin: 0 1px 1px 0;
+}
+
+QTabBar::tab:selected {
+    color: #333;
+}
+
+QTabBar::tab:top:hover {
+    /*border-bottom-color: #ff7f2a;*/
+	border-bottom: 3px solid #aaa;
+}
+QTabBar::tab:top:selected {
+    border-bottom: 3px solid #ff7f2a;
+}
+QTabBar::tab:bottom:selected,
+QTabBar::tab:bottom:hover {
+    border-top-color: #ff7f2a;
+}
+QTabBar::tab:right:selected,
+QTabBar::tab:right:hover {
+    border-right-color: #ff7f2a;
+}
+QTabBar::tab:left:selected,
+QTabBar::tab:left:hover {
+    border-left-color: #ff7f2a;
+}
+
+
+QTabBar::tab:hover,
+QTabBar::tab:focus {
+    color: #333;
+}
+
+/*QTabBar::tab:top:first:selected {
+
+}
+
+QTabBar::tab:bottom:first:selected {
+
+}
+
+QTabBar::tab:right:first:selected {
+    margin-top: 0;
+}
+
+QTabBar::tab:left:first:selected {
+    margin-top: 0;
+}
+
+QTabBar::tab:top:last:selected {
+    margin-right: 0; 
+}
+
+QTabBar::tab:bottom:last:selected {
+    margin-right: 0;
+}
+
+QTabBar::tab:right:last:selected {
+    margin-bottom: 0;
+}
+
+QTabBar::tab:left:last:selected {
+    margin-bottom: 0;
+}
+
+QTabBar::tab:only-one {
+    margin: 0; 
+}*/

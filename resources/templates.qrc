@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>templates/my_board.c</file>
+        <file>templates/my_board.h</file>
+        <file>templates/Makefile</file>
+    </qresource>
+</RCC>

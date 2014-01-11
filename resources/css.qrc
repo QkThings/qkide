@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>css/style.css</file>
+        <file>css/960.css</file>
+        <file>css/reset.css</file>
+        <file>css/text.css</file>
+    </qresource>
+</RCC>

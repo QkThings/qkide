@@ -1,0 +1,37 @@
+
+
+QTabBar {
+ background: #fafafa;
+ color: #888;
+ /*background: qlineargradient(x1: 0, y1: 1, x2: 0, y2: 0,
+        stop: 0 #eee, stop: 1.0 #fcfcfc);*/
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom: 1px solid #fcfcfc;
+}
+
+QTabBar::tab:top {
+	padding: 6px 8px;
+    border-right: 1px solid #fcfcfc;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom: 3px solid transparent;
+    margin: 0px 1px 0 0;
+}
+
+QTabBar::tab:selected {
+    color: black;
+}
+
+QTabBar::tab:top:hover {
+	border-bottom: 3px solid #ccc;
+}
+QTabBar::tab:top:selected {
+ border-bottom: 3px solid #1283de;
+	
+}
+
+QTabBar::tab:hover,
+QTabBar::tab:focus {
+    
+}

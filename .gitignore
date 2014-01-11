@@ -1,0 +1,11 @@
+*.pro.user*
+Makefile*
+/build
+/release
+/debug
+*object_script*
+*.*~
+*.dll
+*.a
+*.o
+*.d

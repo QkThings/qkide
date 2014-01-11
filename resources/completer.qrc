@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>completer/keywords1.txt</file>
+        <file>completer/keywords2.txt</file>
+        <file>completer/keywords3.txt</file>
+    </qresource>
+</RCC>

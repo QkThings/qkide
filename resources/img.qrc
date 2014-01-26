@@ -15,7 +15,6 @@
         <file>img/cfile.png</file>
         <file>img/header.png</file>
         <file>img/bullet_green.png</file>
-        <file>img/bullet_white.png</file>
         <file>img/qk_logo_100.png</file>
         <file>img/create_project.png</file>
         <file>img/home.png</file>
@@ -24,5 +23,10 @@
         <file>img/clean.png</file>
         <file>img/reload.png</file>
         <file>img/explorer.png</file>
+        <file>img/icon_typedef.png</file>
+        <file>img/icon_function.png</file>
+        <file>img/icon_enum.png</file>
+        <file>img/icon_define.png</file>
+        <file>img/bullet_white.png</file>
     </qresource>
 </RCC>

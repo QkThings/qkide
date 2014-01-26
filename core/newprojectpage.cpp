@@ -1,6 +1,6 @@
 #include "newprojectpage.h"
 
-#include "../QkIDE_global.h"
+#include "../qkide_global.h"
 
 #include <QLabel>
 #include <QLineEdit>

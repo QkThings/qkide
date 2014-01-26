@@ -1,5 +1,5 @@
 #include "qkproject.h"
-#include "../QkIDE_global.h"
+#include "../qkide_global.h"
 
 #include <QDebug>
 #include <QDateTime>

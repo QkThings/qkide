@@ -17,24 +17,26 @@
 #include <QBrush>
 #include <QTextBlock>
 #include <QListWidget>
+#include <QToolTip>
+#include <QKeyEvent>
 
 Page::Page(const QString &name, QWidget *parent) :
     QPlainTextEdit(parent),
     m_name(name),
     m_lastTextCursorPosition(0)
 {
-    m_highligher = new Highlighter(this->document());
-    m_highligher->setLanguage("qk");
+    QPalette p = palette();
+    p.setColor(QPalette::Base, Qt::white);
+    p.setColor(QPalette::Text, QColor("#222"));
+    setPalette(p);
 
-//    m_highligher->addKeywords(keywordsFromFile(":/completer/keywords1.txt"), QColor("#3171E8"));
-//    m_highligher->addKeywords(keywordsFromFile(":/completer/keywords2.txt"), QColor("#FF6200"));
-//    m_highligher->addKeywords(keywordsFromFile(":/completer/keywords3.txt"), QColor("#3171E8"));
+//#ifdef Q_OS_LINUX
+//    QFont font("Monospace", 9);
+//#else
+//    QFont font("Consolas", 10);
+//#endif
 
-#ifdef Q_OS_LINUX
-    QFont font("Monospace", 9);
-#else
-    QFont font("Consolas", 10);
-#endif
+    QFont font("Monaco", 9);
     setFont(font);
 
     QFontMetrics fm(font);
@@ -43,14 +45,12 @@ Page::Page(const QString &name, QWidget *parent) :
     setWordWrapMode(QTextOption::NoWrap);
     setUndoRedoEnabled(true);
 
+    m_highligher = new Highlighter(this->document());
+
     m_completer = new Completer();
     m_completer->setWidget(this);
     m_completer->setCompletionMode(QCompleter::PopupCompletion);
     m_completer->setCaseSensitivity(Qt::CaseSensitive);
-    QStringList keywordsFileNames;
-    keywordsFileNames.append(":/completer/keywords1.txt");
-    keywordsFileNames.append(":/completer/keywords2.txt");
-    m_completer->setModel(modelFromFiles(keywordsFileNames));
 
     QObject::connect(m_completer, SIGNAL(activated(QString)),
                      this, SLOT(insertCompletion(QString)));
@@ -84,7 +84,6 @@ QString Page::text()
 
 void Page::slotFind(const QString &text, int flags)
 {
-    qDebug() << "slotFind()" << text;
     find(text, (QTextDocument::FindFlag) flags);
 
 }
@@ -162,8 +161,6 @@ void Page::mousePressEvent(QMouseEvent *e)
 
 void Page::keyPressEvent(QKeyEvent *e)
 {
-    qDebug() << "keyPressEvent()";
-
     if(isReadOnly() && (e->modifiers() == Qt::NoModifier)) {
         qDebug() << "can't edit, read-only file!";
         emit info(tr("This is a read-only project.\n"
@@ -189,9 +186,16 @@ void Page::keyPressEvent(QKeyEvent *e)
     if(!isShortcut)
         QPlainTextEdit::keyPressEvent(e);
 
-    onChar(e->text().at(0).toLatin1());
+//    QPoint toolTipPos = viewport()->mapToGlobal(cursorRect().topRight());
+//    toolTipPos.setY(toolTipPos.y() - 40);
+//    QToolTip::showText(toolTipPos, "qk_setSamplingFrequency(uint32_t freq)");
 
-    if(e->key() == Qt::Key_Home) {
+    onChar(e->text().at(0).toLatin1());
+    if(!m_completer->popup()->isVisible())
+        emit keyPressed();
+
+    if(e->key() == Qt::Key_Home)
+    {
         QString selText;
         QTextCursor tc;
 
@@ -215,7 +219,6 @@ void Page::keyPressEvent(QKeyEvent *e)
                 test = true;
         }
 
-        qDebug() << "selText" << selText;
         if(test) {
 
             int startPos, indentPos, cursorPos, endPos;
@@ -240,8 +243,6 @@ void Page::keyPressEvent(QKeyEvent *e)
                 moveMode = QTextCursor::KeepAnchor;
             else
                 moveMode = QTextCursor::MoveAnchor;
-
-            qDebug() << startPos << indentPos << cursorPos << endPos;
 
             if(select)
                 tc.setPosition(textCursor().selectionEnd(), QTextCursor::MoveAnchor);
@@ -292,10 +293,10 @@ void Page::keyPressEvent(QKeyEvent *e)
         return;
     }
 
-    qDebug() << input;
-    qDebug() << (int)input.at(0).unicode();
-    qDebug() << input.isEmpty();
-    qDebug() << "completionPrefix" << completionPrefix;
+//    qDebug() << input;
+//    qDebug() << (int)input.at(0).unicode();
+//    qDebug() << input.isEmpty();
+//    qDebug() << "completionPrefix" << completionPrefix;
 
     completionPrefix.remove('(');
     completionPrefix.remove(')');
@@ -333,12 +334,6 @@ void Page::insertCompletion(const QString &completion)
     tc.movePosition(QTextCursor::EndOfWord);
     tc.insertText(completion.right(extra));
     setTextCursor(tc);
-    /*if(completion.contains("qk_")) {
-        insertPlainText("();");
-        tc = textCursor();
-        tc.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor, 2);
-        setTextCursor(tc);
-    }*/
 }
 
 int Page::lineNumberAreaWidth()
@@ -611,7 +606,7 @@ void Page::slotTextChanged()
 
 void Page::slotCursorPositionChanged()
 {
-    qDebug() << "cursor pos" << textCursor().position();
+    //qDebug() << "cursor pos" << textCursor().position();
 }
 
 void Page::foldsLinePaintEvent(QPaintEvent *event)

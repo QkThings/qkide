@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>fonts/Monaco.ttf</file>
+        <file>fonts/Inconsolata.otf</file>
+        <file>fonts/EnvyCodeR.ttf</file>
+        <file>fonts/Saxmono.ttf</file>
+        <file>fonts/SourceCodePro.otf</file>
+    </qresource>
+</RCC>

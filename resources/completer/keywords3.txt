@@ -1,3 +1,0 @@
-qk_data_t
-qk_event_t
-qk_config_t

@@ -24,6 +24,8 @@ public:
 
     QString name();
     QString text();
+    Highlighter* highlighter() { return m_highligher; }
+    Completer* completer() { return m_completer; }
     
 
     void foldsLinePaintEvent(QPaintEvent *event);
@@ -37,6 +39,7 @@ protected:
     void focusInEvent(QFocusEvent *e);
 
 signals:
+    void keyPressed();
     void focused();
     void info(QString);
     

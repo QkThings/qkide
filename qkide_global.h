@@ -12,8 +12,11 @@ const QString QK_IDE_NAME_STR = "qkide";
 const QString QK_IDE_C_DEF_STR = "my_board.c";
 const QString QK_IDE_H_DEF_STR = "my_board.h";
 
+const QString CTAGS_EXE = "/resources/tools/bin/ctags";
 const QString TOOLCHAIN_DIR = "/resources/embedded/toolchain";
 const QString QKPROGRAM_DIR = "/resources/embedded/qkprogram";
+const QString TEMP_DIR = "/temp";
+const QString TAGS_DIR = TEMP_DIR + "/tags";
 
 #ifdef Q_OS_WIN
 const QString GNUWIN_DIR = "/resources/gnuwin";

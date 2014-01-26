@@ -2,13 +2,17 @@
 #define EDITOR_H
 
 #include <QWidget>
+#include <QRegExp>
 #include "page.h"
+#include "highlighter.h"
 
 class QSplitter;
 class QTabWidget;
 class QLayout;
 class PageTab;
 class FindReplaceDialog;
+
+
 
 class Editor : public QWidget
 {

@@ -4,10 +4,12 @@
 #include "qkide_global.h"
 #include "core/qkproject.h"
 #include "core/projectwizard.h"
-#include "editor/editor.h"
-#include "browser/browser.h"
 #include "widgets/ptextdock.h"
-#include "projectpreferencesdialog.h"
+#include "browser/browser.h"
+#include "editor/editor.h"
+#include "editor/codeparser.h"
+#include "editor/highlighter.h"
+#include "editor/completer.h"
 
 #include "core/optionsdialog.h"
 #include "ui_optionsdialog.h"
@@ -31,6 +33,7 @@
 #include <QPalette>
 #include <QStackedWidget>
 #include <QVBoxLayout>
+#include <QRegExp>
 
 QkIDE::QkIDE(QWidget *parent) :
     QMainWindow(parent),
@@ -59,11 +62,9 @@ QkIDE::QkIDE(QWidget *parent) :
     m_outputWindow->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::RightDockWidgetArea);
     m_outputWindow->hide();
 
-    //QPalette p;
-    //p.setColor(QPalette::Base, Qt::black);
-    //m_outputWindow->textEdit()->setPalette(p);
 
-    //m_editor->addTab(tr("Welcome"), m_browser);
+    m_testAct = new QAction(tr("TEST"), this);
+    connect(m_testAct, SIGNAL(triggered()), this, SLOT(slotTest()));
 
     m_cleanProcess = new QProcess(this);
     m_cleanProcess->setProcessChannelMode(QProcess::MergedChannels);
@@ -83,6 +84,28 @@ QkIDE::QkIDE(QWidget *parent) :
     connect(m_uploadProcess, SIGNAL(started()), this, SLOT(slotUploadProcessStarted()));
     connect(m_uploadProcess, SIGNAL(readyRead()), this, SLOT(slotUploadProcessOutput()));
     connect(m_uploadProcess, SIGNAL(finished(int)), this, SLOT(slotUploadProcessFinished()));
+
+
+    QDir().mkdir(QApplication::applicationDirPath() + TEMP_DIR);
+
+    m_codeParser = new CodeParser();
+
+    QString qkprogramDir = QApplication::applicationDirPath() + QKPROGRAM_DIR;
+
+    CodeParser *parser = m_codeParser;
+    parser->parse(qkprogramDir);
+    m_libElements.append(parser->allElements());
+
+    Highlighter::addElements(m_libElements, true);
+
+    m_parserTimer = new QTimer(this);
+    m_parserTimer->setInterval(500);
+    m_parserTimer->setSingleShot(true);
+    connect(m_parserTimer, SIGNAL(timeout()), this, SLOT(slotParse()));
+
+    connect(m_codeParser, SIGNAL(parsed()), this, SLOT(slotParsed()));
+
+    connect(this, SIGNAL(currentProjectChanged()), this, SLOT(slotCurrentProjectChanged()));
 
     createActions();
     createMenus();
@@ -237,7 +260,7 @@ void QkIDE::createActions()
     //connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
 
     m_exitAct = new QAction(tr("Exit"), this);
-    //connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
+    //connect(exitAct, SIGNAL(triggered()), this, SLOT(close()))
 
 
     for (int i = 0; i < MaxRecentProjects; ++i) {
@@ -316,34 +339,62 @@ void QkIDE::createToolbars()
 {
     ui->mainToolBar->setFloatable(false);
 
-    ui->mainToolBar->setWindowTitle(tr("Edit Toolbar"));
+    ui->mainToolBar->setWindowTitle(tr("edit toolbar"));
     //ui->mainToolBar->addAction(newFileAct);
     //ui->mainToolBar->addAction(m_homeAct);
     ui->mainToolBar->addAction(m_createProjectAct);
     ui->mainToolBar->addAction(m_openProjectAct);
     ui->mainToolBar->addAction(m_saveProjectAct);
-    ui->mainToolBar->addAction(m_explorerAct);
+    //ui->mainToolBar->addAction(m_explorerAct);
     //ui->mainToolBar->addSeparator();
     //ui->mainToolBar->addAction(m_undoAct);
     //ui->mainToolBar->addAction(m_redoAct);
     //ui->mainToolBar->addAction(m_zoomInAct);
     //ui->mainToolBar->addAction(m_zoomOutAct);
 
-    ui->mainToolBar->setIconSize(QSize(15,15));
+    ui->mainToolBar->setIconSize(QSize(16,16));
     ui->mainToolBar->setMovable(true);
     ui->mainToolBar->setFloatable(false);
 
-    m_programToolBar = new QToolBar(tr("Builder Toolbar"));
+    m_programToolBar = new QToolBar(tr("builder toolbar"));
     m_programToolBar->setMovable(true);
     m_programToolBar->setFloatable(false);
-    m_programToolBar->setIconSize(QSize(15,15));
-
-    addToolBar(m_programToolBar);
+    m_programToolBar->setIconSize(QSize(16,16));
 
     //m_programToolBar->addAction(m_explorerAct);
     m_programToolBar->addAction(m_cleanAct);
     m_programToolBar->addAction(m_verifyAct);
     m_programToolBar->addAction(m_uploadAct);
+
+    m_qkToolbar = new QToolBar(tr("qk toolbar"));
+    m_qkToolbar->setMovable(true);
+    m_qkToolbar->setFloatable(false);
+    m_qkToolbar->setIconSize(QSize(16,16));
+
+    m_qkToolbar->addAction(m_explorerAct);
+    m_qkToolbar->addAction(m_testAct);
+
+    m_comboPort = new QComboBox(m_qkToolbar);
+    m_comboPort->setMaximumHeight(22);
+    m_comboPort->addItem("ttyACM0");
+
+    m_comboBaud = new QComboBox(m_qkToolbar);
+    m_comboBaud->setMaximumHeight(22);
+    m_comboBaud->addItem("38400");
+
+    m_buttonConnect = new QPushButton(tr("Connect"),m_qkToolbar);
+    m_buttonConnect->setMaximumHeight(22);
+
+    QWidget *spacer = new QWidget(m_qkToolbar);
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_qkToolbar->addWidget(spacer);
+    m_qkToolbar->addSeparator();
+    m_qkToolbar->addWidget(m_comboPort);
+    m_qkToolbar->addWidget(m_comboBaud);
+    m_qkToolbar->addWidget(m_buttonConnect);
+
+    addToolBar(m_programToolBar);
+    addToolBar(m_qkToolbar);
 }
 
 void QkIDE::createExamples()
@@ -529,6 +580,8 @@ void QkIDE::slotCreateProject()
         slotSaveAllFiles();
         updateCurrentProject();
         updateInterface();
+
+        emit currentProjectChanged();
     }
 }
 
@@ -609,9 +662,7 @@ void QkIDE::slotShowFolder()
 
 void QkIDE::slotProjectPreferences()
 {
-    ProjectPreferencesDialog dialog(this);
 
-    dialog.exec();
 }
 
 void QkIDE::slotSearch()
@@ -713,7 +764,7 @@ void QkIDE::slotVerifyProcessOutput()
     while(m_verifyProcess->canReadLine())
     {
         QString line = m_verifyProcess->readLine();
-        line.chop(2);
+        line.chop(1);
         if(line.toLower().contains("error"))
             m_outputWindow->append(line, QColor("#EB8679"));
         else if(line.toLower().contains("warning"))
@@ -741,7 +792,11 @@ void QkIDE::slotUpload()
     QString program = makeCmd;
     QStringList arguments;
     arguments << "upload";
+#ifdef Q_OS_WIN
     arguments << "PORT=" + m_uploadPortName;
+#else
+    arguments << "PORT=/dev/" + m_uploadPortName;
+#endif
 
     m_verifyProcess->setWorkingDirectory(m_curProject->path());
     m_verifyProcess->waitForFinished();
@@ -822,6 +877,9 @@ QkProject* QkIDE::createProject(const QString &name)
     m_editor->addPage(hName)->setPlainText(hTemplate);
     m_editor->setCurrentPage(0);
 
+    foreach(Page *page, m_editor->pages())
+        setupPage(page);
+
     QkProject *project = new QkProject(name);
     project->addFile(cName);
     project->addFile(hName);
@@ -857,21 +915,33 @@ void QkIDE::openProject(const QString &path)
 
             page = m_editor->addPage(fileName);
             page->setPlainText(text);
-            page->setReadOnly(m_curProject->readOnly());
-            connect(page, SIGNAL(info(QString)), this, SLOT(showInfoMessage(QString)));
+            setupPage(page);
         }
 
         m_editor->setCurrentPage(0);
 
+        slotParse();
         updateCurrentProject();
         updateInterface();
     }
+
+    emit currentProjectChanged();
+}
+
+void QkIDE::setupPage(Page *page)
+{
+    page->setReadOnly(m_curProject->readOnly());
+
+    Completer *completer = page->completer();
+    completer->addElements(m_libElements, true);
+    connect(page, SIGNAL(info(QString)), this, SLOT(showInfoMessage(QString)));
+    connect(page, SIGNAL(keyPressed()), m_parserTimer, SLOT(start()));
 }
 
 void QkIDE::createMakefile(QkProject *project)
 {
     qDebug() << "create makefile";
-    QFile makefileTemplateFile(":/templates/Makefile");
+    QFile makefileTemplateFile(":/templates/makefile_template");
 
     if(!makefileTemplateFile.open(QIODevice::ReadOnly)) {
         qDebug() << "unable to open makefile template";
@@ -940,7 +1010,7 @@ void QkIDE::slotRemoveSplit()
 
 void QkIDE::updateWindowTitle()
 {
-    setWindowTitle(m_curProject->name() + " | " + QK_IDE_NAME_STR);
+    setWindowTitle(QK_IDE_NAME_STR + " | " + m_curProject->name());
 }
 
 void QkIDE::updateCurrentProject()
@@ -982,7 +1052,7 @@ void QkIDE::updateRecentProjects()
         m_recentProjectsActs[j]->setVisible(false);
 
     QString htmlText;
-    QString str = "<li id=\"recent\"><a href=\"prj:recent:%1\" title=\"%3\"><b>%2</b></a><br>%3</li>\n";
+    QString str = "<li id=\"recent\"><a href=\"prj:recent:%1\"><b>%2</b></a><br>%3</li>\n";
 
     for(i = 0; i < numRecentProjects; i++) {
         htmlText.append(tr(str.toLatin1().data()).arg(i)
@@ -1020,7 +1090,7 @@ void QkIDE::updateRecentProjects()
     homeTemplateFile.close();
     homeFile.close();
 
-    m_browser->load(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/resources/html/home.html"));
+    m_browser->load(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/resources/html/reference.html"));
 
     qDebug() << "recentProjects updated";
 }
@@ -1098,4 +1168,62 @@ void QkIDE::closeEvent(QCloseEvent *e)
         m_verifyProcess->kill();
         m_uploadProcess->kill();
     }
+}
+
+void QkIDE::slotCurrentProjectChanged()
+{
+    if(m_curProject != 0)
+    {
+        //m_codeParserThread->setParserPath(m_curProject->path());
+    }
+}
+
+void QkIDE::slotParse()
+{
+    QString tagsPath = QApplication::applicationDirPath() + TAGS_DIR;
+
+    QDir(tagsPath).removeRecursively();
+    QDir().mkdir(tagsPath);
+
+    QFile file;
+    foreach(Page *page, m_editor->pages())
+    {
+        QString destPath = tagsPath + "/" + page->name();
+        file.setFileName(destPath);
+        if(file.open(QIODevice::WriteOnly))
+        {
+            file.write(page->text().toUtf8());
+            file.close();
+        }
+        else
+            qDebug() << "cant create file" << destPath << file.errorString();
+    }
+
+    CodeParser *parser = m_codeParser;
+    parser->parse(tagsPath);
+}
+
+void QkIDE::slotParsed()
+{
+    qDebug() << "QkIDE::slotParsed()";
+
+
+    Highlighter::clearElements();
+    Highlighter::addElements(m_codeParser->allElements());
+
+    foreach(Page *page, m_editor->pages())
+    {
+        Completer *completer = page->completer();
+        if(!completer->popup()->isVisible())
+        {
+            page->completer()->clearElements();
+            page->completer()->addElements(m_codeParser->allElements());
+        }
+        page->highlighter()->rehighlight();
+    }
+}
+
+void QkIDE::slotTest()
+{
+    qDebug() << "TEST";
 }

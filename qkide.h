@@ -2,11 +2,15 @@
 #define QKIDE_H
 
 #include <QMainWindow>
-#include "QkIDE_global.h"
+#include "qkide_global.h"
+#include "editor/codeparser.h"
 
 class QkProject;
 class Browser;
 class Editor;
+class Page;
+class Completer;
+
 class QSplitter;
 class QProcess;
 class QStackedWidget;
@@ -15,6 +19,12 @@ class HomeHeader;
 class QkExplorerWidget;
 class QkSerialConnection;
 class QkConnectionThread;
+class CodeParser;
+class CodeParserThread;
+class QComboBox;
+class QPushButton;
+
+
 
 namespace Ui {
 class QkIDE;
@@ -73,8 +83,15 @@ private slots:
     void slotSplitHorizontal();
     void slotSplitVertical();
     void slotRemoveSplit();
+    void slotCurrentProjectChanged();
+    void slotParse();
+    void slotParsed();
     bool doYouReallyWantToQuit();
     void updateInterface();
+    void slotTest();
+
+signals:
+    void currentProjectChanged();
 
 private:
     void createActions();
@@ -91,6 +108,8 @@ private:
     void updateWindowTitle();
     void updateCurrentProject();
     void updateRecentProjects();
+
+    void setupPage(Page *page);
 
     enum Constants {
         MaxRecentProjects = 6
@@ -110,6 +129,12 @@ private:
 
     QkProject *m_curProject;
     QList<QkProject*> m_projects;
+
+    CodeParser *m_codeParser;
+    CodeParserThread *m_codeParserThread;
+    QTimer *m_parserTimer;
+
+    QList<CodeParser::Element> m_libElements;
 
     QLayout *m_mainLayout;
 
@@ -136,6 +161,7 @@ private:
     QAction *m_uploadAct;
 
     QAction *m_explorerAct;
+    QAction *m_testAct;
 
     QAction *m_toggleFoldAct;
 
@@ -166,6 +192,7 @@ private:
     QList<RecentProject> m_recentProjects;
 
     QToolBar *m_programToolBar;
+    QToolBar *m_qkToolbar;
 
     Browser *m_browser;
     QWidget *m_homeWidget;
@@ -182,6 +209,10 @@ private:
 
     QkSerialConnection *m_serialConn;
     QkConnectionThread *m_connThread;
+
+    QComboBox *m_comboPort;
+    QComboBox *m_comboBaud;
+    QPushButton *m_buttonConnect;
 
 
     QkExplorerWidget *m_explorerWidget;

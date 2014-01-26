@@ -9,7 +9,7 @@
 Browser::Browser(QWidget *parent) :
     QWebView(parent)
 {
-    page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+    //page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
     connect(this, SIGNAL(linkClicked(const QUrl &)), this, SLOT(slotHandleLink(const QUrl &)));
 
     show();
@@ -25,6 +25,7 @@ void Browser::slotHandleLink(const QUrl &url)
 
     int i;
 
+
     if(fields.at(0) == "prj") {
         if(fields.at(1) == "create") {
             emit createProject();
@@ -36,6 +37,13 @@ void Browser::slotHandleLink(const QUrl &url)
             i = fields.at(2).toInt();
             emit openRecentProject(i);
         }
+    }
+    else if(fields.at(0) == "show")
+    {
+        if(fields.at(1) == "home")
+            load(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/resources/html/home.html"));
+        else if(fields.at(1) == "reference")
+            load(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/resources/html/reference.html"));
     }
 }
 

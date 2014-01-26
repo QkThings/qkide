@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QStyle>
 #include <QStyleFactory>
+#include <QFontDatabase>
 #include "qkide.h"
 
 int main(int argc, char *argv[])
@@ -15,6 +16,12 @@ int main(int argc, char *argv[])
     QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, a.applicationDirPath());
     QSettings::setDefaultFormat(QSettings::IniFormat);
 
+    QFontDatabase::addApplicationFont("://fonts/Monaco.ttf");
+    QFontDatabase::addApplicationFont("://fonts/Inconsolata.otf");
+    QFontDatabase::addApplicationFont("://fonts/EnvyCodeR.ttf");
+    QFontDatabase::addApplicationFont("://fonts/Saxmono.ttf");
+    QFontDatabase::addApplicationFont("://fonts/SourceCodePro.otf");
+    QFontDatabase::addApplicationFont("://fonts/LiberationMono.ttf");
 
     QStyle *style = QStyleFactory::create("Fusion");
     a.setStyle(style);

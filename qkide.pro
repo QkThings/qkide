@@ -11,11 +11,16 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets webkitwidgets serialport
 TARGET = qkide
 TEMPLATE = app
 
+QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/\',-z,origin'
+
 INCLUDEPATH += core
 INCLUDEPATH += gui
 INCLUDEPATH += gui/widgets
+INCLUDEPATH += editor
 
 INCLUDEPATH += ../qkcore
+LIBS += -lqkcore
+QMAKE_LIBDIR += ../qkcore/release
 
 INCLUDEPATH += ../qkconnect
 LIBS += -lqkconnect
@@ -41,7 +46,7 @@ SOURCES += main.cpp\
     gui/widgets/ptextedit.cpp \
     gui/editor/findreplacedialog.cpp \
     core/optionsdialog.cpp \
-    core/projectpreferencesdialog.cpp
+    gui/editor/codeparser.cpp
 
 HEADERS  += qkide.h \
     qkide_global.h \
@@ -59,7 +64,7 @@ HEADERS  += qkide.h \
     gui/widgets/ptextedit.h \
     gui/editor/findreplacedialog.h \
     core/optionsdialog.h \
-    core/projectpreferencesdialog.h
+    gui/editor/codeparser.h
 
 FORMS    += qkide.ui \
     gui/editor/findreplacedialog.ui \
@@ -70,8 +75,8 @@ RESOURCES += \
     resources/img.qrc \
     resources/templates.qrc \
     resources/syntax.qrc \
-    resources/completer.qrc \
-    resources/html.qrc
+    resources/html.qrc \
+    resources/fonts.qrc
 
 CONFIG(debug, debug|release) {
     DESTDIR = debug
@@ -88,7 +93,7 @@ win32 {
   deploy.commands = deploy.bat
 }
 unix {
-  deploy.commands = deploy.sh
+  deploy.commands = ./deploy.sh
 }
 macx {
 

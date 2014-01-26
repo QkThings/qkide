@@ -1,6 +1,6 @@
 #include <QTextEdit>
 
-#include "QkIDE_global.h"
+#include "qkide_global.h"
 #include "ptextdock.h"
 #include "ptextedit.h"
 

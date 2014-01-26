@@ -2,7 +2,7 @@
 #include "newprojectpage.h"
 
 #include "../qkide.h"
-#include "../QkIDE_global.h"
+#include "../qkide_global.h"
 
 #include <QVariant>
 #include <QDir>

@@ -68,8 +68,9 @@ body{
 
 h1 {
 	font-family: PT-Sans;
-	font-size: 20px;
-	color: #666;
+	font-size: 22px;
+	color: #444;
+	overflow:hidden;
 }
 h2 {
 	font-size: 16px;
@@ -94,7 +95,7 @@ li
 color: #aaa;
 list-style:none;
 /*margin-left: 15px;*/
-padding:1px 0;
+padding:1px 3px;
 }
 
 li#recent
@@ -132,8 +133,9 @@ a.website {
 }
 
 a#button {
-	/*font-family: CartoGothic;*/
-	font-size: 12px;
+	font-family: PT-Sans;
+	font-size: 14px;
+	font-weight: bold;
 	border-radius: 6px;
 	padding: 4px;
 	margin: 4px auto;
@@ -142,11 +144,32 @@ a#button {
 	color: #666;
 	text-decoration: none;
 	display:block;
-	/*width: 100px;*/
-	
+	/*width: 100px;*/	
 }
 
 a#button:hover {
+	color: #fff;
+	border-radius: 6px;
+	background: #187cd0;
+	text-decoration: none;
+}
+
+a#selbutton {
+	font-family: PT-Sans;
+	font-size: 14px;
+	font-weight: bold;
+	border-radius: 6px;
+	padding: 4px;
+	margin: 4px auto;
+	/*background: #4a79ad;*/
+	background: #ddd;
+	color: #666;
+	text-decoration: none;
+	display:block;
+	/*width: 100px;*/
+}
+
+a#button:active {
 	color: #fff;
 	border-radius: 6px;
 	background: #187cd0;

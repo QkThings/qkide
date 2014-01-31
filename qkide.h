@@ -23,6 +23,7 @@ class CodeParser;
 class CodeParserThread;
 class QComboBox;
 class QPushButton;
+class QToolButton;
 
 
 
@@ -78,6 +79,8 @@ private slots:
     void slotVerify();
     void slotUpload();
     void slotShowHideExplorer();
+    void slotShowHideTarget();
+    void slotShowHideConnect();
     void slotToggleFold();
     void slotFullScreen(bool on);
     void slotSplitHorizontal();
@@ -88,6 +91,8 @@ private slots:
     void slotParsed();
     bool doYouReallyWantToQuit();
     void updateInterface();
+    void slotError(const QString &message);
+    void slotReloadSerialPorts();
     void slotTest();
 
 signals:
@@ -161,6 +166,8 @@ private:
     QAction *m_uploadAct;
 
     QAction *m_explorerAct;
+    QAction *m_connectAct;
+    QAction *m_targetAct;
     QAction *m_testAct;
 
     QAction *m_toggleFoldAct;
@@ -210,6 +217,9 @@ private:
     QkSerialConnection *m_serialConn;
     QkConnectionThread *m_connThread;
 
+    QComboBox *m_comboTarget;
+
+    QAction *m_buttonRefreshPorts;
     QComboBox *m_comboPort;
     QComboBox *m_comboBaud;
     QPushButton *m_buttonConnect;

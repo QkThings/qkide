@@ -10,6 +10,7 @@ Browser::Browser(QWidget *parent) :
     QWebView(parent)
 {
     //page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+    page()->setLinkDelegationPolicy(QWebPage::DelegateExternalLinks);
     connect(this, SIGNAL(linkClicked(const QUrl &)), this, SLOT(slotHandleLink(const QUrl &)));
 
     show();

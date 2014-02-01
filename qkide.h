@@ -78,6 +78,7 @@ private slots:
     void slotClean();
     void slotVerify();
     void slotUpload();
+    void slotConnect();
     void slotShowHideExplorer();
     void slotShowHideTarget();
     void slotShowHideConnect();
@@ -227,6 +228,8 @@ private:
 
     QkExplorerWidget *m_explorerWidget;
     QDockWidget *m_explorerDock;
+
+    QMainWindow *m_explorerWindow;
 
 };
 

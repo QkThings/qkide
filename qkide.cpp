@@ -148,15 +148,25 @@ QkIDE::QkIDE(QWidget *parent) :
 //    if(m_serialConn == 0)
 //        qDebug() << "serialConn == 0";
 
-    m_explorerWidget = new QkExplorerWidget(this);
+
+
+//    m_explorerDock = new QDockWidget(tr("Explorer"), this);
+//    //m_explorerDock->setWidget(m_explorerWidget);
+//    m_explorerDock->hide();
+
+//    addDockWidget(Qt::RightDockWidgetArea, m_explorerDock, Qt::Horizontal);
+
+
+    m_explorerWindow = new QMainWindow(this, Qt::Tool);
+
+    m_explorerWidget = new QkExplorerWidget(m_explorerWindow);
     m_explorerWidget->setCurrentConnection(m_serialConn);
     m_explorerWidget->setModeFlags(QkExplorerWidget::mfSingleNode | QkExplorerWidget::mfSingleConnection);
 
-    m_explorerDock = new QDockWidget(tr("Explorer"), this);
-    m_explorerDock->setWidget(m_explorerWidget);
-    m_explorerDock->hide();
+    m_explorerWindow->setCentralWidget(m_explorerWidget);
 
-    addDockWidget(Qt::RightDockWidgetArea, m_explorerDock, Qt::Horizontal);
+    m_explorerWidget->show();
+    //m_explorerWindow->show();
 
 //    m_connThread = new QThread();
 //    m_serialConn->setParent(0);
@@ -339,9 +349,9 @@ void QkIDE::createMenus()
     ui->menuBar->addMenu(m_editMenu);
     //ui->menuBar->addMenu(m_viewMenu);
     ui->menuBar->addMenu(m_projectMenu);
-    ui->menuBar->addMenu(m_toolsMenu);
-    ui->menuBar->addMenu(m_windowMenu);
-    ui->menuBar->addMenu(m_helpMenu);
+    //ui->menuBar->addMenu(m_toolsMenu);
+    //ui->menuBar->addMenu(m_windowMenu);
+    //ui->menuBar->addMenu(m_helpMenu);
 }
 
 void QkIDE::createToolbars()
@@ -380,13 +390,13 @@ void QkIDE::createToolbars()
     m_qkToolbar->setFloatable(false);
     m_qkToolbar->setIconSize(QSize(16,16));
 
-    m_qkToolbar->addAction(m_explorerAct);
+
 //    m_qkToolbar->addAction(m_targetAct);
 //    m_qkToolbar->addAction(m_connectAct);
 //    m_qkToolbar->addAction(m_testAct);
 
-    m_comboTarget = new QComboBox(m_qkToolbar);
-    m_comboTarget->setMinimumWidth(120);
+//    m_comboTarget = new QComboBox(m_qkToolbar);
+//    m_comboTarget->setMinimumWidth(120);
 
     m_buttonRefreshPorts = new QAction(QIcon(":/img/reload.png"),tr("Reload"),this);
     connect(m_buttonRefreshPorts, SIGNAL(triggered()), this, SLOT(slotReloadSerialPorts()));
@@ -398,12 +408,14 @@ void QkIDE::createToolbars()
 //    m_comboBaud->addItem("38400");
 
     m_buttonConnect = new QPushButton(tr("Connect"),m_qkToolbar);
+    connect(m_buttonConnect, SIGNAL(clicked()), this, SLOT(slotConnect()));
 
     QWidget *spacer = new QWidget(m_qkToolbar);
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_qkToolbar->addWidget(spacer);
-    m_qkToolbar->addWidget(m_comboTarget);
-    m_qkToolbar->addSeparator();
+    m_qkToolbar->addAction(m_explorerAct);
+//    m_qkToolbar->addWidget(m_comboTarget);
+//    m_qkToolbar->addSeparator();
     m_qkToolbar->addAction(m_buttonRefreshPorts);
     m_qkToolbar->addWidget(m_comboPort);
     //m_qkToolbar->addWidget(m_comboBaud);
@@ -444,9 +456,9 @@ void QkIDE::createExamples()
 
 void QkIDE::setupLayout()
 {
-    setDockOptions(QMainWindow::AllowNestedDocks);
+//    setDockOptions(QMainWindow::AllowNestedDocks);
 
-    addDockWidget(Qt::BottomDockWidgetArea, m_outputWindow);
+//    addDockWidget(Qt::BottomDockWidgetArea, m_outputWindow);
 
     setCentralWidget(m_stackedWidget);
 
@@ -847,10 +859,10 @@ void QkIDE::slotProcessFinished()
 
 void QkIDE::slotShowHideExplorer()
 {
-    if(m_explorerDock->isVisible())
-        m_explorerDock->hide();
+    if(m_explorerWidget->isVisible())
+        m_explorerWidget->hide();
     else
-        m_explorerDock->show();
+        m_explorerWidget->show();
 }
 
 void QkIDE::slotShowHideTarget()
@@ -1150,11 +1162,13 @@ void QkIDE::updateInterface()
     {
         m_buttonConnect->setText(tr("Connected"));
         m_buttonConnect->setPalette(QPalette(QColor("#b5eaa5")));
+        m_comboPort->setDisabled(true);
     }
     else
     {
         m_buttonConnect->setText(tr("Disconnected"));
         m_buttonConnect->setPalette(QPalette(QColor("#f8c3c2")));
+        m_comboPort->setDisabled(false);
     }
 }
 
@@ -1219,6 +1233,29 @@ void QkIDE::slotCurrentProjectChanged()
     {
         //m_codeParserThread->setParserPath(m_curProject->path());
     }
+}
+
+void QkIDE::slotConnect()
+{
+    qDebug() << "slotConnect()";
+
+    if(m_serialConn->isConnected())
+    {
+        ui->statusBar->showMessage(tr("Disconnecting..."));
+        m_serialConn->close();
+        ui->statusBar->showMessage(tr("Disconnected"), 1000);
+    }
+    else
+    {
+        m_serialConn->setBaudRate(38400);
+        m_serialConn->setPortName(m_comboPort->currentText());
+        ui->statusBar->showMessage(tr("Connecting"));
+        if(m_serialConn->open())
+            ui->statusBar->showMessage(tr("Connected"), 1000);
+        else
+            ui->statusBar->clearMessage();
+    }
+    updateInterface();
 }
 
 void QkIDE::slotParse()

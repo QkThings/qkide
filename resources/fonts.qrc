@@ -5,5 +5,6 @@
         <file>fonts/EnvyCodeR.ttf</file>
         <file>fonts/Saxmono.ttf</file>
         <file>fonts/SourceCodePro.otf</file>
+        <file>fonts/Ubuntu-R.ttf</file>
     </qresource>
 </RCC>

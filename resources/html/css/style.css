@@ -6,6 +6,12 @@ src: url('../fonts/PTSans.ttf')
 
 @font-face
 {
+font-family: Ubuntu;
+src: url('../fonts/Ubuntu.ttf')
+} 
+
+@font-face
+{
 font-family: OpenSans;
 src: url('../fonts/OpenSans-Regular.ttf')
 } 
@@ -67,9 +73,10 @@ body{
 }
 
 h1 {
-	font-family: PT-Sans;
-	font-size: 22px;
-	color: #444;
+	font-family: Ubuntu;
+	font-weight: 100;
+	font-size: 20px;
+	color: #111;
 	overflow:hidden;
 }
 h2 {
@@ -133,15 +140,15 @@ a.website {
 }
 
 a#button {
-	font-family: PT-Sans;
-	font-size: 14px;
+	font-family: Ubuntu;
+	font-size: 12px;
 	font-weight: bold;
-	border-radius: 6px;
+	border-radius: 4px;
 	padding: 4px;
 	margin: 4px auto;
 	/*background: #4a79ad;*/
 	background: #eee;
-	color: #666;
+	color: #888;
 	text-decoration: none;
 	display:block;
 	/*width: 100px;*/	
@@ -149,16 +156,15 @@ a#button {
 
 a#button:hover {
 	color: #666;
-	border-radius: 6px;
 	background: #ddd;
 	text-decoration: none;
 }
 
 a#selbutton {
-	font-family: PT-Sans;
-	font-size: 14px;
+	font-family: Ubuntu;
+	font-size: 12px;
 	font-weight: bold;
-	border-radius: 6px;
+	border-radius: 4px;
 	padding: 4px;
 	margin: 4px auto;
 	/*background: #4a79ad;*/

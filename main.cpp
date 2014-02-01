@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
     QFontDatabase::addApplicationFont("://fonts/Saxmono.ttf");
     QFontDatabase::addApplicationFont("://fonts/SourceCodePro.otf");
     QFontDatabase::addApplicationFont("://fonts/LiberationMono.ttf");
+    QFontDatabase::addApplicationFont("://fonts/Ubuntu-R.ttf");
 
     QStyle *style = QStyleFactory::create("Fusion");
     a.setStyle(style);

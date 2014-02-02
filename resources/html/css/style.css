@@ -66,21 +66,23 @@ body{
     position:fixed;
     bottom: 0;
     height: 40px;
-    background-color:#eee;
     width: auto;
-	height: auto;
-	padding: 10px;
+height: auto;
+padding: 10px;
 }
 
 h1 {
 	font-family: Ubuntu;
 	font-weight: 100;
 	font-size: 20px;
-	color: #111;
+	color: #187cd0;
 	overflow:hidden;
 }
 h2 {
-	font-size: 16px;
+	font-family: Ubuntu;
+	font-size: 18px;
+	font-weight: 100;
+	color: #187cd0;
 }
 h3 {
 	font-size: 14px;

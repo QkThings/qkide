@@ -162,10 +162,8 @@ QkIDE::QkIDE(QWidget *parent) :
     m_explorerWidget = new QkExplorerWidget(m_explorerWindow);
     m_explorerWidget->setCurrentConnection(m_serialConn);
     m_explorerWidget->setModeFlags(QkExplorerWidget::mfSingleNode | QkExplorerWidget::mfSingleConnection);
-
     m_explorerWindow->setCentralWidget(m_explorerWidget);
-
-    m_explorerWidget->show();
+    m_explorerWidget->hide();
     //m_explorerWindow->show();
 
 //    m_connThread = new QThread();
@@ -398,17 +396,17 @@ void QkIDE::createToolbars()
 //    m_comboTarget = new QComboBox(m_qkToolbar);
 //    m_comboTarget->setMinimumWidth(120);
 
-    m_buttonRefreshPorts = new QAction(QIcon(":/img/reload.png"),tr("Reload"),this);
-    connect(m_buttonRefreshPorts, SIGNAL(triggered()), this, SLOT(slotReloadSerialPorts()));
+//    m_buttonRefreshPorts = new QAction(QIcon(":/img/reload.png"),tr("Reload"),this);
+//    connect(m_buttonRefreshPorts, SIGNAL(triggered()), this, SLOT(slotReloadSerialPorts()));
 
-    m_comboPort = new QComboBox(m_qkToolbar);
-    m_comboPort->addItem("ttyACM0");
+//    m_comboPort = new QComboBox(m_qkToolbar);
+//    m_comboPort->addItem("ttyACM0");
 
 //    m_comboBaud = new QComboBox(m_qkToolbar);
 //    m_comboBaud->addItem("38400");
 
-    m_buttonConnect = new QPushButton(tr("Connect"),m_qkToolbar);
-    connect(m_buttonConnect, SIGNAL(clicked()), this, SLOT(slotConnect()));
+//    m_buttonConnect = new QPushButton(tr("Connect"),m_qkToolbar);
+//    connect(m_buttonConnect, SIGNAL(clicked()), this, SLOT(slotConnect()));
 
     QWidget *spacer = new QWidget(m_qkToolbar);
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -416,10 +414,10 @@ void QkIDE::createToolbars()
     m_qkToolbar->addAction(m_explorerAct);
 //    m_qkToolbar->addWidget(m_comboTarget);
 //    m_qkToolbar->addSeparator();
-    m_qkToolbar->addAction(m_buttonRefreshPorts);
-    m_qkToolbar->addWidget(m_comboPort);
+    //m_qkToolbar->addAction(m_buttonRefreshPorts);
+    //m_qkToolbar->addWidget(m_comboPort);
     //m_qkToolbar->addWidget(m_comboBaud);
-    m_qkToolbar->addWidget(m_buttonConnect);
+    //m_qkToolbar->addWidget(m_buttonConnect);
 
     addToolBar(m_programToolBar);
     addToolBar(m_qkToolbar);
@@ -456,9 +454,8 @@ void QkIDE::createExamples()
 
 void QkIDE::setupLayout()
 {
-//    setDockOptions(QMainWindow::AllowNestedDocks);
-
-//    addDockWidget(Qt::BottomDockWidgetArea, m_outputWindow);
+    setDockOptions(QMainWindow::AllowNestedDocks);
+    addDockWidget(Qt::BottomDockWidgetArea, m_outputWindow);
 
     setCentralWidget(m_stackedWidget);
 
@@ -572,7 +569,8 @@ void QkIDE::slotOpenExample()
 void QkIDE::slotOpenRecentProject()
 {
     QAction *action = qobject_cast<QAction *>(sender());
-    if (action){
+    if (action)
+    {
         qDebug() << "open recent project:" << action->data().toString();
         RecentProject recent;
         foreach(RecentProject rp, m_recentProjects) {
@@ -875,9 +873,9 @@ void QkIDE::slotShowHideTarget()
 
 void QkIDE::slotShowHideConnect()
 {
-    bool hide = m_buttonConnect->isVisible();
-    m_buttonConnect->setHidden(hide);
-    m_comboPort->setHidden(hide);
+//    bool hide = m_buttonConnect->isVisible();
+//    m_buttonConnect->setHidden(hide);
+//    m_comboPort->setHidden(hide);
 }
 
 void QkIDE::slotToggleFold()
@@ -1103,9 +1101,11 @@ void QkIDE::updateRecentProjects()
                                                  .arg(m_recentProjects[i].path +
                                                       m_recentProjects[i].name + ".qkpro"));
     }
-    if(htmlText.isEmpty()) {
-        htmlText.append(tr("(empty)"));
-    }
+    //htmlText.clear();
+    if(htmlText.isEmpty())
+        htmlText.append(tr("Seems you don't have any projects to show here yet. You can start by"
+                           " <a href=\"prj:create\">creating a new one</a>"
+                           " or by checking some examples under <i>File>Examples</i>."));
 
     qDebug() << "create html";
 
@@ -1155,20 +1155,6 @@ void QkIDE::updateInterface()
         m_cleanAct->setEnabled(true);
         m_verifyAct->setEnabled(true);
         m_uploadAct->setEnabled(true);
-    }
-
-    bool connected = (m_serialConn != 0 && m_serialConn->isConnected() ? true : false);
-    if(connected)
-    {
-        m_buttonConnect->setText(tr("Connected"));
-        m_buttonConnect->setPalette(QPalette(QColor("#b5eaa5")));
-        m_comboPort->setDisabled(true);
-    }
-    else
-    {
-        m_buttonConnect->setText(tr("Disconnected"));
-        m_buttonConnect->setPalette(QPalette(QColor("#f8c3c2")));
-        m_comboPort->setDisabled(false);
     }
 }
 
@@ -1237,25 +1223,25 @@ void QkIDE::slotCurrentProjectChanged()
 
 void QkIDE::slotConnect()
 {
-    qDebug() << "slotConnect()";
+//    qDebug() << "slotConnect()";
 
-    if(m_serialConn->isConnected())
-    {
-        ui->statusBar->showMessage(tr("Disconnecting..."));
-        m_serialConn->close();
-        ui->statusBar->showMessage(tr("Disconnected"), 1000);
-    }
-    else
-    {
-        m_serialConn->setBaudRate(38400);
-        m_serialConn->setPortName(m_comboPort->currentText());
-        ui->statusBar->showMessage(tr("Connecting"));
-        if(m_serialConn->open())
-            ui->statusBar->showMessage(tr("Connected"), 1000);
-        else
-            ui->statusBar->clearMessage();
-    }
-    updateInterface();
+//    if(m_serialConn->isConnected())
+//    {
+//        ui->statusBar->showMessage(tr("Disconnecting..."));
+//        m_serialConn->close();
+//        ui->statusBar->showMessage(tr("Disconnected"), 1000);
+//    }
+//    else
+//    {
+//        m_serialConn->setBaudRate(38400);
+//        m_serialConn->setPortName(m_comboPort->currentText());
+//        ui->statusBar->showMessage(tr("Connecting"));
+//        if(m_serialConn->open())
+//            ui->statusBar->showMessage(tr("Connected"), 1000);
+//        else
+//            ui->statusBar->clearMessage();
+//    }
+//    updateInterface();
 }
 
 void QkIDE::slotParse()
@@ -1310,15 +1296,15 @@ void QkIDE::slotError(const QString &message)
 
 void QkIDE::slotReloadSerialPorts()
 {
-    QStringList list;
-    foreach(QSerialPortInfo info, QSerialPortInfo::availablePorts())
-    {
-        QString portName = info.portName();
-        if(portName.contains("ACM") || portName.contains("USB"))
-            list.append(portName);
-    }
-    m_comboPort->clear();
-    m_comboPort->addItems(list);
+//    QStringList list;
+//    foreach(QSerialPortInfo info, QSerialPortInfo::availablePorts())
+//    {
+//        QString portName = info.portName();
+//        if(portName.contains("ACM") || portName.contains("USB"))
+//            list.append(portName);
+//    }
+//    m_comboPort->clear();
+//    m_comboPort->addItems(list);
 }
 
 void QkIDE::slotTest()

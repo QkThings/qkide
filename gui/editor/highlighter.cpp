@@ -27,7 +27,6 @@ Highlighter::Highlighter(QTextDocument *document) : QSyntaxHighlighter(document)
 
 void Highlighter::setupPermanentRules()
 {   
-    qDebug() << "Highlighter::setupPermanentRules()";
     QString keywordColor;
     QString keyword;
     QTextCharFormat keywordFormat;
@@ -94,8 +93,6 @@ void Highlighter::setupPermanentRules()
         if(rule.pattern.isEmpty())
             m_permanentRules.append(rule);
 
-        qDebug() << "rule" << rule.elementName << rule.format.foreground().color();
-
         stop = false;
     }
 }
@@ -160,52 +157,6 @@ void Highlighter::clearElements(bool permanent)
         m_permanentRules.clear();
 }
 
-//void Highlighter::addRule(const QRegExp &regex, SyntaxElement element, const QColor &color)
-//{
-//    Highlighter::Rule rule;
-//    QTextCharFormat textFormat;
-//    QColor textColor;
-
-//    switch(element)
-//    {
-//    case Define:
-//        rule.elementName = "define";
-//        break;
-//    case Function:
-//        rule.elementName = "function";
-
-//        break;
-//    case Custom:
-//    default:
-//        rule.elementName = "custom";
-//        textColor = color;
-//    }
-//    switch(element)
-//    {
-//    case Define:
-//    case Function:
-//        textColor = elementColor(rule.elementName);
-//        break;
-//    default:
-//        textColor = color;
-//    }
-
-//    textFormat.setForeground(QBrush(textColor));
-//    rule.format = textFormat;
-//    rule.pattern = regex;
-
-//    if(m_permanentRule)
-//        m_permanentRules.append(rule);
-//    else
-//        m_extraRules.append(rule);
-//}
-
-//void Highlighter::clearRules()
-//{
-//    m_extraRules.clear();
-//}
-
-
 QColor Highlighter::elementColor(const QString &elementName)
 {
     foreach(const Rule &rule, m_permanentRules)
@@ -221,9 +172,6 @@ void Highlighter::applyRuleToText(const Rule &rule, const QString &text)
     QRegExp expression(rule.pattern);
     int index = expression.indexIn(text);
 
-    //if(index >= 0)
-      //  qDebug() << rule.pattern << "---" << text;
-
     while (index >= 0)
     {
         int length = expression.matchedLength();
@@ -234,9 +182,6 @@ void Highlighter::applyRuleToText(const Rule &rule, const QString &text)
 
 void Highlighter::highlightBlock(const QString &text)
 {
-    if(m_extraRules.isEmpty())
-        qDebug() << "extra rules EMPTY";
-
     foreach (const Rule &rule, m_extraRules)
         applyRuleToText(rule, text);
 

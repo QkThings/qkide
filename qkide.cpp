@@ -43,6 +43,8 @@ QkIDE::QkIDE(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    m_curProject = 0;
+
     m_browser = new Browser(this);
     connect(m_browser, SIGNAL(createProject()), this, SLOT(slotCreateProject()));
     connect(m_browser, SIGNAL(openProject()), this, SLOT(slotOpenProject()));
@@ -91,13 +93,13 @@ QkIDE::QkIDE(QWidget *parent) :
 
     m_codeParser = new CodeParser();
 
-    QString qkprogramDir = QApplication::applicationDirPath() + QKPROGRAM_DIR;
+    QString qkprogramDir = QApplication::applicationDirPath() + QKPROGRAM_LIB_DIR;
 
     CodeParser *parser = m_codeParser;
     parser->parse(qkprogramDir);
     m_libElements.append(parser->allElements());
 
-    Highlighter::addElements(m_libElements, true);
+    //Highlighter::addElements(m_libElements, true);
 
     m_parserTimer = new QTimer(this);
     m_parserTimer->setInterval(500);
@@ -434,7 +436,8 @@ void QkIDE::createExamples()
 
     topicNames = topicsDir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
 
-    foreach(QString topic, topicNames) {
+    foreach(QString topic, topicNames)
+    {
         menu = m_examplesMenu->addMenu(topic);
 
         QString path = topicsDir.path() + SLASH + topic + SLASH;
@@ -442,7 +445,8 @@ void QkIDE::createExamples()
 
         projectNames = projectsDir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
         qDebug() << projectsDir.path() << projectNames;
-        foreach(QString project, projectNames) {
+        foreach(QString project, projectNames)
+        {
             QAction *act = menu->addAction(project);
             QString projectPath = projectsDir.path() + SLASH +
                                   project + SLASH + project + ".qkpro";
@@ -469,19 +473,19 @@ void QkIDE::readSettings()
     int i, size;
     QSettings settings;
 
-    settings.beginGroup("mainWindow");
+    //settings.beginGroup("mainWindow");
     /*resize(settings.value("width", QVariant(500)).toInt(),
            settings.value("heigth", QVariant(500)).toInt());
     if(settings.value("maximized", QVariant(false)).toBool())
         showMaximized();*/
-    settings.endGroup();
+    //settings.endGroup();
 
-    settings.beginGroup("preferences");
+    //settings.beginGroup("preferences");
     m_uploadPortName = settings.value("serialPort").toString();
-    m_projectDefaultLocation = settings.value("projectDefaultLocation").toString();
-    settings.endGroup();
+    m_projectDefaultLocation = settings.value("projectDefaultPath").toString();
+    //settings.endGroup();
 
-    size = settings.beginReadArray("recentProjectsList");
+    size = settings.beginReadArray("RecentProjects");
     size = qMin(size, (int)MaxRecentProjects);
     for(i = 0; i < size; i++) {
         settings.setArrayIndex(i);
@@ -500,22 +504,24 @@ void QkIDE::writeSettings()
     QSettings settings;
     int i;
 
-    if(m_recentProjects.count() > MaxRecentProjects) {
+    if(m_recentProjects.count() > MaxRecentProjects)
+    {
         qDebug() << "recentProjects.count() greater than" << MaxRecentProjects;
         int excess = m_recentProjects.count() - MaxRecentProjects;
         while(excess-- > 0)
             m_recentProjects.removeLast();
     }
 
-    settings.remove("recentProjectsList");
-
-    settings.beginWriteArray("recentProjectsList");
+    settings.remove("RecentProjects");
+    settings.beginWriteArray("RecentProjects");
     for(i = 0; i < m_recentProjects.count(); i++) {
         settings.setArrayIndex(i);
         settings.setValue("name",m_recentProjects[i].name);
         settings.setValue("path",m_recentProjects[i].path);
     }
     settings.endArray();
+
+    settings.setValue("projectDefaultPath", QVariant(m_projectDefaultLocation));
 
     qDebug() << "settings written";
 }
@@ -542,17 +548,17 @@ void QkIDE::slotOptions()
 
     if(dialog.exec() == QDialog::Accepted)
     {
-        m_uploadPortName = dialog.ui->comboPortName->currentText();
-        m_serialConn->setPortName(m_uploadPortName);
+//        m_uploadPortName = dialog.ui->comboPortName->currentText();
+//        m_serialConn->setPortName(m_uploadPortName);
 
-        ui->statusBar->showMessage(tr("Saving preferences..."));
-        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-        settings.beginGroup("preferences");
-        settings.setValue("serialPort", m_uploadPortName);
-        settings.setValue("projectDefaultLocation", m_projectDefaultLocation);
-        settings.endGroup();
-        QApplication::restoreOverrideCursor();
-        ui->statusBar->clearMessage();
+//        ui->statusBar->showMessage(tr("Saving preferences..."));
+//        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+//        settings.beginGroup("preferences");
+//        settings.setValue("serialPort", m_uploadPortName);
+//        settings.setValue("projectDefaultLocation", m_projectDefaultLocation);
+//        settings.endGroup();
+//        QApplication::restoreOverrideCursor();
+//        ui->statusBar->clearMessage();
     }
 }
 
@@ -593,10 +599,17 @@ void QkIDE::slotOpenRecentProject(int i)
 void QkIDE::slotCreateProject()
 {
     ProjectWizard projectWizard(this, this);
-    if(projectWizard.exec() == QDialog::Accepted) {
-        slotCloseProject();
+    if(projectWizard.exec() == QDialog::Accepted)
+    {
         QString name = projectWizard.projectName;
         QString path = projectWizard.createIn;
+        bool saveProjectPath = projectWizard.saveDefaultPath;
+
+        if(saveProjectPath)
+            m_projectDefaultLocation = path;
+
+        slotCloseProject();
+        qDebug() << "create project" << name << "under" << path;
         m_curProject = createProject(name);
         path = path.replace('\\', SLASH);
         path.append(SLASH + name + SLASH);
@@ -606,6 +619,9 @@ void QkIDE::slotCreateProject()
         slotSaveAllFiles();
         updateCurrentProject();
         updateInterface();
+
+        foreach(Page *page, m_editor->pages())
+            setupPage(page);
 
         emit currentProjectChanged();
     }
@@ -894,11 +910,13 @@ void QkIDE::slotFullScreen(bool on)
 QkProject* QkIDE::createProject(const QString &name)
 {
     QString cName, hName;
-    if(!name.isEmpty()) {
+    if(!name.isEmpty())
+    {
         cName = name + ".c";
         hName = name + ".h";
     }
-    else {
+    else
+    {
         cName = QK_IDE_C_DEF_STR;
         hName = QK_IDE_H_DEF_STR;
     }
@@ -917,9 +935,6 @@ QkProject* QkIDE::createProject(const QString &name)
     m_editor->addPage(cName)->setPlainText(cTemplate);
     m_editor->addPage(hName)->setPlainText(hTemplate);
     m_editor->setCurrentPage(0);
-
-    foreach(Page *page, m_editor->pages())
-        setupPage(page);
 
     QkProject *project = new QkProject(name);
     project->addFile(cName);
@@ -977,6 +992,9 @@ void QkIDE::setupPage(Page *page)
     completer->addElements(m_libElements, true);
     connect(page, SIGNAL(info(QString)), this, SLOT(showInfoMessage(QString)));
     connect(page, SIGNAL(keyPressed()), m_parserTimer, SLOT(start()));
+
+    Highlighter *highlighter = page->highlighter();
+    highlighter->addElements(m_libElements, true);
 }
 
 void QkIDE::createMakefile(QkProject *project)
@@ -1081,7 +1099,8 @@ void QkIDE::updateRecentProjects()
     QString text;
     int numRecentProjects = qMin(m_recentProjects.count(),(int)MaxRecentProjects);
 
-    for (i = 0; i < numRecentProjects; ++i) {
+    for (i = 0; i < numRecentProjects; ++i)
+    {
         text = tr("&%1 %2 (%3)").arg(i + 1)
                                 .arg(m_recentProjects[i].name)
                                 .arg(m_recentProjects[i].path);
@@ -1095,7 +1114,8 @@ void QkIDE::updateRecentProjects()
     QString htmlText;
     QString str = "<li id=\"recent\"><a href=\"prj:recent:%1\"><b>%2</b></a><br>%3</li>\n";
 
-    for(i = 0; i < numRecentProjects; i++) {
+    for(i = 0; i < numRecentProjects; i++)
+    {
         htmlText.append(tr(str.toLatin1().data()).arg(i)
                                                  .arg(m_recentProjects[i].name)
                                                  .arg(m_recentProjects[i].path +
@@ -1273,18 +1293,20 @@ void QkIDE::slotParsed()
 {
     qDebug() << "QkIDE::slotParsed()";
 
-
-    Highlighter::clearElements();
-    Highlighter::addElements(m_codeParser->allElements());
+//    Highlighter::clearElements();
+//    Highlighter::addElements(m_codeParser->allElements());
 
     foreach(Page *page, m_editor->pages())
     {
         Completer *completer = page->completer();
+        Highlighter *highlighter = page->highlighter();
         if(!completer->popup()->isVisible())
         {
             page->completer()->clearElements();
             page->completer()->addElements(m_codeParser->allElements());
         }
+        highlighter->clearElements();
+        highlighter->addElements(m_codeParser->allElements());
         page->highlighter()->rehighlight();
     }
 }

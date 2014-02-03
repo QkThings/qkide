@@ -15,6 +15,7 @@ class NewProjectPage : public QWizardPage
 public:
     explicit NewProjectPage(const QString &path = QString(), QWidget *parent = 0);
 
+    void initializePage();
 
 signals:
     
@@ -38,6 +39,8 @@ private:
     
     QLabel *targetLabel;
     QComboBox *targetCombo;
+
+    QString m_defaultProjectPath;
 };
 
 #endif // NEWPROJECTPAGE_H

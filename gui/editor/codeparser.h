@@ -23,7 +23,6 @@ public:
             Variable,
             Typedef
         };
-
         QString text;
         QString fileName;
         QString expression;
@@ -51,6 +50,8 @@ private slots:
 
 
 private:
+    bool hasElement(const QString &text, const QList<Element> &list);
+
     QList<Element> m_functions;
     QList<Element> m_defines;
     QList<Element> m_enums;

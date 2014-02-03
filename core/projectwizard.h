@@ -15,7 +15,7 @@ public:
 
     QString projectName;
     QString createIn;
-    bool    defaultPath;
+    bool    saveDefaultPath;
 
 signals:
     

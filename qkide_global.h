@@ -15,6 +15,7 @@ const QString QK_IDE_H_DEF_STR = "my_board.h";
 const QString CTAGS_EXE = "/resources/tools/bin/ctags";
 const QString TOOLCHAIN_DIR = "/resources/embedded/toolchain";
 const QString QKPROGRAM_DIR = "/resources/embedded/qkprogram";
+const QString QKPROGRAM_LIB_DIR = QKPROGRAM_DIR + "/lib";
 const QString TEMP_DIR = "/temp";
 const QString TAGS_DIR = TEMP_DIR + "/tags";
 

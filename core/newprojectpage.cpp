@@ -22,6 +22,7 @@ NewProjectPage::NewProjectPage(const QString &path, QWidget *parent) :
     QHBoxLayout *hBox;
 
 
+    m_defaultProjectPath = path;
     //setTitle(tr("Project Information"));
     //setSubTitle(tr("Specify basic information about the class for which you "
                         //"want to generate skeleton source code files."));
@@ -34,7 +35,6 @@ NewProjectPage::NewProjectPage(const QString &path, QWidget *parent) :
     projectInfoLayout->addRow(tr("Project name:"), projectNameEdit);
     createInEdit = new QLineEdit;
     createInEdit->setReadOnly(true);
-    createInEdit->setText(path);
     browseButton = new QPushButton(tr("Browse..."));
     hBox = new QHBoxLayout;
     hBox->addWidget(createInEdit);
@@ -49,15 +49,15 @@ NewProjectPage::NewProjectPage(const QString &path, QWidget *parent) :
     warningLabel->setPalette(p);
     warningLabel->hide();
 
-    targetCombo = new QComboBox;
-    targetInfoLayout = new QFormLayout;
-    targetInfoLayout->addRow(tr("Target"), targetCombo);
+//    targetCombo = new QComboBox;
+//    targetInfoLayout = new QFormLayout;
+//    targetInfoLayout->addRow(tr("Target"), targetCombo);
 
     mainLayout->addLayout(projectInfoLayout);
     mainLayout->addWidget(defaultPathCheck);
     mainLayout->addWidget(warningLabel);
-    mainLayout->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Minimum,QSizePolicy::Expanding));
-    mainLayout->addLayout(targetInfoLayout);
+//    mainLayout->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Minimum,QSizePolicy::Expanding));
+//    mainLayout->addLayout(targetInfoLayout);
 
     setLayout(mainLayout);
 
@@ -67,7 +67,12 @@ NewProjectPage::NewProjectPage(const QString &path, QWidget *parent) :
 
     registerField("projectName*", projectNameEdit);
     registerField("createIn*", createInEdit);
-    registerField("defaultPath", defaultPathCheck);
+    registerField("saveDefaultProjectPath", defaultPathCheck);
+}
+
+void NewProjectPage::initializePage()
+{
+    createInEdit->setText(m_defaultProjectPath);
 }
 
 void NewProjectPage::slotBrowse()
@@ -80,7 +85,8 @@ void NewProjectPage::slotValidatePath()
     QString name = projectNameEdit->text();
     QString path = createInEdit->text();
     QString completePath;
-    if(!name.isEmpty() && !path.isEmpty()) {
+    if(!name.isEmpty() && !path.isEmpty())
+    {
         completePath = path + SLASH + name;
         QDir projectDir(completePath);
         if(projectDir.exists()) {

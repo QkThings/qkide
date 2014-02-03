@@ -16,17 +16,18 @@ CodeParser::CodeParser(QObject *parent) :
 
 void CodeParser::parse(const QString &path)
 {
-    qDebug() << "CodeParser::parse(" << path << ")";
+    qDebug() << __FUNCTION__ << path;
     QString program = QApplication::applicationDirPath() + CTAGS_EXE;
-    //QString program = "ctags";
     QStringList arguments;
-    arguments << "-R" << "--languages=-Make" << path;
+    arguments << "--languages=-Make" << "--c-kinds=+p-m" << "-R" << path;
     //arguments << "-R" << "--c-kinds=+l" << "--languages=-Make" << path << "--verbose";
     //arguments << "-R" << path;
 
     QProcess process(this);
     process.setProcessChannelMode(QProcess::MergedChannels);
     //process.setWorkingDirectory(path);
+
+    qDebug() << program << arguments;
 
     process.start(program, arguments);
     process.waitForFinished(30000);
@@ -43,7 +44,7 @@ void CodeParser::parse(const QString &path)
     while(!tags.atEnd())
     {
         QString line = tags.readLine();
-        if(line[0] == '!')
+        if(line[0] == '!' || line[0] == '_')
             continue;
         QStringList fields = line.split('\t');
         //qDebug() << "fields" << fields << "count:" << fields.count();
@@ -56,7 +57,7 @@ void CodeParser::parse(const QString &path)
 
         QString typeStr = fields.at(3);
         typeStr.remove('\n');
-        if(typeStr == "f")
+        if(typeStr == "f" || typeStr == "p")
             el.type = Element::Function;
         else if(typeStr == "d")
             el.type = Element::Define;
@@ -70,19 +71,24 @@ void CodeParser::parse(const QString &path)
         switch(el.type)
         {
         case Element::Function:
-            m_functions.append(el);
+            if(!hasElement(el.text, m_functions))
+                m_functions.append(el);
             break;
         case Element::Define:
-            m_defines.append(el);
+            if(!el.text.endsWith("_H") && !hasElement(el.text, m_defines))
+                m_defines.append(el);
             break;
         case Element::Enum:
-            m_enums.append(el);
+            if(!hasElement(el.text, m_enums))
+                m_enums.append(el);
             break;
         case Element::Variable:
-            m_variables.append(el);
+            if(!hasElement(el.text, m_variables))
+                m_variables.append(el);
             break;
         case Element::Typedef:
-            m_types.append(el);
+            if(!hasElement(el.text, m_types))
+                m_types.append(el);
             break;
         case Element::Unknown:
         default:
@@ -118,10 +124,19 @@ QList<CodeParser::Element> CodeParser::allElements()
 void CodeParser::clear()
 {
     m_defines.clear();
+    m_enums.clear();
+    m_types.clear();
     m_functions.clear();
     m_variables.clear();
 }
 
+bool CodeParser::hasElement(const QString &text, const QList<Element> &list)
+{
+    foreach(const Element &el, list)
+        if(el.text == text)
+            return true;
+    return false;
+}
 
 CodeParserThread::CodeParserThread(QObject *parent) :
     QThread(parent)
@@ -144,7 +159,6 @@ void CodeParserThread::startTimer()
 
 void CodeParserThread::slotParse()
 {
-    qDebug() << "PARSE";
     if(m_parser != 0)
         m_parser->parse(m_path);
 }

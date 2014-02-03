@@ -11,7 +11,7 @@ ProjectWizard::ProjectWizard(QkIDE *ide, QWidget *parent) :
     QWizard(parent),
     m_ide(ide)
 {
-    addPage(new NewProjectPage(m_ide->m_projectDefaultLocation));
+    addPage(new NewProjectPage(ide->m_projectDefaultLocation));
 
     setPixmap(QWizard::BannerPixmap, QPixmap(":/images/banner.png"));
     setPixmap(QWizard::BackgroundPixmap, QPixmap(":/images/background.png"));
@@ -26,11 +26,12 @@ void ProjectWizard::accept()
 {
     projectName = field("projectName").toString();
     createIn = field("createIn").toString();
-    defaultPath = field("defaultPath").toBool();
+    saveDefaultPath = field("saveDefaultProjectPath").toBool();
 
     QString completePath = createIn + SLASH + projectName;
     QDir projectPath(completePath);
-    if(!projectPath.exists()) {
+    if(!projectPath.exists())
+    {
         projectPath.cdUp();
         projectPath.mkdir(projectName);
     }

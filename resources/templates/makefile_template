@@ -14,11 +14,7 @@ BUILD_TARGET = {{buildTarget}}
 # DEFINITIONS
 ####################################################################
 QKPROGRAM_INCLUDE_DIR = \
-$(QKPROGRAM_ROOT_DIR)/lib/sys \
-$(QKPROGRAM_ROOT_DIR)/lib/hal/include \
-$(QKPROGRAM_ROOT_DIR)/lib/core/include \
-$(QKPROGRAM_ROOT_DIR)/lib/protocol/include \
-$(QKPROGRAM_ROOT_DIR)/lib/utils/include
+$(QKPROGRAM_ROOT_DIR)/include
 
 .SUFFIXES:
 .PHONY: all debug release clean upload

@@ -27,9 +27,6 @@ void Completer::addElements(QList<CodeParser::Element> elements, bool permanent)
 
 void Completer::addElement(const CodeParser::Element &element, bool permanent)
 {
-    if(element.type == CodeParser::Element::Enum)
-        qDebug() << __FUNCTION__ << "enum" << element.text;
-
     if(permanent)
         m_permanentElements.append(element);
     else

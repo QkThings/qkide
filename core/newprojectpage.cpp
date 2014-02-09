@@ -93,7 +93,7 @@ void NewProjectPage::slotValidatePath()
             warningLabel->setText(tr("Warning!\n"
                                      "A project with the same name already exists on that location. "
                                      "If you continue, it will be overwritten. "
-                                     "If that's not what you pretend, change the project name "
+                                     "If that's not what you want, change the project name "
                                      "or its path."));
             warningLabel->show();
         }

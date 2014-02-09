@@ -19,7 +19,10 @@ void CodeParser::parse(const QString &path)
     qDebug() << __FUNCTION__ << path;
     QString program = QApplication::applicationDirPath() + CTAGS_EXE;
     QStringList arguments;
-    arguments << "--languages=-Make" << "--c-kinds=+p-m" << "-R" << path;
+    //QString output = "-f " + TAGS_DIR + "/tags";
+    QString tagsDir = TAGS_DIR;
+    QString output = "-f " + tagsDir.remove(0,1) + "/tags";
+    arguments << output << "--languages=-Make" << "--c-kinds=+p-m" << "-R" << path;
     //arguments << "-R" << "--c-kinds=+l" << "--languages=-Make" << path << "--verbose";
     //arguments << "-R" << path;
 
@@ -34,7 +37,7 @@ void CodeParser::parse(const QString &path)
 
     //qDebug() << process.readAll();
 
-    QFile tags(QApplication::applicationDirPath() + "/tags");
+    QFile tags(QApplication::applicationDirPath() + TAGS_DIR + "/tags");
     if(!tags.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         qDebug() << "failed to open tags file:" << tags.fileName();

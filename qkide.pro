@@ -11,7 +11,11 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets webkitwidgets serialport
 TARGET = qkide
 TEMPLATE = app
 
-QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/\',-z,origin'
+#QMAKE_LFLAGS += '-Wl,-rpath,\'../shared/lib/\',-z,origin'
+QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/../shared/lib/\',-z,origin'
+#QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/\',-z,origin'
+
+DEFINES += QT_NO_DEBUG_OUTPUT
 
 INCLUDEPATH += core
 INCLUDEPATH += gui
@@ -71,12 +75,12 @@ FORMS    += qkide.ui \
     core/optionsdialog.ui
 
 RESOURCES += \
-    resources/styles.qrc \
-    resources/img.qrc \
-    resources/templates.qrc \
-    resources/syntax.qrc \
-    resources/html.qrc \
-    resources/fonts.qrc
+    resources/qkide_fonts.qrc \
+    resources/qkide_img.qrc \
+    resources/qkide_html.qrc \
+    resources/qkide_syntax.qrc \
+    resources/qkide_styles.qrc \
+    resources/qkide_templates.qrc
 
 CONFIG(debug, debug|release) {
     DESTDIR = debug

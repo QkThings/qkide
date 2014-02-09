@@ -79,9 +79,12 @@ private slots:
     void slotVerify();
     void slotUpload();
     void slotConnect();
+
+    void slotShowHideReference();
     void slotShowHideExplorer();
     void slotShowHideTarget();
     void slotShowHideConnect();
+
     void slotToggleFold();
     void slotFullScreen(bool on);
     void slotSplitHorizontal();
@@ -104,6 +107,7 @@ private:
     void createMenus();
     void createToolbars();
     void createExamples();
+    void createReference();
     void setupLayout();
     void readSettings();
     void writeSettings();
@@ -166,6 +170,7 @@ private:
     QAction *m_verifyAct;
     QAction *m_uploadAct;
 
+    QAction *m_referenceAct;
     QAction *m_explorerAct;
     QAction *m_connectAct;
     QAction *m_targetAct;
@@ -230,6 +235,7 @@ private:
     QDockWidget *m_explorerDock;
 
     QMainWindow *m_explorerWindow;
+    QMainWindow *m_referenceWindow;
 
 };
 

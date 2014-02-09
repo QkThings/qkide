@@ -15,7 +15,6 @@
         <file>img/cfile.png</file>
         <file>img/header.png</file>
         <file>img/bullet_green.png</file>
-        <file>img/qk_logo_100.png</file>
         <file>img/create_project.png</file>
         <file>img/home.png</file>
         <file>img/close.png</file>
@@ -30,5 +29,7 @@
         <file>img/bullet_white.png</file>
         <file>img/connect_16.png</file>
         <file>img/target_16.png</file>
+        <file>img/reference_16.png</file>
+        <file>img/qk_48.png</file>
     </qresource>
 </RCC>

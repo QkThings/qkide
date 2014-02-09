@@ -19,6 +19,16 @@
   <property name="windowTitle">
    <string>qkide</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="resources/qkide_img.qrc">
+    <normaloff>:/img/qk_48.png</normaloff>:/img/qk_48.png</iconset>
+  </property>
+  <property name="iconSize">
+   <size>
+    <width>256</width>
+    <height>256</height>
+   </size>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout"/>
   </widget>
@@ -40,15 +50,11 @@
      <height>20</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuDfg">
-    <property name="title">
-     <string>dfg</string>
-    </property>
-   </widget>
-   <addaction name="menuDfg"/>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="resources/qkide_img.qrc"/>
+ </resources>
  <connections/>
 </ui>

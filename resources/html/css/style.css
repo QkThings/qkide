@@ -7,7 +7,7 @@ src: url('../fonts/PTSans.ttf')
 @font-face
 {
 font-family: Ubuntu;
-src: url('../fonts/Ubuntu.ttf')
+src: url('../fonts/Ubuntu-R.ttf')
 } 
 
 @font-face
@@ -154,11 +154,12 @@ a#button {
 	text-decoration: none;
 	display:block;
 	/*width: 100px;*/	
+	text-transform:uppercase;
 }
 
 a#button:hover {
-	color: #666;
-	background: #ddd;
+	color: #fff;
+	background: #187cd0;
 	text-decoration: none;
 }
 

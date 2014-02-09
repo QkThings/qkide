@@ -41,10 +41,10 @@ void Browser::slotHandleLink(const QUrl &url)
     }
     else if(fields.at(0) == "show")
     {
-        if(fields.at(1) == "home")
-            load(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/resources/html/home.html"));
-        else if(fields.at(1) == "reference")
-            load(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/resources/html/reference.html"));
+//        if(fields.at(1) == "home")
+//            load(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/resources/html/home.html"));
+//        else if(fields.at(1) == "reference")
+//            load(QUrl::fromLocalFile(QApplication::applicationDirPath() + "/resources/html/reference.html"));
     }
 }
 

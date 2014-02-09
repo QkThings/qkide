@@ -244,7 +244,8 @@ bool QkProject::saveToFile(const QString filePath)
 
         stream.writeStartElement("project");
         stream.writeAttribute("name", m_name);
-        var.setValue(m_readOnly);
+        //var.setValue(m_readOnly);
+        var.setValue(false);
         stream.writeAttribute("readOnly", var.toString());
 
         foreach(QString name, m_files){

@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
         <file>html/home.html</file>
-        <file>html/reference.html</file>
     </qresource>
 </RCC>

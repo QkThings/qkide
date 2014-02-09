@@ -90,10 +90,11 @@ QkIDE::QkIDE(QWidget *parent) :
 
 
     QDir().mkdir(QApplication::applicationDirPath() + TEMP_DIR);
+    QDir().mkdir(QApplication::applicationDirPath() + TAGS_DIR);
 
     m_codeParser = new CodeParser();
 
-    QString qkprogramDir = QApplication::applicationDirPath() + QKPROGRAM_LIB_DIR;
+    QString qkprogramDir = QApplication::applicationDirPath() + QKPROGRAM_INC_DIR;
 
     CodeParser *parser = m_codeParser;
     parser->parse(qkprogramDir);
@@ -114,6 +115,7 @@ QkIDE::QkIDE(QWidget *parent) :
     createMenus();
     createToolbars();
     createExamples();
+    createReference();
     setupLayout();
     readSettings();
 
@@ -246,6 +248,9 @@ void QkIDE::createActions()
     connect(m_verifyAct, SIGNAL(triggered()), this, SLOT(slotVerify()));
     connect(m_uploadAct, SIGNAL(triggered()), this, SLOT(slotUpload()));
 
+    m_referenceAct = new QAction(QIcon(":/img/reference_16.png"), tr("Show/Hide Reference"), this);
+    connect(m_referenceAct, SIGNAL(triggered()), this, SLOT(slotShowHideReference()));
+
     m_explorerAct = new QAction(QIcon(":/img/explorer.png"), tr("Show/Hide Explorer"), this);
     connect(m_explorerAct, SIGNAL(triggered()), this, SLOT(slotShowHideExplorer()));
 
@@ -302,6 +307,7 @@ void QkIDE::createMenus()
     m_windowMenu = new QMenu(tr("&Window"));
     m_helpMenu = new QMenu(tr("&Help"));
 
+    m_recentProjectsMenu->clear();
     for(int i = 0; i < MaxRecentProjects; i++)
         m_recentProjectsMenu->addAction(m_recentProjectsActs[i]);
 
@@ -325,8 +331,8 @@ void QkIDE::createMenus()
     m_projectMenu->addSeparator();
     m_projectMenu->addAction(m_showProjectFolderAct);
     m_projectMenu->addSeparator();
-    m_projectMenu->addAction(m_ProjectPreferencesAct);
-    m_projectMenu->addSeparator();
+//    m_projectMenu->addAction(m_ProjectPreferencesAct);
+//    m_projectMenu->addSeparator();
     m_projectMenu->addAction(m_verifyAct);
     m_projectMenu->addAction(m_uploadAct);
 
@@ -398,11 +404,10 @@ void QkIDE::createToolbars()
 //    m_comboTarget = new QComboBox(m_qkToolbar);
 //    m_comboTarget->setMinimumWidth(120);
 
-//    m_buttonRefreshPorts = new QAction(QIcon(":/img/reload.png"),tr("Reload"),this);
-//    connect(m_buttonRefreshPorts, SIGNAL(triggered()), this, SLOT(slotReloadSerialPorts()));
+    m_buttonRefreshPorts = new QAction(QIcon(":/img/reload.png"),tr("Reload Available Serial Ports"),this);
+    connect(m_buttonRefreshPorts, SIGNAL(triggered()), this, SLOT(slotReloadSerialPorts()));
 
-//    m_comboPort = new QComboBox(m_qkToolbar);
-//    m_comboPort->addItem("ttyACM0");
+    m_comboPort = new QComboBox(m_qkToolbar);
 
 //    m_comboBaud = new QComboBox(m_qkToolbar);
 //    m_comboBaud->addItem("38400");
@@ -413,11 +418,12 @@ void QkIDE::createToolbars()
     QWidget *spacer = new QWidget(m_qkToolbar);
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_qkToolbar->addWidget(spacer);
+    m_qkToolbar->addAction(m_referenceAct);
     m_qkToolbar->addAction(m_explorerAct);
 //    m_qkToolbar->addWidget(m_comboTarget);
 //    m_qkToolbar->addSeparator();
-    //m_qkToolbar->addAction(m_buttonRefreshPorts);
-    //m_qkToolbar->addWidget(m_comboPort);
+    m_qkToolbar->addAction(m_buttonRefreshPorts);
+    m_qkToolbar->addWidget(m_comboPort);
     //m_qkToolbar->addWidget(m_comboBaud);
     //m_qkToolbar->addWidget(m_buttonConnect);
 
@@ -436,9 +442,11 @@ void QkIDE::createExamples()
 
     topicNames = topicsDir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
 
+    m_examplesMenu->clear();
     foreach(QString topic, topicNames)
     {
         menu = m_examplesMenu->addMenu(topic);
+        menu->clear();
 
         QString path = topicsDir.path() + SLASH + topic + SLASH;
         projectsDir.setPath(path);
@@ -452,8 +460,41 @@ void QkIDE::createExamples()
                                   project + SLASH + project + ".qkpro";
             act->setData(projectPath);
             connect(act, SIGNAL(triggered()), this, SLOT(slotOpenExample()));
-         }
+        }
+
+        if(menu->isEmpty())
+            menu->setEnabled(false);
     }
+}
+
+void QkIDE::createReference()
+{
+    qDebug() << __FUNCTION__;
+    m_referenceWindow = new QMainWindow(this);
+
+    QWidget *referenceWidget = new QWidget(m_referenceWindow);
+
+    QComboBox *comboReference = new QComboBox(referenceWidget);
+    QStringList referenceItems;
+    referenceItems << "qkprogram";
+    comboReference->addItems(referenceItems);
+
+    QString qkprogramRef = QKPROGRAM_DOC_DIR + "/html/index.html";
+
+    QString urlStr = "file://" + qApp->applicationDirPath() + qkprogramRef;
+    qDebug() << "reference:" << urlStr;
+
+    Browser *referenceBrowser = new Browser(referenceWidget);
+    referenceBrowser->load(QUrl(urlStr));
+
+    QVBoxLayout *vBox = new QVBoxLayout;
+    vBox->addWidget(comboReference);
+    vBox->addWidget(referenceBrowser);
+    referenceWidget->setLayout(vBox);
+
+    m_referenceWindow->setCentralWidget(referenceWidget);
+    m_referenceWindow->setWindowTitle("qkreference");
+    m_referenceWindow->resize(700,600);
 }
 
 void QkIDE::setupLayout()
@@ -465,7 +506,8 @@ void QkIDE::setupLayout()
 
     resize(680,600);
 
-    setWindowIcon(QIcon(":/img/application.png"));
+//    setWindowIcon(QIcon(":/img/qk_64.png"));
+//    setIconSize(QSize(48,48));
 }
 
 void QkIDE::readSettings()
@@ -487,12 +529,14 @@ void QkIDE::readSettings()
 
     size = settings.beginReadArray("RecentProjects");
     size = qMin(size, (int)MaxRecentProjects);
-    for(i = 0; i < size; i++) {
+    for(i = 0; i < size; i++)
+    {
         settings.setArrayIndex(i);
         RecentProject recent;
         recent.name = settings.value("name").toString();
         recent.path = settings.value("path").toString();
-        m_recentProjects.append(recent);
+        if(QDir(recent.path).exists())
+            m_recentProjects.append(recent);
     }
     settings.endArray();
 
@@ -667,13 +711,20 @@ void QkIDE::slotSaveAsProject()
     QString path = QFileDialog::getExistingDirectory(this,tr("Save As..."));
     path.replace('\\', SLASH);
     path.append(SLASH);
+    path.append(m_curProject->name() + "/");
+    QDir().mkdir(path);
     qDebug() << "save as new path" << path;
     m_curProject->setPath(path);
     m_curProject->update();
     slotSaveAllFiles();
     updateCurrentProject();
 
-    ui->statusBar->showMessage(tr("Project saved on \"") + path + "\"", 3000);
+    QString curProjectPath = m_curProject->path();
+    curProjectPath.append(m_curProject->name() + ".qkpro");
+
+    openProject(curProjectPath);
+
+    //ui->statusBar->showMessage(tr("Project saved on \"") + path + "\"", 3000);
 }
 
 void QkIDE::slotSaveAllFiles()
@@ -738,24 +789,25 @@ void QkIDE::slotClean()
     deleteMakefile(m_curProject);
     createMakefile(m_curProject);
 
-    qDebug() << "clean";
-
-    QString appDir = QApplication::applicationDirPath();
     QString makeCmd;
 #ifdef Q_OS_WIN
-    makeCmd = appDir + GNUWIN_DIR + "/bin/make.exe";
+    QString make = qApp->applicationDirPath() + GNUWIN_DIR + "/bin/make.exe";
 #else
-    makeCmd = "make";
+    QString make = "make";
 #endif
 
-    qDebug() << makeCmd;
+    QString makefilePath = qApp->applicationDirPath() + TEMP_DIR + "/temp.mk";
 
-    QString program = makeCmd;
-    QStringList arguments("clean");
+    QStringList arguments;
+    //arguments << "-f /home/mribeiro/bitbucket/qkthings/software/qkide/release/temp/temp.mk";//;QString("-f " + makefilePath);
+    arguments << "clean";
+
+    qDebug() << make << arguments;
 
     m_cleanProcess->setWorkingDirectory(m_curProject->path());
+    //m_cleanProcess->setWorkingDirectory(qApp->applicationDirPath() + TEMP_DIR);
     m_cleanProcess->waitForFinished();
-    m_cleanProcess->start(program, arguments);
+    m_cleanProcess->start(make, arguments);
 }
 
 void QkIDE::slotCleanProcessStarted()
@@ -819,9 +871,12 @@ void QkIDE::slotVerifyProcessOutput()
 void QkIDE::slotUpload()
 {
     qDebug() << "upload";
+    createMakefile(m_curProject);
 
     if(m_serialConn->isConnected())
         m_serialConn->close();
+
+    m_uploadPortName = m_comboPort->currentText();
 
     QString appDir = QApplication::applicationDirPath();
     QString makeCmd;
@@ -861,14 +916,24 @@ void QkIDE::slotUploadProcessOutput()
 
 void QkIDE::slotUploadProcessFinished()
 {
-    m_serialConn->open();
+    //m_serialConn->open();
+    deleteMakefile(m_curProject);
     ui->statusBar->showMessage(tr("Uploaded"), 1500);
 }
 
 void QkIDE::slotProcessFinished()
 {
+    deleteMakefile(m_curProject);
     //m_outputWindow->append(tr("Done"));
     ui->statusBar->showMessage(tr("Done"), 1500);
+}
+
+void QkIDE::slotShowHideReference()
+{
+    if(m_referenceWindow->isVisible())
+        m_referenceWindow->hide();
+    else
+        m_referenceWindow->show();
 }
 
 void QkIDE::slotShowHideExplorer()
@@ -999,17 +1064,19 @@ void QkIDE::setupPage(Page *page)
 
 void QkIDE::createMakefile(QkProject *project)
 {
-    qDebug() << "create makefile";
     QFile makefileTemplateFile(":/templates/makefile_template");
 
-    if(!makefileTemplateFile.open(QIODevice::ReadOnly)) {
+    if(!makefileTemplateFile.open(QIODevice::ReadOnly))
+    {
         qDebug() << "unable to open makefile template";
         return;
     }
 
-    QFile makefileFile(project->path() + SLASH + "Makefile");
+    //QFile makefileFile(qApp->applicationDirPath() + TEMP_DIR + "/temp.mk");
+    QFile makefileFile(project->path() + "/Makefile");
 
-    if(!makefileFile.open(QIODevice::WriteOnly)) {
+    if(!makefileFile.open(QIODevice::WriteOnly))
+    {
         qDebug() << "unable to create makefile";
         return;
     }
@@ -1036,8 +1103,8 @@ void QkIDE::createMakefile(QkProject *project)
 
 void QkIDE::deleteMakefile(QkProject *project)
 {
-    qDebug() << "delete makefile";
     QFile::remove(project->path() + SLASH + "Makefile");
+    //QFile::remove(qApp->applicationDirPath() + TEMP_DIR + "/temp.mk");
 }
 
 void QkIDE::slotSplitHorizontal()
@@ -1078,19 +1145,22 @@ void QkIDE::updateCurrentProject()
 
     qDebug() << "current project:" << m_curProject->name() << m_curProject->path();
 
-    RecentProject recent;
-    recent.name = m_curProject->name();
-    recent.path = m_curProject->path();
+    if(!m_curProject->readOnly())
+    {
+        RecentProject recent;
+        recent.name = m_curProject->name();
+        recent.path = m_curProject->path();
 
-    m_recentProjects.removeOne(recent);
-    m_recentProjects.prepend(recent);
+        m_recentProjects.removeOne(recent);
+        m_recentProjects.prepend(recent);
 
-    if(m_recentProjects.count() > MaxRecentProjects)
-        m_recentProjects.removeLast();
+        if(m_recentProjects.count() > MaxRecentProjects)
+            m_recentProjects.removeLast();
+        updateRecentProjects();
+        writeSettings();
+    }
 
     slotHome(false);
-    updateRecentProjects();
-    writeSettings();
 }
 
 void QkIDE::updateRecentProjects()
@@ -1160,22 +1230,20 @@ void QkIDE::updateRecentProjects()
 
 void QkIDE::updateInterface()
 {
-    if(m_curProject == 0) {
-        m_saveProjectAct->setEnabled(false);;
-        m_saveAsProjectAct->setEnabled(false);;
-        m_showProjectFolderAct->setEnabled(false);
-        m_cleanAct->setEnabled(false);
-        m_verifyAct->setEnabled(false);
-        m_uploadAct->setEnabled(false);
-    }
-    else {
-        m_saveProjectAct->setEnabled(true);;
-        m_saveAsProjectAct->setEnabled(true);;
-        m_showProjectFolderAct->setEnabled(true);
-        m_cleanAct->setEnabled(true);
-        m_verifyAct->setEnabled(true);
-        m_uploadAct->setEnabled(true);
-    }
+    bool projectActEnabled = m_curProject != 0;
+    bool buildActEnabled = (m_curProject != 0 && !m_curProject->readOnly());
+
+    m_redoAct->setEnabled(projectActEnabled);
+    m_undoAct->setEnabled(projectActEnabled);
+    m_searchAct->setEnabled(projectActEnabled);
+
+    m_saveProjectAct->setEnabled(buildActEnabled);;
+    m_saveAsProjectAct->setEnabled(projectActEnabled);;
+    m_showProjectFolderAct->setEnabled(projectActEnabled);
+
+    m_cleanAct->setEnabled(buildActEnabled);
+    m_verifyAct->setEnabled(buildActEnabled);
+    m_uploadAct->setEnabled(buildActEnabled);
 }
 
 void QkIDE::showInfoMessage(const QString &msg)
@@ -1200,7 +1268,8 @@ bool QkIDE::doYouReallyWantToQuit()
                                       QMessageBox::Discard |
                                       QMessageBox::Cancel,
                                       QMessageBox::Save);
-        switch(r) {
+        switch(r)
+        {
         case QMessageBox::Save:
             slotSaveAllFiles();
         case QMessageBox::Discard:
@@ -1318,15 +1387,15 @@ void QkIDE::slotError(const QString &message)
 
 void QkIDE::slotReloadSerialPorts()
 {
-//    QStringList list;
-//    foreach(QSerialPortInfo info, QSerialPortInfo::availablePorts())
-//    {
-//        QString portName = info.portName();
-//        if(portName.contains("ACM") || portName.contains("USB"))
-//            list.append(portName);
-//    }
-//    m_comboPort->clear();
-//    m_comboPort->addItems(list);
+    QStringList list;
+    foreach(QSerialPortInfo info, QSerialPortInfo::availablePorts())
+    {
+        QString portName = info.portName();
+        if(portName.contains("ACM") || portName.contains("USB"))
+            list.append(portName);
+    }
+    m_comboPort->clear();
+    m_comboPort->addItems(list);
 }
 
 void QkIDE::slotTest()

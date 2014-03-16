@@ -100,7 +100,10 @@ void Highlighter::setupPermanentRules()
 void Highlighter::addElements(QList<CodeParser::Element> elements, bool permanent)
 {
     foreach(CodeParser::Element el, elements)
-        addElement(el, permanent);
+    {
+        if(el.type != CodeParser::Element::Function) // skip functions
+            addElement(el, permanent);
+    }
 }
 
 void Highlighter::addElement(const CodeParser::Element &element, bool permanent)
@@ -183,7 +186,7 @@ void Highlighter::applyRuleToText(const Rule &rule, const QString &text)
 void Highlighter::highlightBlock(const QString &text)
 {
     foreach (const Rule &rule, m_extraRules)
-        applyRuleToText(rule, text);
+      applyRuleToText(rule, text);
 
     foreach (Rule rule, m_permanentRules)
         applyRuleToText(rule, text);

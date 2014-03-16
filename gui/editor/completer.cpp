@@ -42,6 +42,15 @@ void Completer::clearElements(bool permanent)
     updateModel();
 }
 
+
+QList<CodeParser::Element> Completer::allElements()
+{
+    QList<CodeParser::Element> list;
+    list.append(m_permanentElements);
+    list.append(m_extraElements);
+    return list;
+}
+
 void Completer::createItem(CodeParser::Element &element)
 {
     QStandardItem *item = new QStandardItem(element.text);

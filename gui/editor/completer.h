@@ -16,6 +16,8 @@ public slots:
     void addElements(QList<CodeParser::Element> elements, bool permanent = false);
     void clearElements(bool permanent = false);
 
+    QList<CodeParser::Element> allElements();
+
 private slots:
 
 signals:

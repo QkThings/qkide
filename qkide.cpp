@@ -15,7 +15,6 @@
 #include "ui_optionsdialog.h"
 
 #include "qkconnect.h"
-#include "qkconnectthread.h"
 #include "qkexplorerwidget.h"
 
 #include <QtGlobal>
@@ -66,8 +65,8 @@ QkIDE::QkIDE(QWidget *parent) :
     m_outputWindow->hide();
 
 
-//    m_testAct = new QAction(tr("TEST"), this);
-//    connect(m_testAct, SIGNAL(triggered()), this, SLOT(slotTest()));
+    m_testAct = new QAction(tr("TEST"), this);
+    connect(m_testAct, SIGNAL(triggered()), this, SLOT(slotTest()));
 
     m_cleanProcess = new QProcess(this);
     m_cleanProcess->setProcessChannelMode(QProcess::MergedChannels);
@@ -119,46 +118,9 @@ QkIDE::QkIDE(QWidget *parent) :
     setupLayout();
     readSettings();
 
-    m_serialConn = new QkSerialConnection(m_uploadPortName, 38400, this);
-    connect(m_serialConn, SIGNAL(error(QString)), this, SLOT(slotError(QString)));
 
-//    QkSerialConnection *serialConn = new QkSerialConnection(m_uploadPortName, 38400);
-//    QThread* thread = new QThread;
-//    serialConn->setParent(0);
-//    serialConn->moveToThread(thread);
-//    connect(worker, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
-//    connect(thread, SIGNAL(started()), worker, SLOT(process()));
-//    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-//    thread->start();
-
-    //m_serialConn = serialConn;
-
-//    QkConnection::Descriptor connDesc;
-//    connDesc.type = QkConnection::ctSerial;
-//    connDesc.params.append(m_uploadPortName);
-//    connDesc.params.append(QString::number(38400));
-//    m_connThread = new QkConnectionThread(connDesc);
-////    connect(clientThread, SIGNAL(clientConnected(int)),
-////            this, SLOT(_handleClientConnected(int)));
-////    connect(clientThread, SIGNAL(clientDisconnected(int)),
-////            this, SLOT(_handleClientDisconnected(int)), Qt::DirectConnection);
-//    connect(m_connThread, SIGNAL(finished()), m_connThread, SLOT(deleteLater()));
-//    m_connThread->start();
-
-
-//    m_serialConn = m_connThread->connection();
-//    qDebug() << "serial conn:" << (m_serialConn == 0);
-//    qDebug() << m_serialConn->descriptor().type << m_serialConn->descriptor().params;
-//    if(m_serialConn == 0)
-//        qDebug() << "serialConn == 0";
-
-
-
-//    m_explorerDock = new QDockWidget(tr("Explorer"), this);
-//    //m_explorerDock->setWidget(m_explorerWidget);
-//    m_explorerDock->hide();
-
-//    addDockWidget(Qt::RightDockWidgetArea, m_explorerDock, Qt::Horizontal);
+    m_serialConn = new QkSerialConnection(m_uploadPortName, 38400);
+//    connect(m_serialConn, SIGNAL(error(QString)), this, SLOT(slotError(QString)));
 
 
     m_explorerWindow = new QMainWindow(this, Qt::Tool);
@@ -170,12 +132,7 @@ QkIDE::QkIDE(QWidget *parent) :
     m_explorerWidget->hide();
     //m_explorerWindow->show();
 
-//    m_connThread = new QThread();
-//    m_serialConn->setParent(0);
-//    m_serialConn->moveToThread(m_connThread);
-//    connect(m_serialConn, SIGNAL(destroyed()), m_connThread, SLOT(quit()));
-//    connect(m_connThread, SIGNAL(finished()), m_connThread, SLOT(deleteLater()));
-//    m_connThread->start();
+    connect(m_serialConn, SIGNAL(error(QString)), m_explorerWidget, SLOT(showError(QString)));
 
     slotReloadSerialPorts();
     updateInterface();
@@ -399,7 +356,7 @@ void QkIDE::createToolbars()
 
 //    m_qkToolbar->addAction(m_targetAct);
 //    m_qkToolbar->addAction(m_connectAct);
-//    m_qkToolbar->addAction(m_testAct);
+    m_qkToolbar->addAction(m_testAct);
 
 //    m_comboTarget = new QComboBox(m_qkToolbar);
 //    m_comboTarget->setMinimumWidth(120);
@@ -1382,6 +1339,7 @@ void QkIDE::slotParsed()
 
 void QkIDE::slotError(const QString &message)
 {
+    qDebug() << __FUNCTION__;
     QMessageBox::critical(this, tr("Error"), message);
 }
 
@@ -1401,4 +1359,29 @@ void QkIDE::slotReloadSerialPorts()
 void QkIDE::slotTest()
 {
     qDebug() << "TEST";
+    QSerialPort *sp = new QSerialPort(this);
+    sp->setBaudRate(38400);
+    sp->setPortName("ttyACM0");
+    if(!sp->open(QSerialPort::ReadWrite))
+        qDebug() << "BAM";
+    else
+    {
+        sp->setPortName("ttyACM0");
+        sp->setBaudRate(38400);
+        sp->setParity(QSerialPort::NoParity);
+        sp->setFlowControl(QSerialPort::NoFlowControl);
+        sp->setDataBits(QSerialPort::Data8);
+        sp->clear();
+
+        QThread::sleep(2);
+        qDebug() << "send data";
+        QByteArray data;
+        data.append("0");
+        sp->write(data);
+        sp->close();
+    }
+
+
+    delete sp;
+
 }

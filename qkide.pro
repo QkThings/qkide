@@ -15,7 +15,7 @@ TEMPLATE = app
 QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/../shared/lib/\',-z,origin'
 #QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/\',-z,origin'
 
-DEFINES += QT_NO_DEBUG_OUTPUT
+#DEFINES += QT_NO_DEBUG_OUTPUT
 
 INCLUDEPATH += core
 INCLUDEPATH += gui
@@ -97,7 +97,7 @@ win32 {
   deploy.commands = deploy.bat
 }
 unix {
-  deploy.commands = ./deploy.sh
+  deploy.commands = ./deploy.py
 }
 macx {
 

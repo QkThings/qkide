@@ -18,7 +18,6 @@ class pTextDock;
 class HomeHeader;
 class QkExplorerWidget;
 class QkSerialConnection;
-class QkConnectionThread;
 class CodeParser;
 class CodeParserThread;
 class QComboBox;
@@ -221,7 +220,6 @@ private:
     QString m_projectDefaultLocation;
 
     QkSerialConnection *m_serialConn;
-    QkConnectionThread *m_connThread;
 
     QComboBox *m_comboTarget;
 

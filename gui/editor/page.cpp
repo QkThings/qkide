@@ -186,9 +186,18 @@ void Page::keyPressEvent(QKeyEvent *e)
     if(!isShortcut)
         QPlainTextEdit::keyPressEvent(e);
 
+
+//    qDebug() << "current line" << textCursor().block().text().trimmed();
+
+//    foreach(const CodeParser::Element &el, m_completer->allElements())
+//    {
+
+//    }
+
 //    QPoint toolTipPos = viewport()->mapToGlobal(cursorRect().topRight());
 //    toolTipPos.setY(toolTipPos.y() - 40);
 //    QToolTip::showText(toolTipPos, "qk_setSamplingFrequency(uint32_t freq)");
+
 
     onChar(e->text().at(0).toLatin1());
     if(!m_completer->popup()->isVisible())

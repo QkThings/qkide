@@ -2,6 +2,8 @@
 #include "highlighter.h"
 #include "completer.h"
 
+#include "qkide_global.h"
+
 #include <QDebug>
 #include <QFont>
 #include <QFontMetrics>
@@ -30,17 +32,9 @@ Page::Page(const QString &name, QWidget *parent) :
     p.setColor(QPalette::Text, QColor("#222"));
     setPalette(p);
 
-//#ifdef Q_OS_LINUX
-//    QFont font("Monospace", 9);
-//#else
-//    QFont font("Consolas", 10);
-//#endif
-
-    QFont font("Monaco", 9);
-    setFont(font);
-
-    QFontMetrics fm(font);
-    setTabStopWidth(2*fm.width(" "));
+    setFont(QFont(EDITOR_FONT_NAME, EDITOR_FONT_SIZE));
+    QFontMetrics fm(font());
+    setTabStopWidth(4*fm.width(" ")+1);
 
     setWordWrapMode(QTextOption::NoWrap);
     setUndoRedoEnabled(true);
@@ -182,9 +176,14 @@ void Page::keyPressEvent(QKeyEvent *e)
         }
     }
 
+    bool bypassCompleter = false;
+
     bool isShortcut = ((e->modifiers() & Qt::ControlModifier) && e->key() == Qt::Key_Space);
     if(!isShortcut)
+    {
         QPlainTextEdit::keyPressEvent(e);
+
+    }
 
 
 //    qDebug() << "current line" << textCursor().block().text().trimmed();
@@ -287,6 +286,8 @@ void Page::keyPressEvent(QKeyEvent *e)
     bool hasModifier = (e->modifiers() != Qt::NoModifier) && !ctrlOrShift;
     QString completionPrefix = textUnderCursor();
 
+    qDebug() << "completionPrefix" << completionPrefix;
+
     QString input = e->text();
     input = input.remove(' ');
     input = input.remove('\t');
@@ -297,19 +298,20 @@ void Page::keyPressEvent(QKeyEvent *e)
     input = input.remove(')');
     input = input.remove(';');*/
     if (!isShortcut && (hasModifier || input.isEmpty() || completionPrefix.length() < 3
-                   || eow.contains(input.right(1)))) {
+                   || eow.contains(input.right(1))))
+    {
         m_completer->popup()->hide();
         return;
     }
 
-//    qDebug() << input;
-//    qDebug() << (int)input.at(0).unicode();
-//    qDebug() << input.isEmpty();
-//    qDebug() << "completionPrefix" << completionPrefix;
-
     completionPrefix.remove('(');
     completionPrefix.remove(')');
     completionPrefix.remove(';');
+
+//    if((e->modifiers() & Qt::ControlModifier) || e->key() == Qt::Key_Escape)
+//    {
+//        bypassCompleter = true;
+//    }
 
     if (completionPrefix != m_completer->completionPrefix()) {
         m_completer->setCompletionPrefix(completionPrefix);
@@ -318,7 +320,9 @@ void Page::keyPressEvent(QKeyEvent *e)
     QRect cr = cursorRect();
     cr.setWidth(m_completer->popup()->sizeHintForColumn(0)
              + m_completer->popup()->verticalScrollBar()->sizeHint().width());
-    m_completer->complete(cr); // popup it up!
+
+    if(!bypassCompleter)
+        m_completer->complete(cr); // popup it up!
 }
 
 QString Page::textUnderCursor() const

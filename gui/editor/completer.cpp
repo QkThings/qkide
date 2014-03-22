@@ -1,5 +1,7 @@
 #include "completer.h"
 
+#include "qkide_global.h"
+
 #include <QAbstractItemView>
 #include <QDebug>
 #include <QStandardItem>
@@ -10,7 +12,7 @@ Completer::Completer(QObject *parent) :
     QCompleter(parent)
 {
     QAbstractItemView *p = this->popup();
-    p->setFont(QFont("Monaco", 9));
+    p->setFont(QFont(EDITOR_FONT_NAME, EDITOR_FONT_SIZE));
 
     m_model = new QStandardItemModel(this);
     setModel(m_model);

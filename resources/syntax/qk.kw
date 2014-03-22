@@ -27,7 +27,7 @@ stop
 \>>
 \<<
 stop
-#rule,string,#EB6913,normal
+#rule,string,#EB3913,normal
 \".*\"
 stop
 #rule,comment,#AAAAAA,normal

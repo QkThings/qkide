@@ -17,7 +17,7 @@ pTextDock::pTextDock(const QString &title, const QColor &backgroundColor, QWidge
 #else
     m_textEdit->setFont(QFont("Courier",9));
 #endif*/
-    m_textEdit->setFont(QK_EDITOR_DEFAULT_FONT);
+    m_textEdit->setFont(QFont(EDITOR_FONT_NAME));
     m_textEdit->setReadOnly(false);
     m_textEdit->setFrameStyle(QFrame::NoFrame);
 

@@ -4,12 +4,17 @@
 #include <QMainWindow>
 #include "qkide_global.h"
 #include "editor/codeparser.h"
+#include "qkutils.h"
+
+using namespace QkUtils;
 
 class QkProject;
 class Browser;
 class Editor;
 class Page;
 class Completer;
+
+class OptionsDialog;
 
 class QSplitter;
 class QProcess;
@@ -136,6 +141,8 @@ private:
 
     Ui::QkIDE *ui;
 
+    OptionsDialog *m_optionsDialog;
+
     QkProject *m_curProject;
     QList<QkProject*> m_projects;
 
@@ -144,6 +151,8 @@ private:
     QTimer *m_parserTimer;
 
     QList<CodeParser::Element> m_libElements;
+
+    QMap<QString, Target> m_targets;
 
     QLayout *m_mainLayout;
 
@@ -221,13 +230,13 @@ private:
 
     QkSerialConnection *m_serialConn;
 
-    QComboBox *m_comboTarget;
-
     QAction *m_buttonRefreshPorts;
     QComboBox *m_comboPort;
     QComboBox *m_comboBaud;
     QPushButton *m_buttonConnect;
 
+    QComboBox *m_comboTargetName;
+    QComboBox *m_comboTargetVariant;
 
     QkExplorerWidget *m_explorerWidget;
     QDockWidget *m_explorerDock;

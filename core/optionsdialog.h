@@ -2,6 +2,9 @@
 #define OPTIONSDIALOG_H
 
 #include <QDialog>
+#include "qkutils.h"
+
+using namespace QkUtils;
 
 class QkIDE;
 
@@ -16,16 +19,20 @@ public:
     explicit OptionsDialog(QWidget *parent = 0);
     ~OptionsDialog();
 
+    void setTargets(const QMap<QString,Target> &targets);
+
 public slots:
 
 private slots:
-    void slotRefreshPorts();
+    void updateInterface();
     
 public:
     Ui::OptionsDialog *ui;
 
 private:
     static const QString emptyRowMsg;
+
+    QMap<QString,Target> m_targets;
 
     void setup();
     bool validPath(const QString &path);

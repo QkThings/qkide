@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>378</width>
-    <height>122</height>
+    <width>509</width>
+    <height>330</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,12 +32,12 @@
        </property>
        <item>
         <property name="text">
-         <string>Upload</string>
+         <string>Build</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Editor</string>
+         <string>Text Editor</string>
         </property>
        </item>
       </widget>
@@ -45,7 +45,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page_2">
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -62,61 +62,98 @@
           <number>0</number>
          </property>
          <item>
-          <layout class="QFormLayout" name="formLayout_4">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_10">
-             <property name="minimumSize">
-              <size>
-               <width>50</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Port</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_10">
+          <widget class="QTabWidget" name="tabWidget">
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <widget class="QWidget" name="tab_2">
+            <attribute name="title">
+             <string>Toolchain</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_4">
              <item>
-              <widget class="QComboBox" name="comboPortName"/>
+              <layout class="QFormLayout" name="formLayout_2">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label">
+                 <property name="text">
+                  <string>Target</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                 <item>
+                  <widget class="QComboBox" name="build_toolchain_comboTargetName"/>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="build_toolchain_comboTargetVariant"/>
+                 </item>
+                </layout>
+               </item>
+              </layout>
              </item>
              <item>
-              <widget class="QToolButton" name="refresh_toolButton">
-               <property name="text">
-                <string>Refresh</string>
+              <spacer name="verticalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
                </property>
-               <property name="icon">
-                <iconset resource="../resources/img.qrc">
-                 <normaloff>:/img/reload.png</normaloff>:/img/reload.png</iconset>
-               </property>
-               <property name="iconSize">
+               <property name="sizeHint" stdset="0">
                 <size>
-                 <width>14</width>
-                 <height>14</height>
+                 <width>20</width>
+                 <height>133</height>
                 </size>
                </property>
-               <property name="autoRaise">
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>This target is supported but its toolchain isn't currently installed.</string>
+               </property>
+               <property name="wordWrap">
                 <bool>true</bool>
                </property>
               </widget>
              </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_3">
+               <item>
+                <widget class="QToolButton" name="toolButton">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>Download and Install</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QToolButton" name="toolButton_2">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Remove</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
             </layout>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
+           </widget>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -158,7 +195,7 @@
                </property>
                <property name="currentFont">
                 <font>
-                 <family>Consolas</family>
+                 <family>Courier 10 Pitch</family>
                 </font>
                </property>
               </widget>
@@ -208,9 +245,7 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../resources/img.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

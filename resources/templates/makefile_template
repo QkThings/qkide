@@ -1,32 +1,103 @@
 ####################################################################
-# QkThings
+# qkthings                                                        
 ####################################################################
 
 TOOLCHAIN_DIR = {{toolchainDir}}
-APPNAME = {{appName}}
-APP_INCLUDE_DIR = {{appIncludeDir}}
-APP_SRC_DIR = {{appSourceDir}}
-QKPROGRAM_ROOT_DIR = {{qkProgramRoot}}
-TARGET = {{targetName}}
-BUILD_TARGET = {{buildTarget}}
-
-####################################################################
-# DEFINITIONS
-####################################################################
-QKPROGRAM_INCLUDE_DIR = \
-$(QKPROGRAM_ROOT_DIR)/include
+EMB_DIR = {{embDir}}
+TARGET = {{target}}
+APP = {{appDir}}
 
 .SUFFIXES:
-.PHONY: all debug release clean upload
+.PHONY: lib app test clean upload savetarget
+
+####################################################################
+# INIT                                                      
+####################################################################
+
+#PRINT_MESSAGES = 1
+
+ifeq ($(MAKECMDGOALS),)
+$(error Make what?)
+endif
+
+define init_lib
+PROJECT_NAME = $(LIB)
+BUILD_DIR    = $(LIB)/build
+endef
+
+define init_test
+PROJECT_NAME = $(TEST)
+BUILD_DIR    = test/build
+endef
+
+define init_app
+PROJECT_NAME ?= app
+BUILD_DIR    = $(APP)
+endef
+
+ifeq ($(MAKECMDGOALS), lib)
+ifneq ($(LIB),)
+$(info Builing LIB = $(LIB))
+$(eval $(call init_lib,))
+else
+$(error LIB must be defined)
+endif
+endif
+
+ifeq ($(MAKECMDGOALS), test)
+ifneq ($(TEST),)
+$(info Builing TEST = $(TEST))
+$(eval $(call init_test,))
+else
+$(error TEST must be defined)
+endif
+endif
+
+ifeq ($(MAKECMDGOALS), app)
+ifneq ($(APP),)
+$(info Builing APP = $(APP))
+$(eval $(call init_app,))
+else
+$(error APP must be defined)
+endif
+endif
+
+ifeq ($(MAKECMDGOALS), clean)
+ifeq ($(LIB),)
+ifeq ($(TEST),)
+ifeq ($(APP),)
+$(error You must define LIB, TEST or APP)
+else
+$(info Cleaning APP $(APP))
+$(eval $(call init_app,))
+endif
+else
+$(info Cleaning TEST $(TEST))
+$(eval $(call init_test,))
+endif
+else
+$(info Cleaning LIB $(LIB))
+$(eval $(call init_lib,))
+endif
+endif
+
+$(info PROJECT_NAME = $(PROJECT_NAME))
+$(info BUILD_DIR    = $(BUILD_DIR))
+
+OBJ_DIR = $(BUILD_DIR)/obj
+BIN_DIR = $(BUILD_DIR)/bin
+LIB_DIR = $(BUILD_DIR)/lib/$(TARGET_NAME)/$(TARGET_VARIANT)
 
 ifeq ($(TARGET),)
-  -include saved.target
+  -include target/saved.target
   ifeq ($(TARGET),)
-    ${info TARGET not defined, using target 'arduino.uno'}
+    $(info TARGET not defined, using default target "arduino.uno")
     TARGET=arduino.uno
   else
-    ${info using saved target '$(TARGET)'}
+    $(info TARGET not defined, using saved target $(TARGET))
   endif
+else
+  ${info TARGET  = $(TARGET)}
 endif
 
 get_target_name = $(firstword $(subst ., ,$1))
@@ -35,16 +106,9 @@ get_target_variant = $(or $(word 2,$(subst ., ,$1)),$(value 2))
 TARGET_NAME=$(call get_target_name,$(TARGET))
 TARGET_VARIANT=$(call get_target_variant,$(TARGET),$(TARGET_NAME))
 
-QKPROGRAM_TARGET_DIR = $(QKPROGRAM_ROOT_DIR)/build/target
-QKPROGRAM_LIB_DIR = $(QKPROGRAM_ROOT_DIR)/build/lib/$(TARGET_NAME)/$(TARGET_VARIANT)
-
-APPNAME ?= qkprogram_app
-PROJECTNAME = $(APPNAME)
-OBJ_DIR = obj
-BIN_DIR = bin
-
-OPTIMIZE = 0
-FORMAT = binary
+TARGET_BOARD=$(EMB_DIR)/target/$(TARGET_NAME)/board/$(TARGET_VARIANT).mk
+TARGET_CPU=$(EMB_DIR)/target/$(TARGET_NAME)/$(TARGET_NAME).mk
+TARGET_GLOBAL= $(TARGET_BOARD) $(TARGET_CPU)
 
 # Try autodetecting the environment
 ifeq ($(SHELLNAMES),)
@@ -71,13 +135,6 @@ else
   endif
 endif
 
-
-    # SHELL      := $(SHELLNAMES)
-    # RMDIRS     := rd /s /q
-    # RMFILES    := del /s /q
-    # ALLFILES   := \*.*
-    # NULLDEVICE := NUL
-
 RMDIRS     := rm -rf
 RMFILES    := rm -rf
 ALLFILES   := /*.*
@@ -85,41 +142,74 @@ NULLDEVICE := /dev/null
 SHELLNAMES := $(ComSpec)$(COMSPEC)
 
 ####################################################################
-# DIRS AND FLAGS
+# DEFINITIONS                                                      
 ####################################################################
 
+OPTIMIZE = s
+OFORMAT = binary
+
+####################################################################
+# DIRS AND FLAGS                     
+####################################################################
+
+ifeq ($(MAKECMDGOALS),lib)
+#-------------------------------------------------------------------
+  include $(PROJECT_NAME)/build/$(PROJECT_NAME).mk
+#-------------------------------------------------------------------
+else
+#-------------------------------------------------------------------
+CFLAGS += -DBUILD_DEVICE
+
+QKLIB_NAMES = \
+qkprogram
+
+QKLIB_PATHS = $(addsuffix /build/lib/$(TARGET_NAME)/$(TARGET_VARIANT), $(QKLIB_NAMES))
+LIBS += $(addprefix -L$(EMB_DIR)/, $(QKLIB_PATHS)) $(addprefix -l, $(QKLIB_NAMES))
+
 INCLUDE_DIR += \
-$(QKPROGRAM_INCLUDE_DIR) \
-$(APP_INCLUDE_DIR)
+$(EMB_DIR)/qkprogram/include
 
+include $(TARGET_GLOBAL)
+
+ifeq ($(MAKECMDGOALS),app)
+INCLUDE_DIR += \
+$(APP)
 C_SRC_DIR += \
-$(APP_SRC_DIR)
+$(APP)
+endif
 
-C_SRC := $(wildcard $(addsuffix /*.c, $(C_SRC_DIR)))
+ifeq ($(MAKECMDGOALS),test)
+C_SRC += test/$(TEST).c
+endif
+#-------------------------------------------------------------------
+endif
 
-include $(QKPROGRAM_TARGET_DIR)/$(TARGET_NAME)/$(TARGET_VARIANT).mk
-
-CFLAGS += -O$(OPTIMIZE) -g3 -Wall -D$(BUILD_TARGET)
-LIBS += -L$(QKPROGRAM_LIB_DIR) -lqkprogram
+CFLAGS += -O$(OPTIMIZE) -g3 -Wall
 LIBS += -lm
-ARFLAGS = rc
+ARFLAGS = rcs
 
-INCLUDEPATHS = $(addprefix -I, $(INCLUDE_DIR))
+INCLUDEPATHS += $(addprefix -I, $(INCLUDE_DIR))
+C_SRC += $(wildcard $(addsuffix /*.c, $(C_SRC_DIR)))
 
 # Create directories and do a clean which is compatible with parallell make
-$(shell mkdir $(OBJ_DIR)>$(NULLDEVICE) 2>&1)
-$(shell mkdir $(BIN_DIR)>$(NULLDEVICE) 2>&1)
+$(shell mkdir -p $(OBJ_DIR)>$(NULLDEVICE) 2>&1)
+ifneq ($(MAKECMDGOALS),lib)
+$(shell mkdir -p $(BIN_DIR)>$(NULLDEVICE) 2>&1)
+endif
+ifeq ($(MAKECMDGOALS),lib)
+  $(shell mkdir -p $(LIB_DIR)>$(NULLDEVICE) 2>&1)
+endif
 ifeq (clean,$(findstring clean, $(MAKECMDGOALS)))
-	ifneq ($(filter $(MAKECMDGOALS),all debug release),)
-	$(shell $(RMFILES) $(OBJ_DIR)$(ALLFILES)>$(NULLDEVICE) 2>&1)
-	$(shell $(RMFILES) $(BIN_DIR)$(ALLFILES)>$(NULLDEVICE) 2>&1)
-	endif
+  ifneq ($(filter $(MAKECMDGOALS),all debug release),)
+    $(shell $(RMFILES) $(OBJ_DIR)$(ALLFILES)>$(NULLDEVICE) 2>&1)
+    $(shell $(RMFILES) $(BIN_DIR)$(ALLFILES)>$(NULLDEVICE) 2>&1)
+    $(shell $(RMFILES) $(LIB_DIR)$(ALLFILES)>$(NULLDEVICE) 2>&1)
+  endif
 endif
 
 ###############################################################################
 # FILES
 ###############################################################################
-
 C_FILES = $(notdir $(C_SRC) )
 S_FILES = $(notdir $(S_SRC) $(s_SRC) )
 C_PATHS = $(sort $(dir $(C_SRC) ) )
@@ -137,14 +227,15 @@ vpath %.S $(S_PATHS)
 ###############################################################################
 # BUILD
 ###############################################################################
-all: app
-
-app:    $(BIN_DIR)/$(PROJECTNAME).bin
+#all: 	lib
+lib:	$(LIB_DIR)/lib$(PROJECT_NAME).a
+app:    $(BIN_DIR)/$(PROJECT_NAME).bin
+test:	app
 
 # Create objects from C SRC files
 $(OBJ_DIR)/%.o: %.c
 	@echo Compiling $<
-	$(CC) $(CFLAGS) $(INCLUDEPATHS) $(LIBS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(INCLUDEPATHS) -c -o $@ $<
 
 # Assemble .s/.S files
 $(OBJ_DIR)/%.o: %.s
@@ -156,43 +247,43 @@ $(OBJ_DIR)/%.o: %.S
 	$(CC) $(ASMFLAGS) $(INCLUDEPATHS) -c -o $@ $<
 
 # Link
-$(BIN_DIR)/$(PROJECTNAME).out: $(OBJS)
+$(BIN_DIR)/$(PROJECT_NAME).out: $(OBJS)
 	@echo Linking target: $@
-	$(CC) $(LDFLAGS) $(OBJS) $(LIBS) -o $(BIN_DIR)/$(PROJECTNAME).out
+	$(CC) $(LDFLAGS) $(OBJS) $(LIBS) -o $(BIN_DIR)/$(PROJECT_NAME).out
+	
+# Create static library
+$(LIB_DIR)/lib$(PROJECT_NAME).a: $(OBJS)
+	@echo Creating static library: $@
+	$(AR) $(ARFLAGS) $(LIB_DIR)/lib$(PROJECT_NAME).a $(OBJS)
 
 # Create binary file
-$(BIN_DIR)/$(PROJECTNAME).bin: $(BIN_DIR)/$(PROJECTNAME).out
+$(BIN_DIR)/$(PROJECT_NAME).bin: $(BIN_DIR)/$(PROJECT_NAME).out
 	@echo Creating binary file
-	$(OBJCOPY) -O $(FORMAT) $(BIN_DIR)/$(PROJECTNAME).out $(BIN_DIR)/$(PROJECTNAME).bin
-	$(PSIZE) $(BIN_DIR)/$(PROJECTNAME).out
+	$(OBJCOPY) -O $(OFORMAT) $(BIN_DIR)/$(PROJECT_NAME).out $(BIN_DIR)/$(PROJECT_NAME).bin
+	$(PSIZE) $(BIN_DIR)/$(PROJECT_NAME).out
 # Uncomment next line to produce assembly listing of entire program
-#	$(DUMP) -h -S -C $(BIN_DIR)/$(PROJECTNAME).out>$(LST_DIR)/$(PROJECTNAME)out.lst
+#	$(DUMP) -h -S -C $(BIN_DIR)/$(PROJECT_NAME).out>$(LST_DIR)/$(PROJECT_NAME)out.lst
 
 clean:
-ifeq ($(filter $(MAKECMDGOALS),all debug release),)
-	$(RMDIRS) $(OBJ_DIR) $(BIN_DIR)
+ifeq ($(filter $(MAKECMDGOALS),all ),)
+	$(RMDIRS) $(OBJ_DIR) $(BIN_DIR) $(LIB_DIR)
 endif
 
 # include auto-generated dependency files (explicit rules)
 ifneq (clean,$(findstring clean, $(MAKECMDGOALS)))
-	-include $(C_DEPS)
+-include $(C_DEPS)
 endif
 
 savetarget:
-	-@rm -f saved.target
+	-@rm -f target/saved.target
 	@echo "saving target"
-	@echo >saved.target "TARGET = $(TARGET)"
+	@echo >target/saved.target "TARGET = $(TARGET)"
 
 ###############################################################################
 # UPLOAD
 ###############################################################################
-ifeq ($(SHELLNAMES),)
-PORT := /dev/ttyACM0
-else
-PORT ?= COM19
-endif
-
-FILE ?= $(BIN_DIR)/$(PROJECTNAME).bin
+PORT ?= comm_port
+FILE ?= file_to_upload
 upload:
 	$(UPLOAD_CMD)
 

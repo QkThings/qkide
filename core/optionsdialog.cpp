@@ -18,7 +18,8 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
     ui->setupUi(this);
     setup();
 
-    slotRefreshPorts();
+    connect(ui->build_toolchain_comboTargetName, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(updateInterface()));
 }
 
 OptionsDialog::~OptionsDialog()
@@ -26,21 +27,17 @@ OptionsDialog::~OptionsDialog()
     delete ui;
 }
 
-void OptionsDialog::slotRefreshPorts()
-{
-    QStringList list;
-    foreach(QSerialPortInfo info, QSerialPortInfo::availablePorts())
-    {
-        list.append(info.portName());
-    }
-    ui->comboPortName->clear();
-    ui->comboPortName->addItems(list);
-}
-
 void OptionsDialog::setup()
 {
-    setWindowFlags(Qt::Dialog);
-    connect(ui->refresh_toolButton, SIGNAL(clicked()), this, SLOT(slotRefreshPorts()));
+    setWindowFlags(Qt::Tool);
+}
+
+void OptionsDialog::setTargets(const QMap<QString, Target> &targets)
+{
+    m_targets = targets;
+    ui->build_toolchain_comboTargetName->clear();
+    foreach(QString targetName, targets.keys())
+        ui->build_toolchain_comboTargetName->addItem(targetName);
 }
 
 
@@ -50,4 +47,14 @@ bool OptionsDialog::validPath(const QString &path)
         return false;
     else
         return true;
+}
+
+void OptionsDialog::updateInterface()
+{
+    QString targetName = ui->build_toolchain_comboTargetName->currentText();
+    Target target = m_targets[targetName];
+
+    ui->build_toolchain_comboTargetVariant->clear();
+    foreach(Target::Variant variant, target.variants)
+        ui->build_toolchain_comboTargetVariant->addItem(variant.name);
 }

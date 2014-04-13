@@ -41,6 +41,8 @@ private:
     QString m_name;
     QString m_path;
     QStringList m_files;
+    QString m_targetName;
+    QString m_targetVariant;
     bool m_readOnly;
     
 };

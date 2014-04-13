@@ -26,7 +26,7 @@ Highlighter::Highlighter(QTextDocument *document) : QSyntaxHighlighter(document)
 }
 
 void Highlighter::setupPermanentRules()
-{   
+{
     QString keywordColor;
     QString keyword;
     QTextCharFormat keywordFormat;
@@ -145,7 +145,8 @@ void Highlighter::addElement(const CodeParser::Element &element, bool permanent)
 
     textFormat.setForeground(QBrush(textColor));
     rule.format = textFormat;
-    rule.pattern = QRegExp(element.text);
+    QString regExpStr = "\\b(" + element.text + ")\\b";
+    rule.pattern = QRegExp(regExpStr);
 
     if(permanent)
         m_permanentRules.append(rule);

@@ -40,6 +40,9 @@ private:
     QLabel *targetLabel;
     QComboBox *targetCombo;
 
+    QComboBox *comboTargetName;
+    QComboBox *comboTargetVariant;
+
     QString m_defaultProjectPath;
 };
 

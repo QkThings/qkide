@@ -28,18 +28,27 @@ NewProjectPage::NewProjectPage(const QString &path, QWidget *parent) :
                         //"want to generate skeleton source code files."));
     //setPixmap(QWizard::LogoPixmap, QPixmap(":/img/qk_small.png"));
 
-    mainLayout = new QVBoxLayout;
+    mainLayout = new QVBoxLayout(this);
 
-    projectInfoLayout = new QFormLayout;
-    projectNameEdit = new QLineEdit;
-    projectInfoLayout->addRow(tr("Project name:"), projectNameEdit);
+    projectInfoLayout = new QFormLayout(this);
+    projectNameEdit = new QLineEdit(this);
+    projectInfoLayout->addRow(tr("Project name"), projectNameEdit);
+
+    comboTargetName = new QComboBox(this);
+    comboTargetVariant = new QComboBox(this);
+    hBox = new QHBoxLayout(this);
+    hBox->addWidget(comboTargetName);
+    hBox->addWidget(comboTargetVariant);
+
+//    projectInfoLayout->addRow(tr("Target"), hBox);
+
     createInEdit = new QLineEdit;
     createInEdit->setReadOnly(true);
     browseButton = new QPushButton(tr("Browse..."));
-    hBox = new QHBoxLayout;
+    hBox = new QHBoxLayout(this);
     hBox->addWidget(createInEdit);
     hBox->addWidget(browseButton);
-    projectInfoLayout->addRow(tr("Create in:"), hBox);
+    projectInfoLayout->addRow(tr("Create in"), hBox);
 
     defaultPathCheck = new QCheckBox(tr("Use as default project location"));
     warningLabel = new QLabel("warning");
@@ -49,15 +58,14 @@ NewProjectPage::NewProjectPage(const QString &path, QWidget *parent) :
     warningLabel->setPalette(p);
     warningLabel->hide();
 
-//    targetCombo = new QComboBox;
-//    targetInfoLayout = new QFormLayout;
-//    targetInfoLayout->addRow(tr("Target"), targetCombo);
+//    QFormLayout *targetLayout = new QFormLayout(this);
+//    targetLayout->addRow(tr("Target"), hBox);
 
     mainLayout->addLayout(projectInfoLayout);
     mainLayout->addWidget(defaultPathCheck);
     mainLayout->addWidget(warningLabel);
 //    mainLayout->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Minimum,QSizePolicy::Expanding));
-//    mainLayout->addLayout(targetInfoLayout);
+//    mainLayout->addLayout(targetLayout);
 
     setLayout(mainLayout);
 

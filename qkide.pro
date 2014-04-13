@@ -11,12 +11,11 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets webkitwidgets serialport
 TARGET = qkide
 TEMPLATE = app
 
-#QMAKE_LFLAGS += '-Wl,-rpath,\'../shared/lib/\',-z,origin'
 QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/../shared/lib/\',-z,origin'
-#QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/\',-z,origin'
 
 #DEFINES += QT_NO_DEBUG_OUTPUT
 
+INCLUDEPATH += ../utils
 INCLUDEPATH += core
 INCLUDEPATH += gui
 INCLUDEPATH += gui/widgets
@@ -50,7 +49,9 @@ SOURCES += main.cpp\
     gui/widgets/ptextedit.cpp \
     gui/editor/findreplacedialog.cpp \
     core/optionsdialog.cpp \
-    gui/editor/codeparser.cpp
+    gui/editor/codeparser.cpp \
+    ../utils/qkutils.cpp \
+    core/projectpreferencesdialog.cpp
 
 HEADERS  += qkide.h \
     qkide_global.h \
@@ -68,11 +69,14 @@ HEADERS  += qkide.h \
     gui/widgets/ptextedit.h \
     gui/editor/findreplacedialog.h \
     core/optionsdialog.h \
-    gui/editor/codeparser.h
+    gui/editor/codeparser.h \
+    ../utils/qkutils.h \
+    core/projectpreferencesdialog.h
 
 FORMS    += qkide.ui \
     gui/editor/findreplacedialog.ui \
-    core/optionsdialog.ui
+    core/optionsdialog.ui \
+    core/projectpreferencesdialog.ui
 
 RESOURCES += \
     resources/qkide_fonts.qrc \
@@ -94,10 +98,10 @@ RCC_DIR = build/rcc
 UI_DIR = build/ui
 
 win32 {
-  deploy.commands = deploy.bat
+  deploy.commands = python deploy.py
 }
 unix {
-  deploy.commands = ./deploy.py
+  deploy.commands = python deploy.py
 }
 macx {
 

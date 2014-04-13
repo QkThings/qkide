@@ -42,6 +42,9 @@ QkIDE::QkIDE(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    m_optionsDialog = new OptionsDialog(this);
+    m_optionsDialog->hide();
+
     m_curProject = 0;
 
     m_browser = new Browser(this);
@@ -119,6 +122,18 @@ QkIDE::QkIDE(QWidget *parent) :
     readSettings();
 
 
+    QkUtils::setInfoPath(qApp->applicationDirPath() + "/resources/info");
+    m_targets = supportedTargets();
+
+    m_optionsDialog->setTargets(m_targets);
+
+
+    m_comboTargetName->clear();
+    foreach(QString targetName, m_targets.keys())
+        m_comboTargetName->addItem(targetName);
+
+    m_comboTargetName->setCurrentText("EFM32");
+
     m_serialConn = new QkSerialConnection(m_uploadPortName, 38400);
 //    connect(m_serialConn, SIGNAL(error(QString)), this, SLOT(slotError(QString)));
 
@@ -147,7 +162,7 @@ QkIDE::~QkIDE()
 
 void QkIDE::createActions()
 {
-    m_searchAct = new QAction(tr("Search..."), this);
+    m_searchAct = new QAction(tr("Find/Replace"), this);
     m_searchAct->setShortcuts(QKeySequence::Find);
     connect(m_searchAct, SIGNAL(triggered()), this, SLOT(slotSearch()));
 
@@ -180,7 +195,6 @@ void QkIDE::createActions()
     m_ProjectPreferencesAct = new QAction(tr("Preferences"), this);
     connect(m_ProjectPreferencesAct, SIGNAL(triggered()), this, SLOT(slotProjectPreferences()));
 
-
     m_zoomInAct = new QAction(QIcon(":/img/zoom_in.png"),tr("Zoom In"),this);
     m_zoomOutAct = new QAction(QIcon(":/img/zoom_out.png"),tr("Zoom Out"),this);
     connect(m_zoomInAct, SIGNAL(triggered()), this, SLOT(slotZoomIn()));
@@ -211,8 +225,8 @@ void QkIDE::createActions()
     m_explorerAct = new QAction(QIcon(":/img/explorer.png"), tr("Show/Hide Explorer"), this);
     connect(m_explorerAct, SIGNAL(triggered()), this, SLOT(slotShowHideExplorer()));
 
-//    m_targetAct = new QAction(QIcon(":/img/target_16.png"), tr("Show/Hide Target"), this);
-//    connect(m_targetAct, SIGNAL(triggered()), this, SLOT(slotShowHideTarget()));
+    m_targetAct = new QAction(QIcon(":/img/target_16.png"), tr("Show/Hide Target"), this);
+    connect(m_targetAct, SIGNAL(triggered()), this, SLOT(slotShowHideTarget()));
 
 //    m_connectAct = new QAction(QIcon(":/img/connect_16.png"), tr("Show/Hide Target"), this);
 //    connect(m_connectAct, SIGNAL(triggered()), this, SLOT(slotShowHideConnection()));
@@ -312,7 +326,7 @@ void QkIDE::createMenus()
     ui->menuBar->addMenu(m_editMenu);
     //ui->menuBar->addMenu(m_viewMenu);
     ui->menuBar->addMenu(m_projectMenu);
-    //ui->menuBar->addMenu(m_toolsMenu);
+    ui->menuBar->addMenu(m_toolsMenu);
     //ui->menuBar->addMenu(m_windowMenu);
     //ui->menuBar->addMenu(m_helpMenu);
 }
@@ -354,17 +368,18 @@ void QkIDE::createToolbars()
     m_qkToolbar->setIconSize(QSize(16,16));
 
 
-//    m_qkToolbar->addAction(m_targetAct);
 //    m_qkToolbar->addAction(m_connectAct);
     m_qkToolbar->addAction(m_testAct);
 
-//    m_comboTarget = new QComboBox(m_qkToolbar);
-//    m_comboTarget->setMinimumWidth(120);
 
     m_buttonRefreshPorts = new QAction(QIcon(":/img/reload.png"),tr("Reload Available Serial Ports"),this);
     connect(m_buttonRefreshPorts, SIGNAL(triggered()), this, SLOT(slotReloadSerialPorts()));
 
     m_comboPort = new QComboBox(m_qkToolbar);
+    m_comboTargetName = new QComboBox(m_qkToolbar);
+    m_comboTargetVariant = new QComboBox(m_qkToolbar);
+
+    connect(m_comboTargetName, SIGNAL(currentIndexChanged(int)), this, SLOT(updateInterface()));
 
 //    m_comboBaud = new QComboBox(m_qkToolbar);
 //    m_comboBaud->addItem("38400");
@@ -379,8 +394,11 @@ void QkIDE::createToolbars()
     m_qkToolbar->addAction(m_explorerAct);
 //    m_qkToolbar->addWidget(m_comboTarget);
 //    m_qkToolbar->addSeparator();
+//    m_qkToolbar->addAction(m_targetAct);
     m_qkToolbar->addAction(m_buttonRefreshPorts);
     m_qkToolbar->addWidget(m_comboPort);
+    m_qkToolbar->addWidget(m_comboTargetName);
+    m_qkToolbar->addWidget(m_comboTargetVariant);
     //m_qkToolbar->addWidget(m_comboBaud);
     //m_qkToolbar->addWidget(m_buttonConnect);
 
@@ -451,7 +469,7 @@ void QkIDE::createReference()
 
     m_referenceWindow->setCentralWidget(referenceWidget);
     m_referenceWindow->setWindowTitle("qkreference");
-    m_referenceWindow->resize(700,600);
+    m_referenceWindow->resize(750,600);
 }
 
 void QkIDE::setupLayout()
@@ -543,12 +561,17 @@ void QkIDE::slotHome(bool go)
 
 void QkIDE::slotOptions()
 {
-    int i;
-    QSettings settings;
-    OptionsDialog dialog(this);
 
-    if(dialog.exec() == QDialog::Accepted)
-    {
+    if(m_optionsDialog->isVisible())
+        m_optionsDialog->hide();
+    else
+        m_optionsDialog->show();
+//    int i;
+//    QSettings settings;
+//    OptionsDialog dialog(this);
+
+//    if(dialog.exec() == QDialog::Accepted)
+//    {
 //        m_uploadPortName = dialog.ui->comboPortName->currentText();
 //        m_serialConn->setPortName(m_uploadPortName);
 
@@ -560,7 +583,7 @@ void QkIDE::slotOptions()
 //        settings.endGroup();
 //        QApplication::restoreOverrideCursor();
 //        ui->statusBar->clearMessage();
-    }
+//    }
 }
 
 void QkIDE::slotOpenExample()
@@ -758,6 +781,7 @@ void QkIDE::slotClean()
     QStringList arguments;
     //arguments << "-f /home/mribeiro/bitbucket/qkthings/software/qkide/release/temp/temp.mk";//;QString("-f " + makefilePath);
     arguments << "clean";
+    arguments << "APP="+m_curProject->path();
 
     qDebug() << make << arguments;
 
@@ -797,6 +821,9 @@ void QkIDE::slotVerify()
 
     QString program = makeCmd;
     QStringList arguments;
+    arguments << "app";
+    arguments << "APP=" + m_curProject->path();
+    arguments << "PROJECT_NAME=" + m_curProject->name();
 
     m_verifyProcess->setWorkingDirectory(m_curProject->path());
     m_verifyProcess->waitForFinished();
@@ -851,6 +878,7 @@ void QkIDE::slotUpload()
 #else
     arguments << "PORT=/dev/" + m_uploadPortName;
 #endif
+    arguments << "FILE=" + m_curProject->path() + "bin/" + m_curProject->name() + ".bin";
 
     m_verifyProcess->setWorkingDirectory(m_curProject->path());
     m_verifyProcess->waitForFinished();
@@ -903,10 +931,16 @@ void QkIDE::slotShowHideExplorer()
 
 void QkIDE::slotShowHideTarget()
 {
-    if(m_comboTarget->isVisible())
-        m_comboTarget->hide();
+    if(m_comboTargetName->isVisible())
+    {
+        //m_comboTargetName->hide();
+        m_comboTargetVariant->hide();
+    }
     else
-        m_comboTarget->show();
+    {
+        //m_comboTargetName->show();
+        m_comboTargetVariant->show();
+    }
 }
 
 void QkIDE::slotShowHideConnect()
@@ -1042,15 +1076,29 @@ void QkIDE::createMakefile(QkProject *project)
     QTextStream out(&makefileFile);
     QString makefileTemplate = in.readAll();
 
-    QString appDir = QApplication::applicationDirPath();
+    QString appDir = qApp->applicationDirPath();
 
-    makefileTemplate.replace("{{qkProgramRoot}}", appDir + QKPROGRAM_DIR);
+    QString targetName = m_comboTargetName->currentText().toLower();
+    QString targetVariant = m_comboTargetVariant->currentText().toLower();
+    QString target = targetName + "." + targetVariant;
+
+//    TOOLCHAIN_DIR = {{toolchainDir}}
+//    APP = {{appDir}}
+//    EMB_DIR = {{embDir}}
+//    TARGET = {{target}}
+
+    makefileTemplate.replace("{{embDir}}", appDir + EMB_DIR);
     makefileTemplate.replace("{{toolchainDir}}", appDir + TOOLCHAIN_DIR);
-    makefileTemplate.replace("{{appName}}", project->name());
-    makefileTemplate.replace("{{appIncludeDir}}", project->path());
-    makefileTemplate.replace("{{appSourceDir}}", project->path());
-    makefileTemplate.replace("{{targetName}}", "arduino.uno");
-    makefileTemplate.replace("{{buildTarget}}", "BUILD_DEVICE");
+    makefileTemplate.replace("{{appDir}}", project->path());
+    makefileTemplate.replace("{{target}}", target);
+
+//    makefileTemplate.replace("{{qkProgramRoot}}", appDir + QKPROGRAM_DIR);
+//    makefileTemplate.replace("{{toolchainDir}}", appDir + TOOLCHAIN_DIR);
+//    makefileTemplate.replace("{{appName}}", project->name());
+//    makefileTemplate.replace("{{appIncludeDir}}", project->path());
+//    makefileTemplate.replace("{{appSourceDir}}", project->path());
+//    makefileTemplate.replace("{{target}}", target);
+//    makefileTemplate.replace("{{buildTarget}}", "BUILD_DEVICE");
 
     out << makefileTemplate;
 
@@ -1201,6 +1249,13 @@ void QkIDE::updateInterface()
     m_cleanAct->setEnabled(buildActEnabled);
     m_verifyAct->setEnabled(buildActEnabled);
     m_uploadAct->setEnabled(buildActEnabled);
+
+    QString targetName = m_comboTargetName->currentText();
+    Target target = m_targets.value(targetName);
+
+    m_comboTargetVariant->clear();
+    foreach(Target::Variant variant, target.variants)
+        m_comboTargetVariant->addItem(variant.name);
 }
 
 void QkIDE::showInfoMessage(const QString &msg)

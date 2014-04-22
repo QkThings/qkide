@@ -34,11 +34,11 @@ NewProjectPage::NewProjectPage(const QString &path, QWidget *parent) :
     projectNameEdit = new QLineEdit(this);
     projectInfoLayout->addRow(tr("Project name"), projectNameEdit);
 
-    comboTargetName = new QComboBox(this);
-    comboTargetVariant = new QComboBox(this);
-    hBox = new QHBoxLayout(this);
-    hBox->addWidget(comboTargetName);
-    hBox->addWidget(comboTargetVariant);
+//    comboTargetName = new QComboBox(this);
+//    comboTargetVariant = new QComboBox(this);
+//    hBox = new QHBoxLayout(this);
+//    hBox->addWidget(comboTargetName);
+//    hBox->addWidget(comboTargetVariant);
 
 //    projectInfoLayout->addRow(tr("Target"), hBox);
 

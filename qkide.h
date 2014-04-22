@@ -6,7 +6,7 @@
 #include "editor/codeparser.h"
 #include "qkutils.h"
 
-using namespace QkUtils;
+//using namespace QkUtils;
 
 class QkProject;
 class Browser;
@@ -152,7 +152,7 @@ private:
 
     QList<CodeParser::Element> m_libElements;
 
-    QMap<QString, Target> m_targets;
+    QMap<QString, QkUtils::Target> m_targets;
 
     QLayout *m_mainLayout;
 

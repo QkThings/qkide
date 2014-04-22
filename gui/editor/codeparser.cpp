@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QTimer>
 #include <QEventLoop>
+#include <QRegularExpression>
 
 CodeParser::CodeParser(QObject *parent) :
     QObject(parent)
@@ -16,7 +17,6 @@ CodeParser::CodeParser(QObject *parent) :
 
 void CodeParser::parse(const QString &path)
 {
-    qDebug() << __FUNCTION__ << path;
     QString program = QApplication::applicationDirPath() + CTAGS_EXE;
     QStringList arguments;
     //QString output = "-f " + TAGS_DIR + "/tags";
@@ -28,9 +28,7 @@ void CodeParser::parse(const QString &path)
 
     QProcess process(this);
     process.setProcessChannelMode(QProcess::MergedChannels);
-    //process.setWorkingDirectory(path);
-
-    qDebug() << program << arguments;
+    //process.setWorkingDirectory(path);    
 
     process.start(program, arguments);
     process.waitForFinished(30000);
@@ -49,8 +47,17 @@ void CodeParser::parse(const QString &path)
         QString line = tags.readLine();
         if(line[0] == '!' || line[0] == '_')
             continue;
-        QStringList fields = line.split('\t');
-        //qDebug() << "fields" << fields << "count:" << fields.count();
+
+        QRegularExpression re("(\\/\\^.*\\$\\/;\")|([^\\t]+)");
+        QRegularExpressionMatchIterator it = re.globalMatch(line);
+        QStringList fields;
+        while (it.hasNext())
+        {
+            QRegularExpressionMatch match = it.next();
+            if (match.hasMatch())
+                 fields.append(match.captured());
+        }
+
         Element el;
         el.text = fields[0].remove('"');
         el.fileName = fields.at(1);
@@ -61,7 +68,14 @@ void CodeParser::parse(const QString &path)
         QString typeStr = fields.at(3);
         typeStr.remove('\n');
         if(typeStr == "f" || typeStr == "p")
+        {
             el.type = Element::Function;
+            el.prototype = el.expression;
+            el.prototype.remove('$');
+            el.prototype.remove('^');
+            el.prototype.remove('/');
+            el.prototype.remove(';');
+        }
         else if(typeStr == "d")
             el.type = Element::Define;
         else if(typeStr == "v")
@@ -74,23 +88,23 @@ void CodeParser::parse(const QString &path)
         switch(el.type)
         {
         case Element::Function:
-            if(!hasElement(el.text, m_functions))
+            if(hasElement(el.text, m_functions) == -1)
                 m_functions.append(el);
             break;
         case Element::Define:
-            if(!el.text.endsWith("_H") && !hasElement(el.text, m_defines))
+            if(!el.text.endsWith("_H") && hasElement(el.text, m_defines) == -1)
                 m_defines.append(el);
             break;
         case Element::Enum:
-            if(!hasElement(el.text, m_enums))
+            if(hasElement(el.text, m_enums) == -1)
                 m_enums.append(el);
             break;
         case Element::Variable:
-            if(!hasElement(el.text, m_variables))
+            if(hasElement(el.text, m_variables) == -1)
                 m_variables.append(el);
             break;
         case Element::Typedef:
-            if(!hasElement(el.text, m_types))
+            if(hasElement(el.text, m_types) == -1)
                 m_types.append(el);
             break;
         case Element::Unknown:
@@ -121,6 +135,7 @@ QList<CodeParser::Element> CodeParser::allElements()
     allElements.append(m_types);
     allElements.append(m_functions);
     allElements.append(m_variables);
+
     return allElements;
 }
 
@@ -133,12 +148,14 @@ void CodeParser::clear()
     m_variables.clear();
 }
 
-bool CodeParser::hasElement(const QString &text, const QList<Element> &list)
+int CodeParser::hasElement(const QString &text, const QList<Element> &list)
 {
-    foreach(const Element &el, list)
-        if(el.text == text)
-            return true;
-    return false;
+    for(int i = 0; i < list.size(); i++)
+    {
+        if(list[i].text == text)
+            return i;
+    }
+    return -1;
 }
 
 CodeParserThread::CodeParserThread(QObject *parent) :
@@ -152,12 +169,7 @@ CodeParserThread::CodeParserThread(QObject *parent) :
 
 void CodeParserThread::startTimer()
 {
-    qDebug() << "TIMER STARTED";
     m_timer->start();
-    //QEventLoop eventLoop;
-    //connect(m_timer, SIGNAL(timeout()), &eventLoop, SLOT(quit()));
-    //m_timer->start();
-    //eventLoop.exit();
 }
 
 void CodeParserThread::slotParse()
@@ -167,8 +179,7 @@ void CodeParserThread::slotParse()
 }
 
 void CodeParserThread::slotParsed()
-{
-    qDebug() << "parsed";
+{    
 }
 
 void CodeParserThread::run()

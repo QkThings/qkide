@@ -26,6 +26,7 @@ public:
         QString text;
         QString fileName;
         QString expression;
+        QString prototype;
         Type type;
         bool local;
     };
@@ -39,6 +40,8 @@ public:
     QList<Element> types() { return m_types; }
     QList<Element> variables() { return m_variables; }
 
+    static int hasElement(const QString &text, const QList<Element> &list);
+
 signals:
     void parsed();
 
@@ -50,13 +53,12 @@ private slots:
 
 
 private:
-    bool hasElement(const QString &text, const QList<Element> &list);
-
     QList<Element> m_functions;
     QList<Element> m_defines;
     QList<Element> m_enums;
     QList<Element> m_types;
     QList<Element> m_variables;
+
 
 };
 

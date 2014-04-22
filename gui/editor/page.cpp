@@ -1,6 +1,7 @@
 #include "page.h"
 #include "highlighter.h"
 #include "completer.h"
+#include "codetip.h"
 
 #include "qkide_global.h"
 
@@ -21,6 +22,8 @@
 #include <QListWidget>
 #include <QToolTip>
 #include <QKeyEvent>
+#include <QAbstractItemModel>
+#include <QStandardItemModel>
 
 Page::Page(const QString &name, QWidget *parent) :
     QPlainTextEdit(parent),
@@ -46,8 +49,15 @@ Page::Page(const QString &name, QWidget *parent) :
     m_completer->setCompletionMode(QCompleter::PopupCompletion);
     m_completer->setCaseSensitivity(Qt::CaseSensitive);
 
-    QObject::connect(m_completer, SIGNAL(activated(QString)),
-                     this, SLOT(insertCompletion(QString)));
+    connect(m_completer, SIGNAL(activated(QString)),
+            this, SLOT(insertCompletion(QString)));
+
+    connect(m_completer, SIGNAL(activated(QModelIndex)),
+            this, SLOT(insertCompletionModel(QModelIndex)));
+
+
+    m_codeTip = new CodeTip(this);
+    m_codeTip->hide();
 
     lineNumberArea = new LineNumberArea(this);
     foldsLine = new FoldsLine(this);
@@ -153,18 +163,182 @@ void Page::mousePressEvent(QMouseEvent *e)
     m_lastTextCursorPosition = textCursor().position();
 }
 
+QTextLine Page::currentTextLine(const QTextCursor &cursor)
+{
+    const QTextBlock block = cursor.block();
+    if (!block.isValid())
+        return QTextLine();
+
+    const QTextLayout *layout = block.layout();
+    if (!layout)
+        return QTextLine();
+
+    const int relativePos = cursor.position() - block.position();
+    return layout->lineForTextPosition(relativePos);
+}
+
+QStringList Page::parseFunctionArgs(const QString &args)
+{
+    QString arg;
+    QStringList list;
+    int parenthesesDepth = 0;
+    bool isString = false;
+    for(int i = 0; i < args.size(); i++)
+    {
+        char c = args.at(i).toLatin1();
+
+        if(c == '"')
+            isString = !isString;
+        else if(c == '(')
+            parenthesesDepth++;
+        else if(c == ')')
+            parenthesesDepth--;
+
+        if(c == ',' && !isString && parenthesesDepth == 0)
+        {
+            list.append(arg);
+            arg.clear();
+        }
+        else
+            arg.append(c);
+    }
+    list.append(arg);
+    return list;
+}
+
+int Page::functionArg(int cursorPos, QStringList args)
+{
+    int i, count;
+    if(args.count() == 0 || (args.count() == 1 && args[0] == ""))
+        return 0;
+    for(i = 0, count = 0; i < args.count(); i++)
+    {
+        count += args[i].size();
+        if(cursorPos <= (count+1))
+            return i;
+    }
+    return i-1;
+}
+
+
+bool Page::setFunctionTooltip(bool show)
+{
+    if(!show)
+    {
+        m_codeTip->hide();
+        return false;
+    }
+
+    QTextCursor tc = textCursor();
+    int curPos = tc.position();
+    tc.movePosition(QTextCursor::StartOfLine);
+    int linePos = tc.position();
+
+    curPos -= linePos;
+
+    QString line = lineUnderCursor(tc);
+
+    QVector< QPair<int,int> > parenthesesPairs;
+
+    QList< QPair<int,int> > validPairs;
+
+    parenthesesPairs.resize(32);
+
+    int depthLevel = 0;
+    int countForward = 0;
+    int countBackward = 0;
+
+    for(int i = 0; i < line.size(); i++)
+    {
+        char c = line.at(i).toLatin1();
+        if(c == '(')
+        {
+            parenthesesPairs[depthLevel].first = i;
+            depthLevel++;
+            countForward++;
+        }
+        else if(c == ')')
+        {
+            depthLevel--;
+            parenthesesPairs[depthLevel].second = i;
+            countBackward++;
+            validPairs.append(parenthesesPairs[depthLevel]);
+        }
+    }
+
+    int countPairs = qMin(countForward, countBackward);
+    parenthesesPairs.resize(countPairs);
+
+    for(int i = 0; i < validPairs.count(); i++)
+    {
+        int forwardPos = validPairs[i].first;
+        int backwardPos = validPairs[i].second;
+
+        if(curPos >= forwardPos && curPos <= backwardPos)
+        {
+            QString contents = line.mid(forwardPos + 1, backwardPos - forwardPos - 1);
+            QStringList arguments = parseFunctionArgs(contents);
+
+            QTextCursor lineCursor = textCursor();
+            lineCursor.setPosition(linePos + forwardPos - 1);
+            lineCursor.select(QTextCursor::WordUnderCursor);
+            QString functionName = lineCursor.selectedText();
+
+            QList<CodeParser::Element> functions = completer()->functions();
+            int idx = CodeParser::hasElement(functionName, functions);
+            if(idx != -1)
+            {
+                QFontMetrics fm(font());
+                lineCursor.setPosition(linePos + forwardPos + 1);
+
+                QPoint toolTipPos = viewport()->mapToGlobal(cursorRect(lineCursor).topRight());
+                toolTipPos.setY(toolTipPos.y() - (font().pointSize()*2+6));
+
+                QString prototype = functions[idx].prototype;
+                QString temp = prototype.mid(prototype.indexOf('('));
+                temp.remove(0, 1).chop(1);
+                QStringList prototypeArgs = parseFunctionArgs(temp);
+
+
+                QString codeTipText = prototype;
+                int argNum = functionArg(curPos - forwardPos, arguments);
+
+                qDebug() << "ARGS" << arguments << "count =" << arguments.count();
+                qDebug() << "ARG NUM" << argNum;
+                qDebug() << "CODE TIP" << codeTipText;
+                qDebug() << "LEN BEFORE" << codeTipText.length();
+                qDebug() << prototypeArgs;
+                if(argNum != -1 && argNum < prototypeArgs.count() && prototypeArgs[argNum] != "")
+                    codeTipText.replace(prototypeArgs[argNum], "<b>" + prototypeArgs[argNum] + "</b>");
+                qDebug() << "LEN AFTER" << codeTipText.length();
+
+                m_codeTip->setFont(font());
+                m_codeTip->setText(codeTipText);
+                m_codeTip->move(toolTipPos.x(), toolTipPos.y());
+                m_codeTip->show();
+                return true;
+            }
+        }
+    }
+    m_codeTip->hide();
+    return false;
+}
+
 void Page::keyPressEvent(QKeyEvent *e)
 {
-    if(isReadOnly() && (e->modifiers() == Qt::NoModifier)) {
+    if(isReadOnly() && (e->modifiers() == Qt::NoModifier))
+    {
         qDebug() << "can't edit, read-only file!";
         emit info(tr("This is a read-only project.\n"
                      "To change it you need to re-save it to another location."));
         return;
     }
 
-    if(m_completer->popup()->isVisible()) {
-
-        switch(e->key()) {
+    if(m_completer->popup()->isVisible())
+    {
+//        setFunctionTooltip(false);
+        switch(e->key())
+        {
         case Qt::Key_Enter:
         case Qt::Key_Return:
         case Qt::Key_Escape:
@@ -178,29 +352,22 @@ void Page::keyPressEvent(QKeyEvent *e)
 
     bool bypassCompleter = false;
 
-    bool isShortcut = ((e->modifiers() & Qt::ControlModifier) && e->key() == Qt::Key_Space);
-    if(!isShortcut)
+    bool requestCompleter = ((e->modifiers() & Qt::ControlModifier) && e->key() == Qt::Key_Space);
+
+    if(!requestCompleter)
     {
         QPlainTextEdit::keyPressEvent(e);
-
     }
 
-
-//    qDebug() << "current line" << textCursor().block().text().trimmed();
-
-//    foreach(const CodeParser::Element &el, m_completer->allElements())
-//    {
-
-//    }
-
-//    QPoint toolTipPos = viewport()->mapToGlobal(cursorRect().topRight());
-//    toolTipPos.setY(toolTipPos.y() - 40);
-//    QToolTip::showText(toolTipPos, "qk_setSamplingFrequency(uint32_t freq)");
-
-
     onChar(e->text().at(0).toLatin1());
-    if(!m_completer->popup()->isVisible())
+
+    //FIXME textChanged should be used instead
+    bool emitKeyPressed = !m_completer->popup()->isVisible() &&
+                           e->modifiers() == Qt::NoModifier &&
+                           (e->key() != Qt::Key_Left && e->key() && Qt::Key_Right && e->key() && Qt::Key_Up && e->key() != Qt::Key_Down);
+    if(emitKeyPressed)
         emit keyPressed();
+
 
     if(e->key() == Qt::Key_Home)
     {
@@ -210,7 +377,7 @@ void Page::keyPressEvent(QKeyEvent *e)
         bool select = e->modifiers() & Qt::ShiftModifier;
 
         tc = textCursor();
-        if(!select) {
+        if(!select) {\
             tc.setPosition(m_lastTextCursorPosition, QTextCursor::MoveAnchor);
             tc.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
         }
@@ -245,7 +412,6 @@ void Page::keyPressEvent(QKeyEvent *e)
 
             cursorPos = m_lastTextCursorPosition;
 
-
             QTextCursor::MoveMode moveMode;
             if(select)
                 moveMode = QTextCursor::KeepAnchor;
@@ -278,13 +444,15 @@ void Page::keyPressEvent(QKeyEvent *e)
         autoIndent();
 
     const bool ctrlOrShift = e->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier);
-    if (ctrlOrShift && e->text().isEmpty())
+    bool editShortcut = ((e->modifiers() & Qt::ControlModifier) &&
+                        (e->key() == Qt::Key_C || e->key() == Qt::Key_V || e->key() == Qt::Key_X));
+    if ((ctrlOrShift && e->text().isEmpty()) || editShortcut)
         return;
 
     //static QString eow("~!@#$%^&*()_+{}|:\"<>?,./;'[]\\-="); // end of word
     static QString eow("~!@#$%^&*()+{}|:\"<>?,./;'[]\\-="); // end of word
     bool hasModifier = (e->modifiers() != Qt::NoModifier) && !ctrlOrShift;
-    QString completionPrefix = textUnderCursor();
+    QString completionPrefix = textUnderCursor(textCursor());
 
     qDebug() << "completionPrefix" << completionPrefix;
 
@@ -297,7 +465,7 @@ void Page::keyPressEvent(QKeyEvent *e)
     /*input = input.remove('(');
     input = input.remove(')');
     input = input.remove(';');*/
-    if (!isShortcut && (hasModifier || input.isEmpty() || completionPrefix.length() < 3
+    if (!requestCompleter && (hasModifier || input.isEmpty() || completionPrefix.length() < 3
                    || eow.contains(input.right(1))))
     {
         m_completer->popup()->hide();
@@ -319,33 +487,90 @@ void Page::keyPressEvent(QKeyEvent *e)
     }
     QRect cr = cursorRect();
     cr.setWidth(m_completer->popup()->sizeHintForColumn(0)
-             + m_completer->popup()->verticalScrollBar()->sizeHint().width());
+                + m_completer->popup()->verticalScrollBar()->sizeHint().width());
 
     if(!bypassCompleter)
         m_completer->complete(cr); // popup it up!
 }
 
-QString Page::textUnderCursor() const
+QString Page::lineUnderCursor(const QTextCursor &cursor) const
 {
-    QTextCursor tc = textCursor();
-    tc.select(QTextCursor::WordUnderCursor);
+    QTextCursor tc(cursor);
+    tc.select(QTextCursor::LineUnderCursor);
     return tc.selectedText();
+}
+
+QString Page::textUnderCursor(const QTextCursor &cursor) const
+{
+    QTextCursor tc(cursor);
+    QString text;
+    tc.select(QTextCursor::WordUnderCursor);
+    text = tc.selectedText();
+    int moveBackwards = 0;
+    if(text == ")" || text == ",")
+        moveBackwards = 2;
+    else if(text == ");")
+        moveBackwards = 3;
+
+    if(moveBackwards > 0)
+    {
+        tc.setPosition(tc.position() - moveBackwards, QTextCursor::MoveAnchor);
+        tc.select(QTextCursor::WordUnderCursor);
+        text = tc.selectedText();
+    }
+
+    return text;
 }
 
 void Page::focusInEvent(QFocusEvent *e)
 {
-    m_completer->setWidget(this);
     QPlainTextEdit::focusInEvent(e);
+    m_completer->setWidget(this);
     emit focused();
+}
+
+void Page::focusOutEvent(QFocusEvent *e)
+{
+    QPlainTextEdit::focusInEvent(e);
+    m_codeTip->hide();
 }
 
 void Page::insertCompletion(const QString &completion)
 {
+//    QTextCursor tc = textCursor();
+//    int extra = completion.length() - m_completer->completionPrefix().length();
+//    tc.movePosition(QTextCursor::Left);
+//    tc.movePosition(QTextCursor::EndOfWord);
+//    tc.insertText(completion.right(extra));
+//    setTextCursor(tc);
+}
+
+void Page::insertCompletionModel(const QModelIndex &index)
+{
+//    QAbstractItemModel *model = m_completer->completionModel();
+//    QStandardItemModel *model = (QStandardItemModel*)m_completer->completionModel();
+
+//    qDebug() << "index data:" << index.data() << "row:" << index.row();
+
+    QString completion = index.data().toString();
     QTextCursor tc = textCursor();
     int extra = completion.length() - m_completer->completionPrefix().length();
     tc.movePosition(QTextCursor::Left);
     tc.movePosition(QTextCursor::EndOfWord);
     tc.insertText(completion.right(extra));
+
+    QChar type = m_completer->completionModel()->data(index, Qt::UserRole + 1).toChar();
+    qDebug() << "completion type:" << type;
+    switch(type.toLatin1())
+    {
+    case 'f':
+        tc.beginEditBlock();
+        tc.insertText("()");
+        tc.movePosition(QTextCursor::Left);
+        tc.endEditBlock();
+    default: ;
+    }
+
     setTextCursor(tc);
 }
 
@@ -568,13 +793,23 @@ void Page::highlightCurrentLine()
 void Page::onChar(char c)
 {
     QTextCursor tc = textCursor();
-    if(c == '\"') {
+
+    if(c == '\"')
         insertPlainText("\"");
-        tc.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor);
-        setTextCursor(tc);
-    }
+    else if(c == '(')
+        insertPlainText(")");
     else if(c == '{' || c == '}')
         slotUpdateCodeBlocks();
+
+    switch(c)
+    {
+    case '\"':
+    case '(':
+        tc.movePosition(QTextCursor::PreviousCharacter, QTextCursor::MoveAnchor);
+        setTextCursor(tc);
+        break;
+    default: ;
+    }
 
 }
 
@@ -620,6 +855,7 @@ void Page::slotTextChanged()
 void Page::slotCursorPositionChanged()
 {
     //qDebug() << "cursor pos" << textCursor().position();
+    setFunctionTooltip(!m_completer->popup()->isVisible());
 }
 
 void Page::foldsLinePaintEvent(QPaintEvent *event)

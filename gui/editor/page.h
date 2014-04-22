@@ -37,6 +37,7 @@ protected:
     void mousePressEvent(QMouseEvent *e);
     void keyPressEvent(QKeyEvent *e);
     void focusInEvent(QFocusEvent *e);
+    void focusOutEvent(QFocusEvent *e);
 
 signals:
     void keyPressed();
@@ -53,6 +54,7 @@ private slots:
     void slotTextChanged();
     void slotCursorPositionChanged();
     void insertCompletion(const QString &completion);
+    void insertCompletionModel(const QModelIndex &index);
 
     void updateLineNumberAreaWidth(int newBlockCount);
     void highlightCurrentLine();
@@ -75,13 +77,19 @@ private:
     };
     Highlighter *m_highligher;
     Completer *m_completer;
+    CodeTip *m_codeTip;
     QString m_name;
     int m_lastTextCursorPosition;
 
     QWidget *lineNumberArea;
     QWidget *foldsLine;
 
-    QString textUnderCursor() const;
+    int functionArg(int cursorPos, QStringList args);
+    QStringList parseFunctionArgs(const QString &args);
+    bool setFunctionTooltip(bool show = true);
+    QTextLine currentTextLine(const QTextCursor &cursor);
+    QString lineUnderCursor(const QTextCursor &cursor) const;
+    QString textUnderCursor(const QTextCursor &cursor) const;
     QStringList keywordsFromFile(const QString& fileName);
     QAbstractItemModel *modelFromFiles(const QStringList fileNames);
     QAbstractItemModel *modelFromFile(const QString& fileName);

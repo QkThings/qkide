@@ -59,7 +59,7 @@ QkIDE::QkIDE(QWidget *parent) :
     m_stackedWidget->addWidget(m_browser);
     m_stackedWidget->addWidget(m_editor);
 
-    m_outputWindow = new pTextDock(tr("Output"), QColor("#444"), this);
+    m_outputWindow = new pTextDock(tr("Output"), QColor("#333"), this);
     m_outputWindow->textEdit()->setReadOnly(true);
     m_outputWindow->textEdit()->setWordWrapMode(QTextOption::WordWrap);
     m_outputWindow->setDefaultTextColor(Qt::white);
@@ -122,8 +122,8 @@ QkIDE::QkIDE(QWidget *parent) :
     readSettings();
 
 
-    QkUtils::setInfoPath(qApp->applicationDirPath() + "/resources/info");
-    m_targets = supportedTargets();
+    QkUtils::setEmbeddedPath(qApp->applicationDirPath() + "/resources/embedded");
+    m_targets = QkUtils::supportedTargets();
 
     m_optionsDialog->setTargets(m_targets);
 
@@ -844,7 +844,7 @@ void QkIDE::slotVerifyProcessOutput()
         QString line = m_verifyProcess->readLine();
         line.chop(1);
         if(line.toLower().contains("error"))
-            m_outputWindow->append(line, QColor("#EB8679"));
+            m_outputWindow->append(line, QColor("#FD8679"));
         else if(line.toLower().contains("warning"))
             m_outputWindow->append(line, QColor("#F5EFB3"));
         else
@@ -1048,6 +1048,7 @@ void QkIDE::setupPage(Page *page)
     completer->addElements(m_libElements, true);
     connect(page, SIGNAL(info(QString)), this, SLOT(showInfoMessage(QString)));
     connect(page, SIGNAL(keyPressed()), m_parserTimer, SLOT(start()));
+//    connect(page, SIGNAL(textChanged()), m_parserTimer, SLOT(start()));
 
     Highlighter *highlighter = page->highlighter();
     highlighter->addElements(m_libElements, true);
@@ -1248,13 +1249,13 @@ void QkIDE::updateInterface()
 
     m_cleanAct->setEnabled(buildActEnabled);
     m_verifyAct->setEnabled(buildActEnabled);
-    m_uploadAct->setEnabled(buildActEnabled);
+    m_uploadAct->setEnabled(buildActEnabled && m_comboPort->count() > 0);
 
     QString targetName = m_comboTargetName->currentText();
     Target target = m_targets.value(targetName);
 
     m_comboTargetVariant->clear();
-    foreach(Target::Variant variant, target.variants)
+    foreach(Target::Board variant, target.boards)
         m_comboTargetVariant->addItem(variant.name);
 }
 
@@ -1372,8 +1373,6 @@ void QkIDE::slotParse()
 
 void QkIDE::slotParsed()
 {
-    qDebug() << "QkIDE::slotParsed()";
-
 //    Highlighter::clearElements();
 //    Highlighter::addElements(m_codeParser->allElements());
 

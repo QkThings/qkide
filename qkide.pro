@@ -22,16 +22,16 @@ INCLUDEPATH += gui/widgets
 INCLUDEPATH += editor
 
 INCLUDEPATH += ../qkcore
-LIBS += -lqkcore
 QMAKE_LIBDIR += ../qkcore/release
+LIBS += -L../qkcore/release -lqkcore
 
 INCLUDEPATH += ../qkconnect
-LIBS += -lqkconnect
 QMAKE_LIBDIR += ../qkconnect/release
+LIBS += -L../qkconnect/release -lqkconnect
 
 INCLUDEPATH += ../qkwidget
-LIBS += -lqkwidget
 QMAKE_LIBDIR += ../qkwidget/release
+LIBS += -L../qkwidget/release -lqkwidget
 
 SOURCES += main.cpp\
         qkide.cpp \
@@ -51,7 +51,8 @@ SOURCES += main.cpp\
     core/optionsdialog.cpp \
     gui/editor/codeparser.cpp \
     ../utils/qkutils.cpp \
-    core/projectpreferencesdialog.cpp
+    core/projectpreferencesdialog.cpp \
+    gui/editor/codetip.cpp
 
 HEADERS  += qkide.h \
     qkide_global.h \
@@ -71,12 +72,14 @@ HEADERS  += qkide.h \
     core/optionsdialog.h \
     gui/editor/codeparser.h \
     ../utils/qkutils.h \
-    core/projectpreferencesdialog.h
+    core/projectpreferencesdialog.h \
+    gui/editor/codetip.h
 
 FORMS    += qkide.ui \
     gui/editor/findreplacedialog.ui \
     core/optionsdialog.ui \
-    core/projectpreferencesdialog.ui
+    core/projectpreferencesdialog.ui \
+    gui/editor/codetip.ui
 
 RESOURCES += \
     resources/qkide_fonts.qrc \

@@ -55,6 +55,6 @@ void OptionsDialog::updateInterface()
     Target target = m_targets[targetName];
 
     ui->build_toolchain_comboTargetVariant->clear();
-    foreach(Target::Variant variant, target.variants)
+    foreach(Target::Board variant, target.boards)
         ui->build_toolchain_comboTargetVariant->addItem(variant.name);
 }

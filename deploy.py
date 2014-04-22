@@ -5,13 +5,14 @@ from distutils.dir_util import copy_tree
 from subprocess import call
 
 def cp(root_src,root_dest,rel_path):
+	print "Copying %s from %s to %s" % (rel_path, root_src, root_dest)
 	copy_tree(path.join(root_src, rel_path), path.join(root_dest, rel_path))
 	
 
 def deploy():
 	rootdir = getcwd()
 	
-	deploy_embedded = True
+	deploy_embedded = False
 	cp_toolchain = False
 
 	# Paths
@@ -23,7 +24,7 @@ def deploy():
 	QKPROGRAM_DIR = path.join(EMBEDDED_DIR, "qkprogram")
 	EMBEDDED_SHARED_DIR = path.join(EMBEDDED_DIR, "shared")
 
-	TOOLS_DIR = path.join(rootdir, "../tools/linux")
+	TOOLS_DIR = path.join(SOFTWARE_SHARED_DIR, "linux/tools")
 	CTAGS_DIR = path.join(TOOLS_DIR, "ctags")
 
 	RELEASE_DIR = path.join(rootdir, "release")
@@ -62,7 +63,7 @@ def deploy():
 	cp(TOOLS_DIR, RELEASE_TOOLS_DIR, "ctags")
 	cp("resources", RELEASE_RESOURCES_DIR, "html")
 	cp("", RELEASE_DIR, "examples")
-	cp(SOFTWARE_SHARED_DIR, RELEASE_RESOURCES_DIR, "info")
+#	cp(SOFTWARE_SHARED_DIR, RELEASE_RESOURCES_DIR, "info")
 
 	print "Done"
 

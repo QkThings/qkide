@@ -53,6 +53,19 @@ QList<CodeParser::Element> Completer::allElements()
     return list;
 }
 
+QList<CodeParser::Element> Completer::functions()
+{
+    QList<CodeParser::Element> list;
+    foreach(CodeParser::Element el, m_permanentElements)
+        if(el.type == CodeParser::Element::Function)
+            list.append(el);
+    foreach(CodeParser::Element el, m_extraElements)
+        if(el.type == CodeParser::Element::Function)
+            list.append(el);
+
+    return list;
+}
+
 void Completer::createItem(CodeParser::Element &element)
 {
     QStandardItem *item = new QStandardItem(element.text);
@@ -60,18 +73,23 @@ void Completer::createItem(CodeParser::Element &element)
     {
     case CodeParser::Element::Define:
         item->setIcon(QIcon(":/img/icon_define.png"));
+        item->setData(QVariant('d'));
         break;
     case CodeParser::Element::Enum:
         item->setIcon(QIcon(":/img/icon_enum.png"));
+        item->setData(QVariant('e'));
         break;
     case CodeParser::Element::Typedef:
         item->setIcon(QIcon(":/img/icon_typedef.png"));
+        item->setData(QVariant('t'));
         break;
     case CodeParser::Element::Function:
         item->setIcon(QIcon(":/img/icon_function.png"));
+        item->setData(QVariant('f'));
         break;
     default:
         item->setIcon(QIcon(":/img/bullet_white.png"));
+        item->setData(QVariant('v'));
     }
     item->setToolTip(element.expression);
     m_model->appendRow(item);

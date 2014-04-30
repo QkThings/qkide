@@ -307,7 +307,7 @@ void QkIDE::createMenus()
     m_projectMenu->addAction(m_verifyAct);
     m_projectMenu->addAction(m_uploadAct);
 
-    m_toolsMenu->addAction(m_optionsAct);
+//    m_toolsMenu->addAction(m_optionsAct);
 
     m_windowMenu->addAction(m_fullScreenAct);
     m_windowMenu->addSeparator();
@@ -326,9 +326,9 @@ void QkIDE::createMenus()
     ui->menuBar->addMenu(m_editMenu);
     //ui->menuBar->addMenu(m_viewMenu);
     ui->menuBar->addMenu(m_projectMenu);
-    ui->menuBar->addMenu(m_toolsMenu);
-    //ui->menuBar->addMenu(m_windowMenu);
-    //ui->menuBar->addMenu(m_helpMenu);
+//    ui->menuBar->addMenu(m_toolsMenu);
+//    ui->menuBar->addMenu(m_windowMenu);
+//    ui->menuBar->addMenu(m_helpMenu);
 }
 
 void QkIDE::createToolbars()
@@ -369,7 +369,7 @@ void QkIDE::createToolbars()
 
 
 //    m_qkToolbar->addAction(m_connectAct);
-    m_qkToolbar->addAction(m_testAct);
+//    m_qkToolbar->addAction(m_testAct);
 
 
     m_buttonRefreshPorts = new QAction(QIcon(":/img/reload.png"),tr("Reload Available Serial Ports"),this);

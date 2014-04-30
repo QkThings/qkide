@@ -353,6 +353,7 @@ void Editor::tabCloseRequestHandler(int index)
 void Editor::showSearch()
 {
     m_findReplaceDialog->show();
+    m_findReplaceDialog->activateWindow();
 }
 
 

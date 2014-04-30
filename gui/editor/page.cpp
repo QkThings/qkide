@@ -49,11 +49,8 @@ Page::Page(const QString &name, QWidget *parent) :
     m_completer->setCompletionMode(QCompleter::PopupCompletion);
     m_completer->setCaseSensitivity(Qt::CaseSensitive);
 
-    connect(m_completer, SIGNAL(activated(QString)),
-            this, SLOT(insertCompletion(QString)));
-
     connect(m_completer, SIGNAL(activated(QModelIndex)),
-            this, SLOT(insertCompletionModel(QModelIndex)));
+            this, SLOT(insertCompletion(QModelIndex)));
 
 
     m_codeTip = new CodeTip(this);
@@ -89,18 +86,24 @@ QString Page::text()
 void Page::slotFind(const QString &text, int flags)
 {
     find(text, (QTextDocument::FindFlag) flags);
-
 }
 
-void Page::slotReplace(const QString &text, int flags)
+void Page::slotReplace(const QString &prev, const QString &current, int flags, bool all)
 {
-
+    QTextCursor tc = textCursor();
+    if(!all)
+    {
+        if(tc.selectedText() != "")
+            textCursor().insertText(current);
+    }
+    else
+    {
+        textCursor().movePosition(QTextCursor::Start);
+        while(find(prev, (QTextDocument::FindFlag) flags))
+            textCursor().insertText(current);
+    }
 }
 
-void Page::slotReplaceAll(const QString &text, int flags)
-{
-
-}
 
 QStringList Page::keywordsFromFile(const QString &fileName)
 {
@@ -303,14 +306,8 @@ bool Page::setFunctionTooltip(bool show)
                 QString codeTipText = prototype;
                 int argNum = functionArg(curPos - forwardPos, arguments);
 
-                qDebug() << "ARGS" << arguments << "count =" << arguments.count();
-                qDebug() << "ARG NUM" << argNum;
-                qDebug() << "CODE TIP" << codeTipText;
-                qDebug() << "LEN BEFORE" << codeTipText.length();
-                qDebug() << prototypeArgs;
                 if(argNum != -1 && argNum < prototypeArgs.count() && prototypeArgs[argNum] != "")
                     codeTipText.replace(prototypeArgs[argNum], "<b>" + prototypeArgs[argNum] + "</b>");
-                qDebug() << "LEN AFTER" << codeTipText.length();
 
                 m_codeTip->setFont(font());
                 m_codeTip->setText(codeTipText);
@@ -535,23 +532,8 @@ void Page::focusOutEvent(QFocusEvent *e)
     m_codeTip->hide();
 }
 
-void Page::insertCompletion(const QString &completion)
+void Page::insertCompletion(const QModelIndex &index)
 {
-//    QTextCursor tc = textCursor();
-//    int extra = completion.length() - m_completer->completionPrefix().length();
-//    tc.movePosition(QTextCursor::Left);
-//    tc.movePosition(QTextCursor::EndOfWord);
-//    tc.insertText(completion.right(extra));
-//    setTextCursor(tc);
-}
-
-void Page::insertCompletionModel(const QModelIndex &index)
-{
-//    QAbstractItemModel *model = m_completer->completionModel();
-//    QStandardItemModel *model = (QStandardItemModel*)m_completer->completionModel();
-
-//    qDebug() << "index data:" << index.data() << "row:" << index.row();
-
     QString completion = index.data().toString();
     QTextCursor tc = textCursor();
     int extra = completion.length() - m_completer->completionPrefix().length();
@@ -800,6 +782,8 @@ void Page::onChar(char c)
         insertPlainText(")");
     else if(c == '{' || c == '}')
         slotUpdateCodeBlocks();
+    else if(c == ')' && textUnderCursor(textCursor()) == "())")
+        textCursor().deleteChar();
 
     switch(c)
     {
@@ -823,13 +807,16 @@ void Page::slotUpdateCodeBlocks()
     if(!m_codeBlocks.isEmpty())
         qDeleteAll(m_codeBlocks.begin(), m_codeBlocks.end());
 
-    while(ts.atEnd()) {
+    while(ts.atEnd())
+    {
         QString line = ts.readLine();
         lineNumber++;
-        if(line.contains("{")){
+        if(line.contains("{"))
+        {
             stack.append(lineNumber);
         }
-        else if(line.contains("}")){
+        else if(line.contains("}"))
+        {
             if(!stack.isEmpty()) {
                 CodeBlock *cb = new CodeBlock;
                 cb->startLine =  stack.last();

@@ -46,15 +46,13 @@ signals:
     
 public slots:
     void slotFind(const QString &text, int flags);
-    void slotReplace(const QString &text, int flags);
-    void slotReplaceAll(const QString &text, int flags);
+    void slotReplace(const QString &prev, const QString &current, int flags, bool all);
 
 private slots:
     void slotUpdateCodeBlocks();
     void slotTextChanged();
     void slotCursorPositionChanged();
-    void insertCompletion(const QString &completion);
-    void insertCompletionModel(const QModelIndex &index);
+    void insertCompletion(const QModelIndex &index);
 
     void updateLineNumberAreaWidth(int newBlockCount);
     void highlightCurrentLine();

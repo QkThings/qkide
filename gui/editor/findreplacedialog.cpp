@@ -17,6 +17,8 @@ FindReplaceDialog::FindReplaceDialog(QWidget *parent) :
     connect(ui->find_pushButton, SIGNAL(clicked()), this, SLOT(slotFind()));
     connect(ui->replace_pushButton, SIGNAL(clicked()), this, SLOT(slotReplace()));
     connect(ui->replaceAll_pushButton, SIGNAL(clicked()), this, SLOT(slotReplaceAll()));
+
+    ui->find_lineEdit->setFocus();
 }
 
 FindReplaceDialog::~FindReplaceDialog()
@@ -24,18 +26,22 @@ FindReplaceDialog::~FindReplaceDialog()
     delete ui;
 }
 
+void FindReplaceDialog::show()
+{
+    ui->find_lineEdit->setFocus();
+    QDialog::show();
+}
+
 void FindReplaceDialog::setPage(Page *page)
 {
     if(page == 0) return;
     if(m_page != 0) {
         disconnect(this, SIGNAL(find(QString,int)), m_page, SLOT(slotFind(QString,int)));
-        disconnect(this, SIGNAL(replace(QString,int)), m_page, SLOT(slotReplace(QString,int)));
-        disconnect(this, SIGNAL(replaceAll(QString,int)), m_page, SLOT(slotReplaceAll(QString,int)));
+        disconnect(this, SIGNAL(replace(QString,QString,int,bool)), m_page, SLOT(slotReplace(QString,QString,int,bool)));
     }
     m_page = page;
     connect(this, SIGNAL(find(QString,int)), m_page, SLOT(slotFind(QString,int)));
-    connect(this, SIGNAL(replace(QString,int)), m_page, SLOT(slotReplace(QString,int)));
-    connect(this, SIGNAL(replaceAll(QString,int)), m_page, SLOT(slotReplaceAll(QString,int)));
+    connect(this, SIGNAL(replace(QString,QString,int,bool)), m_page, SLOT(slotReplace(QString,QString,int,bool)));
 }
 
 void FindReplaceDialog::slotFind()
@@ -45,12 +51,18 @@ void FindReplaceDialog::slotFind()
 
 void FindReplaceDialog::slotReplace()
 {
-
+    emit replace(ui->find_lineEdit->text(),
+                 ui->replace_lineEdit->text(),
+                 findFlags(),
+                 false);
 }
 
 void FindReplaceDialog::slotReplaceAll()
 {
-
+    emit replace(ui->find_lineEdit->text(),
+                 ui->replace_lineEdit->text(),
+                 findFlags(),
+                 true);
 }
 
 void FindReplaceDialog::slotUpdateDirection()

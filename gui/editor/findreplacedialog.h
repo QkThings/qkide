@@ -17,14 +17,15 @@ public:
     explicit FindReplaceDialog(QWidget *parent = 0);
     ~FindReplaceDialog();
 
+    void show();
+
 public slots:
     void setPage(Page *page);
 
 
 signals:
-    void find(QString,int);
-    void replace(QString,int);
-    void replaceAll(QString,int);
+    void find(QString text,int flags);
+    void replace(QString prev,QString next,int flags, bool all);
     
 
 private slots:

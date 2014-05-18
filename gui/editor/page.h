@@ -34,6 +34,7 @@ public:
 
 protected:
     void resizeEvent(QResizeEvent *event);
+    void wheelEvent(QWheelEvent *e);
     void mousePressEvent(QMouseEvent *e);
     void keyPressEvent(QKeyEvent *e);
     void focusInEvent(QFocusEvent *e);

@@ -17,6 +17,7 @@ CodeParser::CodeParser(QObject *parent) :
 
 void CodeParser::parse(const QString &path)
 {
+
     QString program = QApplication::applicationDirPath() + CTAGS_EXE;
     QStringList arguments;
     //QString output = "-f " + TAGS_DIR + "/tags";

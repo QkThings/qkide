@@ -67,8 +67,10 @@ Page::Page(const QString &name, QWidget *parent) :
     updateLineNumberAreaWidth(0);
     //highlightCurrentLine();
 
-    //connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(braceMatch()));
+    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(braceMatch()));
     //connect(this, SIGNAL(textChanged()), this, SLOT(slotTextChanged()));
+
+    connect(this, SIGNAL(textChanged()), this, SIGNAL(keyPressed()));
 
     setFrameStyle(QFrame::NoFrame);
 }
@@ -158,6 +160,12 @@ QAbstractItemModel* Page::modelFromFile(const QString& fileName)
     file.close();
 
     return new QStringListModel(words, m_completer);
+}
+
+void Page::wheelEvent(QWheelEvent *e)
+{
+    QPlainTextEdit::wheelEvent(e);
+    m_codeTip->hide();
 }
 
 void Page::mousePressEvent(QMouseEvent *e)
@@ -359,11 +367,11 @@ void Page::keyPressEvent(QKeyEvent *e)
     onChar(e->text().at(0).toLatin1());
 
     //FIXME textChanged should be used instead
-    bool emitKeyPressed = !m_completer->popup()->isVisible() &&
-                           e->modifiers() == Qt::NoModifier &&
-                           (e->key() != Qt::Key_Left && e->key() && Qt::Key_Right && e->key() && Qt::Key_Up && e->key() != Qt::Key_Down);
-    if(emitKeyPressed)
-        emit keyPressed();
+//    bool emitKeyPressed = !m_completer->popup()->isVisible() &&
+//                           e->modifiers() == Qt::NoModifier &&
+//                           (e->key() != Qt::Key_Left && e->key() && Qt::Key_Right && e->key() && Qt::Key_Up && e->key() != Qt::Key_Down);
+//    if(emitKeyPressed)
+//        emit keyPressed();
 
 
     if(e->key() == Qt::Key_Home)
@@ -451,7 +459,7 @@ void Page::keyPressEvent(QKeyEvent *e)
     bool hasModifier = (e->modifiers() != Qt::NoModifier) && !ctrlOrShift;
     QString completionPrefix = textUnderCursor(textCursor());
 
-    qDebug() << "completionPrefix" << completionPrefix;
+//    qDebug() << "completionPrefix" << completionPrefix;
 
     QString input = e->text();
     input = input.remove(' ');
@@ -612,109 +620,87 @@ void Page::resizeEvent(QResizeEvent *e)
 
 void Page::braceMatch()
 {
-    qDebug() << "braceMatch()";
+    const QString bracesBegin = "{(";
+    const QString bracesEnd = "})";
 
-    static int lastBeginPos = 0;
-    static int lastEndPos = 0;
-
-    const QString braceBeginChar = "{(";
-    const QString braceEndChar = "})";
-
-    QTextCharFormat normalFormat;
-    QFont f(font());
-    f.setBold(false);
-    normalFormat.setFont(f);
-
-    QTextCharFormat braceMatchFormat;
-    f.setBold(true);
-    braceMatchFormat.setBackground(QBrush(QColor(Qt::yellow)));
-    braceMatchFormat.setFont(f);
+    QList<QTextEdit::ExtraSelection> extraSelections;
 
     QTextDocument *doc = document();
-
-    static QTextCursor braceBeginCursor;
-    static QTextCursor braceEndCursor;
-
-    setUndoRedoEnabled(false);
-
-    if (!braceBeginCursor.isNull() || !braceEndCursor.isNull()) {
-            braceBeginCursor.setCharFormat(QTextCharFormat());
-            braceEndCursor.setCharFormat(QTextCharFormat());
-            //braceBeginCursor = braceEndCursor = QTextCursor();
-    }
-
     QTextCursor tc = textCursor();
 
-    int pos = tc.position();
-    QChar braceChar;
+    int braceBeginPos = tc.position();
+    QChar braceBeginChar;
+    QChar braceEndChar;
 
     int n = 2;
-    while(n--) {
-       braceChar = doc->characterAt(pos);
-       qDebug() << "braceChar" << braceChar << "pos" << pos;
-       if(braceBeginChar.contains(braceChar) || braceEndChar.contains(braceChar))
+    while(n--)
+    {
+       braceBeginChar = doc->characterAt(braceBeginPos);
+       if(bracesBegin.contains(braceBeginChar) || bracesEnd.contains(braceBeginChar))
            break;
-       pos--;
+       braceBeginPos--;
     }
-    qDebug() << "n" << n;
-    if(n < 0) {
-        setUndoRedoEnabled(true);
+    if(n < 0)
+    {
+        setExtraSelections(extraSelections);
         return;
     }
 
-    qDebug() << "brace found!";
+    QTextCharFormat braceMatchFormat;
+    QFont f(font());
+    f.setBold(true);
+    braceMatchFormat.setBackground(QBrush(QColor("#FFFF33")));
+    braceMatchFormat.setFont(f);
 
-    braceBeginCursor = textCursor();
-    braceBeginCursor.setPosition(pos);
-    braceBeginCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+    QTextEdit::ExtraSelection braceBeginSelection;
+    QTextEdit::ExtraSelection braceEndSelection;
 
-    lastBeginPos = pos;
+    braceBeginSelection.cursor = textCursor();
+    braceBeginSelection.cursor.setPosition(braceBeginPos);
+    braceBeginSelection.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+    braceBeginSelection.format = braceMatchFormat;
 
     bool forward;
-    if(braceBeginChar.contains(braceChar))
-        forward = true;
-    else
-        forward = false;
+    bracesBegin.contains(braceBeginChar) ? forward = true : forward = false;
 
-    if (forward)
-        pos++;
-    else
-        pos--;
+    forward ? braceBeginPos++ : braceBeginPos--;
 
-    QChar matchBrace;
-    switch(braceChar.toLatin1()) {
-        case '(': matchBrace = ')'; break;
-        case ')': matchBrace = '('; break;
-        case '{': matchBrace = '}'; break;
-        case '}': matchBrace = '{'; break;
+    switch(braceBeginChar.toLatin1())
+    {
+        case '(': braceEndChar = ')'; break;
+        case ')': braceEndChar = '('; break;
+        case '{': braceEndChar = '}'; break;
+        case '}': braceEndChar = '{'; break;
         default: ;
     }
 
+    int braceEndPos = braceBeginPos;
     int braceDepth = 1;
-
     QChar c;
 
-    while (!(c = doc->characterAt(pos)).isNull()) {
-        if (c == braceChar) {
+    while (!(c = doc->characterAt(braceEndPos)).isNull())
+    {
+        if(c == braceBeginChar)
             braceDepth++;
-        } else if (c == matchBrace) {
+        else if(c == braceEndChar)
+        {
             braceDepth--;
-            if (braceDepth == 0) {
-                lastEndPos = pos;
-                braceEndCursor = textCursor();
-                braceEndCursor.setPosition(pos);
-                braceEndCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-                braceEndCursor.setCharFormat(braceMatchFormat);
+            if(braceDepth == 0)
+            {
+                braceEndSelection.cursor = textCursor();
+                braceEndSelection.cursor.setPosition(braceEndPos);
+                braceEndSelection.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+                braceEndSelection.format = braceMatchFormat;
                 break;
             }
         }
-        forward ? pos++ : pos--;
+
+        forward ? braceEndPos++ : braceEndPos--;
     }
-    braceBeginCursor.setCharFormat(braceMatchFormat);
 
-    setUndoRedoEnabled(true);
-
-    return;
+    extraSelections.append(braceBeginSelection);
+    extraSelections.append(braceEndSelection);
+    setExtraSelections(extraSelections);
 }
 
 void Page::autoIndent()

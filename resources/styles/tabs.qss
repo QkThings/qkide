@@ -7,7 +7,7 @@ QTabBar {
         stop: 0 #eee, stop: 1.0 #fcfcfc);*/
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
-    border-bottom: 1px solid #fcfcfc;
+    border-bottom: 1px solid #eeeeee;
 }
 
 QTabBar::tab:top {
@@ -27,7 +27,7 @@ QTabBar::tab:top:hover {
 	border-bottom: 3px solid #ccc;
 }
 QTabBar::tab:top:selected {
- border-bottom: 3px solid #1283de;
+ border-bottom: 3px solid #1086e2;
 	
 }
 

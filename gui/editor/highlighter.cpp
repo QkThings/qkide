@@ -16,7 +16,7 @@ Highlighter::Highlighter(QTextDocument *document) : QSyntaxHighlighter(document)
 {
     Rule rule;
 
-    multiLineCommentFormat.setForeground(Qt::gray);
+    multiLineCommentFormat.setForeground(QColor("#999999"));
     //multiLineCommentFormat.setFontWeight(QFont::Bold);
 
     commentStartExpression = QRegExp("/\\*");

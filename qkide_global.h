@@ -15,7 +15,7 @@ const QString QK_IDE_H_DEF_STR = "my_board.h";
 const QString EDITOR_FONT_NAME = "DejaVuSansMono";
 const int     EDITOR_FONT_SIZE = 9;
 
-const QString CTAGS_EXE = "/resources/tools/ctags/bin/ctags";
+const QString CTAGS_EXE = "/resources/tools/ctags/ctags";
 const QString EMB_DIR = "/resources/embedded";
 const QString TOOLCHAIN_DIR = EMB_DIR + "/toolchain";
 const QString QKPROGRAM_DIR = EMB_DIR + "/qkprogram";

@@ -27,6 +27,8 @@ int main(int argc, char *argv[])
     QFontDatabase::addApplicationFont("://fonts/DroidSansMono.ttf");
     QFontDatabase::addApplicationFont("://fonts/VeraMono.ttf");
     QFontDatabase::addApplicationFont("://fonts/DejaVuSansMono.ttf");
+    QFontDatabase::addApplicationFont("://fonts/Roboto-Regular.ttf");
+    QFontDatabase::addApplicationFont("://fonts/Roboto-Thin.ttf");
 
     QStyle *style = QStyleFactory::create("Fusion");
     a.setStyle(style);

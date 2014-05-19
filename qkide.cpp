@@ -547,12 +547,14 @@ void QkIDE::writeSettings()
 
 void QkIDE::slotHome(bool go)
 {
-    if(go) {
+    if(go)
+    {
         m_homeAct->setChecked(true);
         m_stackedWidget->setCurrentIndex(0);
         ui->statusBar->showMessage(tr("Home"),1000);
     }
-    else {
+    else
+    {
         m_homeAct->setChecked(false);
         m_stackedWidget->setCurrentIndex(1);
         ui->statusBar->showMessage(tr("Editor"),1000);

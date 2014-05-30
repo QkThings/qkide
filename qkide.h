@@ -22,7 +22,7 @@ class QStackedWidget;
 class pTextDock;
 class HomeHeader;
 class QkExplorerWidget;
-class QkSerialConnection;
+class QkConnSerial;
 class CodeParser;
 class CodeParserThread;
 class QComboBox;
@@ -228,7 +228,7 @@ private:
     QString m_uploadPortName;
     QString m_projectDefaultLocation;
 
-    QkSerialConnection *m_serialConn;
+    QkConnSerial *m_serialConn;
 
     QAction *m_buttonRefreshPorts;
     QComboBox *m_comboPort;

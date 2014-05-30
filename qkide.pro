@@ -25,9 +25,9 @@ INCLUDEPATH += ../qkcore
 QMAKE_LIBDIR += ../qkcore/release
 LIBS += -L../qkcore/release -lqkcore
 
-INCLUDEPATH += ../qkconnect
-QMAKE_LIBDIR += ../qkconnect/release
-LIBS += -L../qkconnect/release -lqkconnect
+#INCLUDEPATH += ../qkconnect
+#QMAKE_LIBDIR += ../qkconnect/release
+#LIBS += -L../qkconnect/release -lqkconnect
 
 INCLUDEPATH += ../qkwidget
 QMAKE_LIBDIR += ../qkwidget/release

@@ -15,6 +15,7 @@
 #include "ui_optionsdialog.h"
 
 #include "qkconnect.h"
+#include "qkconnserial.h"
 #include "qkexplorerwidget.h"
 
 #include <QtGlobal>
@@ -134,7 +135,7 @@ QkIDE::QkIDE(QWidget *parent) :
 
     m_comboTargetName->setCurrentText("EFM32");
 
-    m_serialConn = new QkSerialConnection(m_uploadPortName, 38400);
+    m_serialConn = new QkConnSerial(m_uploadPortName, 38400);
 //    connect(m_serialConn, SIGNAL(error(QString)), this, SLOT(slotError(QString)));
 
 

@@ -34,7 +34,7 @@ def deploy():
 	RELEASE_QKPROGRAM_DIR = path.join(RELEASE_EMBEDDED_DIR, "qkprogram")
 
 	# Build dependencies
-	libs = ["qkcore", "qkconnect", "qkwidget"]
+	libs = ["qkcore", "qkwidget"]
 	for lib in libs:
 		print " === Build %s" % (lib)
 		chdir(path.join(SOFTWARE_DIR, lib))

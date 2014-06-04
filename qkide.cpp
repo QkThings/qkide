@@ -95,7 +95,7 @@ QkIDE::QkIDE(QWidget *parent) :
     QDir().mkdir(QApplication::applicationDirPath() + TEMP_DIR);
     QDir().mkdir(QApplication::applicationDirPath() + TAGS_DIR);
 
-    m_codeParser = new CodeParser();
+    m_codeParser = new CodeParser(this);
 
     QString qkprogramDir = QApplication::applicationDirPath() + QKPROGRAM_INC_DIR;
 
@@ -103,13 +103,10 @@ QkIDE::QkIDE(QWidget *parent) :
     parser->parse(qkprogramDir);
     m_libElements.append(parser->allElements());
 
-    //Highlighter::addElements(m_libElements, true);
-
     m_parserTimer = new QTimer(this);
     m_parserTimer->setInterval(500);
     m_parserTimer->setSingleShot(true);
     connect(m_parserTimer, SIGNAL(timeout()), this, SLOT(slotParse()));
-
     connect(m_codeParser, SIGNAL(parsed()), this, SLOT(slotParsed()));
 
     connect(this, SIGNAL(currentProjectChanged()), this, SLOT(slotCurrentProjectChanged()));
@@ -128,7 +125,6 @@ QkIDE::QkIDE(QWidget *parent) :
 
     m_optionsDialog->setTargets(m_targets);
 
-
     m_comboTargetName->clear();
     foreach(QString targetName, m_targets.keys())
         m_comboTargetName->addItem(targetName);
@@ -136,8 +132,7 @@ QkIDE::QkIDE(QWidget *parent) :
     m_comboTargetName->setCurrentText("EFM32");
 
     m_serialConn = new QkConnSerial(m_uploadPortName, 38400);
-//    connect(m_serialConn, SIGNAL(error(QString)), this, SLOT(slotError(QString)));
-
+    connect(m_serialConn, SIGNAL(error(QString)), this, SLOT(slotError(QString)));
 
     m_explorerWindow = new QMainWindow(this, Qt::Tool);
 
@@ -146,7 +141,7 @@ QkIDE::QkIDE(QWidget *parent) :
     m_explorerWidget->setModeFlags(QkExplorerWidget::mfSingleNode | QkExplorerWidget::mfSingleConnection);
     m_explorerWindow->setCentralWidget(m_explorerWidget);
     m_explorerWidget->hide();
-    //m_explorerWindow->show();
+//    m_explorerWindow->show();
 
     connect(m_serialConn, SIGNAL(error(QString)), m_explorerWidget, SLOT(showError(QString)));
 
@@ -156,8 +151,6 @@ QkIDE::QkIDE(QWidget *parent) :
 
 QkIDE::~QkIDE()
 {
-    delete m_editor;
-    delete m_browser;
     delete ui;
 }
 
@@ -706,8 +699,6 @@ void QkIDE::slotSaveAsProject()
     curProjectPath.append(m_curProject->name() + ".qkpro");
 
     openProject(curProjectPath);
-
-    //ui->statusBar->showMessage(tr("Project saved on \"") + path + "\"", 3000);
 }
 
 void QkIDE::slotSaveAllFiles()
@@ -779,17 +770,13 @@ void QkIDE::slotClean()
     QString make = "make";
 #endif
 
-    QString makefilePath = qApp->applicationDirPath() + TEMP_DIR + "/temp.mk";
-
-    QStringList arguments;
-    //arguments << "-f /home/mribeiro/bitbucket/qkthings/software/qkide/release/temp/temp.mk";//;QString("-f " + makefilePath);
+    QStringList arguments;    
     arguments << "clean";
     arguments << "APP="+m_curProject->path();
 
     qDebug() << make << arguments;
 
     m_cleanProcess->setWorkingDirectory(m_curProject->path());
-    //m_cleanProcess->setWorkingDirectory(qApp->applicationDirPath() + TEMP_DIR);
     m_cleanProcess->waitForFinished();
     m_cleanProcess->start(make, arguments);
 }
@@ -857,7 +844,6 @@ void QkIDE::slotVerifyProcessOutput()
 
 void QkIDE::slotUpload()
 {
-    qDebug() << "upload";
     createMakefile(m_curProject);
 
     if(m_serialConn->isConnected())
@@ -904,7 +890,6 @@ void QkIDE::slotUploadProcessOutput()
 
 void QkIDE::slotUploadProcessFinished()
 {
-    //m_serialConn->open();
     deleteMakefile(m_curProject);
     ui->statusBar->showMessage(tr("Uploaded"), 1500);
 }
@@ -912,7 +897,6 @@ void QkIDE::slotUploadProcessFinished()
 void QkIDE::slotProcessFinished()
 {
     deleteMakefile(m_curProject);
-    //m_outputWindow->append(tr("Done"));
     ui->statusBar->showMessage(tr("Done"), 1500);
 }
 
@@ -1051,7 +1035,6 @@ void QkIDE::setupPage(Page *page)
     completer->addElements(m_libElements, true);
     connect(page, SIGNAL(info(QString)), this, SLOT(showInfoMessage(QString)));
     connect(page, SIGNAL(keyPressed()), m_parserTimer, SLOT(start()));
-//    connect(page, SIGNAL(textChanged()), m_parserTimer, SLOT(start()));
 
     Highlighter *highlighter = page->highlighter();
     highlighter->addElements(m_libElements, true);
@@ -1086,23 +1069,10 @@ void QkIDE::createMakefile(QkProject *project)
     QString targetVariant = m_comboTargetVariant->currentText().toLower();
     QString target = targetName + "." + targetVariant;
 
-//    TOOLCHAIN_DIR = {{toolchainDir}}
-//    APP = {{appDir}}
-//    EMB_DIR = {{embDir}}
-//    TARGET = {{target}}
-
     makefileTemplate.replace("{{embDir}}", appDir + EMB_DIR);
     makefileTemplate.replace("{{toolchainDir}}", appDir + TOOLCHAIN_DIR);
     makefileTemplate.replace("{{appDir}}", project->path());
     makefileTemplate.replace("{{target}}", target);
-
-//    makefileTemplate.replace("{{qkProgramRoot}}", appDir + QKPROGRAM_DIR);
-//    makefileTemplate.replace("{{toolchainDir}}", appDir + TOOLCHAIN_DIR);
-//    makefileTemplate.replace("{{appName}}", project->name());
-//    makefileTemplate.replace("{{appIncludeDir}}", project->path());
-//    makefileTemplate.replace("{{appSourceDir}}", project->path());
-//    makefileTemplate.replace("{{target}}", target);
-//    makefileTemplate.replace("{{buildTarget}}", "BUILD_DEVICE");
 
     out << makefileTemplate;
 
@@ -1112,8 +1082,7 @@ void QkIDE::createMakefile(QkProject *project)
 
 void QkIDE::deleteMakefile(QkProject *project)
 {
-    QFile::remove(project->path() + SLASH + "Makefile");
-    //QFile::remove(qApp->applicationDirPath() + TEMP_DIR + "/temp.mk");
+    QFile::remove(project->path() + "/Makefile");
 }
 
 void QkIDE::slotSplitHorizontal()
@@ -1301,18 +1270,12 @@ bool QkIDE::doYouReallyWantToQuit()
 
 void QkIDE::closeEvent(QCloseEvent *e)
 {
-    if(!doYouReallyWantToQuit()) {
+    if(!doYouReallyWantToQuit())
+    {
         e->ignore();
     }
-    else {
-        /*QSettings settings;
-
-        settings.beginGroup("mainWindow");
-        settings.setValue("width", width());
-        settings.setValue("heigth", height());
-        settings.setValue("maximized", isMaximized());
-        settings.endGroup();*/
-
+    else
+    {
         m_verifyProcess->kill();
         m_uploadProcess->kill();
     }
@@ -1351,6 +1314,8 @@ void QkIDE::slotConnect()
 
 void QkIDE::slotParse()
 {
+    qDebug() << __FUNCTION__;
+
     QString tagsPath = QApplication::applicationDirPath() + TAGS_DIR;
 
     QDir(tagsPath).removeRecursively();
@@ -1372,12 +1337,17 @@ void QkIDE::slotParse()
 
     CodeParser *parser = m_codeParser;
     parser->parse(tagsPath);
+
+//    QThreadPool *threadPool = QThreadPool::globalInstance();
+//    CodeParser *parser = new CodeParser;
+//    parser->setPath(tagsPath);
+//    threadPool->start(parser);
+//    connect(parser, SIGNAL(parsed()), this, SLOT(slotParsed()), Qt::QueuedConnection);
 }
 
 void QkIDE::slotParsed()
 {
-//    Highlighter::clearElements();
-//    Highlighter::addElements(m_codeParser->allElements());
+    qDebug() << __FUNCTION__;
 
     foreach(Page *page, m_editor->pages())
     {

@@ -2,12 +2,13 @@
 #define CODEPARSER_H
 
 #include <QObject>
+#include <QRunnable>
 #include <QThread>
 class QTextDocument;
 class QProcess;
 class QTimer;
 
-class CodeParser : public QObject
+class CodeParser : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
@@ -46,8 +47,11 @@ signals:
     void parsed();
 
 public slots:
+    void setPath(const QString &path) { m_path = path; }
     void parse(const QString &path);
+    void parse();
     void clear();
+    void run();
 
 private slots:
 
@@ -58,6 +62,7 @@ private:
     QList<Element> m_enums;
     QList<Element> m_types;
     QList<Element> m_variables;
+    QString m_path;
 
 
 };

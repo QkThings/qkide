@@ -68,9 +68,9 @@ Page::Page(const QString &name, QWidget *parent) :
     //highlightCurrentLine();
 
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(braceMatch()));
-    //connect(this, SIGNAL(textChanged()), this, SLOT(slotTextChanged()));
+//    connect(this, SIGNAL(textChanged()), this, SLOT(slotTextChanged()));
 
-    connect(this, SIGNAL(textChanged()), this, SIGNAL(keyPressed()));
+//    connect(this, SIGNAL(textChanged()), this, SIGNAL(keyPressed()));
 
     setFrameStyle(QFrame::NoFrame);
 }
@@ -367,11 +367,11 @@ void Page::keyPressEvent(QKeyEvent *e)
     onChar(e->text().at(0).toLatin1());
 
     //FIXME textChanged should be used instead
-//    bool emitKeyPressed = !m_completer->popup()->isVisible() &&
-//                           e->modifiers() == Qt::NoModifier &&
-//                           (e->key() != Qt::Key_Left && e->key() && Qt::Key_Right && e->key() && Qt::Key_Up && e->key() != Qt::Key_Down);
-//    if(emitKeyPressed)
-//        emit keyPressed();
+    bool emitKeyPressed = !m_completer->popup()->isVisible() &&
+                           e->modifiers() == Qt::NoModifier &&
+                           (e->key() != Qt::Key_Left && e->key() && Qt::Key_Right && e->key() && Qt::Key_Up && e->key() != Qt::Key_Down);
+    if(emitKeyPressed)
+        emit keyPressed();
 
 
     if(e->key() == Qt::Key_Home)

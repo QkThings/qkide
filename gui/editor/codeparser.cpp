@@ -15,9 +15,20 @@ CodeParser::CodeParser(QObject *parent) :
 
 }
 
+void CodeParser::run()
+{
+    parse();
+}
+
 void CodeParser::parse(const QString &path)
 {
+    m_path = path;
+    parse();
+}
 
+void CodeParser::parse()
+{
+    QString path = m_path;
     QString program = QApplication::applicationDirPath() + CTAGS_EXE;
     QStringList arguments;
     //QString output = "-f " + TAGS_DIR + "/tags";
@@ -27,14 +38,15 @@ void CodeParser::parse(const QString &path)
     //arguments << "-R" << "--c-kinds=+l" << "--languages=-Make" << path << "--verbose";
     //arguments << "-R" << path;
 
-    QProcess process(this);
+    QProcess process;
     process.setProcessChannelMode(QProcess::MergedChannels);
     //process.setWorkingDirectory(path);    
 
+    qDebug() << program << arguments;
+
+
     process.start(program, arguments);
     process.waitForFinished(30000);
-
-    //qDebug() << process.readAll();
 
     QFile tags(QApplication::applicationDirPath() + TAGS_DIR + "/tags");
     if(!tags.open(QIODevice::ReadOnly | QIODevice::Text))

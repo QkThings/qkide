@@ -38,8 +38,7 @@
 
 QkIDE::QkIDE(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::QkIDE),
-    m_curProject(0)
+    ui(new Ui::QkIDE)
 {
     ui->setupUi(this);
 
@@ -119,9 +118,7 @@ QkIDE::QkIDE(QWidget *parent) :
     setupLayout();
     readSettings();
 
-
-    QkUtils::setEmbeddedPath(qApp->applicationDirPath() + "/resources/embedded");
-    m_targets = QkUtils::supportedTargets();
+    m_targets = QkUtils::supportedTargets(qApp->applicationDirPath() + EMB_DIR);
 
     m_optionsDialog->setTargets(m_targets);
 
@@ -131,7 +128,7 @@ QkIDE::QkIDE(QWidget *parent) :
 
     m_comboTargetName->setCurrentText("EFM32");
 
-    m_serialConn = new QkConnSerial(m_uploadPortName, 38400);
+    m_serialConn = new QkConnSerial(m_uploadPortName, 38400, this);
     connect(m_serialConn, SIGNAL(error(QString)), this, SLOT(slotError(QString)));
 
     m_explorerWindow = new QMainWindow(this, Qt::Tool);
@@ -1271,14 +1268,13 @@ bool QkIDE::doYouReallyWantToQuit()
 void QkIDE::closeEvent(QCloseEvent *e)
 {
     if(!doYouReallyWantToQuit())
-    {
         e->ignore();
-    }
     else
     {
         m_verifyProcess->kill();
         m_uploadProcess->kill();
     }
+    QMainWindow::closeEvent(e);
 }
 
 void QkIDE::slotCurrentProjectChanged()

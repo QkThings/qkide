@@ -33,11 +33,11 @@ int main(int argc, char *argv[])
     QStyle *style = QStyleFactory::create("Fusion");
     a.setStyle(style);
 
+    QkIDE w;
     QFile styleFile(":/styles/main.qss");
     styleFile.open(QFile::ReadOnly);
-    a.setStyleSheet(QString(styleFile.readAll()));
+    w.setStyleSheet(QString(styleFile.readAll()));
 
-    QkIDE w;
     w.show();
     
     return a.exec();

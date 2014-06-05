@@ -33,6 +33,8 @@ Page::Page(const QString &name, QWidget *parent) :
     QPalette p = palette();
     p.setColor(QPalette::Base, Qt::white);
     p.setColor(QPalette::Text, QColor("#222"));
+//    p.setColor(QPalette::Base, QColor("#333333"));
+//    p.setColor(QPalette::Text, QColor("#eeeeee"));
     setPalette(p);
 
     setFont(QFont(EDITOR_FONT_NAME, EDITOR_FONT_SIZE));
@@ -364,7 +366,9 @@ void Page::keyPressEvent(QKeyEvent *e)
         QPlainTextEdit::keyPressEvent(e);
     }
 
-    onChar(e->text().at(0).toLatin1());
+    QString eventText = e->text();
+    if(eventText.count() > 0)
+        onChar(eventText.at(0).toLatin1());
 
     //FIXME textChanged should be used instead
     bool emitKeyPressed = !m_completer->popup()->isVisible() &&

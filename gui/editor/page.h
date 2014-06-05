@@ -27,7 +27,6 @@ public:
     Highlighter* highlighter() { return m_highligher; }
     Completer* completer() { return m_completer; }
     
-
     void foldsLinePaintEvent(QPaintEvent *event);
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();

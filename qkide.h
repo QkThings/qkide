@@ -29,8 +29,6 @@ class QComboBox;
 class QPushButton;
 class QToolButton;
 
-
-
 namespace Ui {
 class QkIDE;
 }

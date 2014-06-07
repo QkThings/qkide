@@ -28,7 +28,7 @@ void ProjectWizard::accept()
     createIn = field("createIn").toString();
     saveDefaultPath = field("saveDefaultProjectPath").toBool();
 
-    QString completePath = createIn + SLASH + projectName;
+    QString completePath = createIn + "/" + projectName;
     QDir projectPath(completePath);
     if(!projectPath.exists())
     {

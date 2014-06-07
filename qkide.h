@@ -5,6 +5,7 @@
 #include "qkide_global.h"
 #include "editor/codeparser.h"
 #include "qkutils.h"
+#include "theme.h"
 
 //using namespace QkUtils;
 
@@ -121,6 +122,7 @@ private:
     void updateCurrentProject();
     void updateRecentProjects();
 
+    void setTheme(const QString &name);
     void setupPage(Page *page);
 
     enum Constants {
@@ -138,6 +140,8 @@ private:
     };
 
     Ui::QkIDE *ui;
+
+    Theme m_globalTheme;
 
     OptionsDialog *m_optionsDialog;
 

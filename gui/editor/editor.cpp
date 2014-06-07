@@ -20,11 +20,6 @@ Editor::Editor(QWidget *parent) :
     mainTabs->setTabsClosable(false);
     mainTabs->setDocumentMode(true);
 
-    QFile styleFile(":/styles/tabs.qss");
-    styleFile.open(QFile::ReadOnly);
-    QString style(styleFile.readAll());
-    mainTabs->setStyleSheet(style);
-
     splittedTabs = new PageTab();
     splittedTabs->setMovable(true);
     splittedTabs->setTabsClosable(false);
@@ -33,6 +28,7 @@ Editor::Editor(QWidget *parent) :
 
     layout = new QVBoxLayout();
     layout->setMargin(0);
+    layout->setSpacing(0);
     setLayout(layout);
 
     layout->addWidget(mainTabs);

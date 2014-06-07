@@ -95,7 +95,7 @@ void NewProjectPage::slotValidatePath()
     QString completePath;
     if(!name.isEmpty() && !path.isEmpty())
     {
-        completePath = path + SLASH + name;
+        completePath = path + "/" + name;
         QDir projectDir(completePath);
         if(projectDir.exists()) {
             warningLabel->setText(tr("Warning!\n"

@@ -26,17 +26,18 @@ public:
     };
     Highlighter(QTextDocument *document);
 
+    bool setSyntax(const QString &filePath);
 
-    static void addElements(QList<CodeParser::Element> elements, bool permanent = false);
-    static void addElement(const CodeParser::Element &element, bool permanent = false);
-    static void clearElements(bool permanent = false);
+    void addElements(QList<CodeParser::Element> elements, bool permanent = false);
+    void addElement(const CodeParser::Element &element, bool permanent = false);
+    void clearElements(bool permanent = false);
 
     //static void beginPermanentRules() { m_permanentRule = true; }
     //static void addRule(const QRegExp &regex, SyntaxElement element, const QColor &color = QColor());
     //static void clearRules();
     //static void endPermanentRules() { m_permanentRule = false;}
 
-    static QColor elementColor(const QString &elementName);
+    QColor elementColor(const QString &elementName);
 
 protected:
     void highlightBlock(const QString &text);
@@ -52,9 +53,9 @@ private:
         QColor color;
     };
 
-    static QVector<Rule> m_permanentRules;
-    static QVector<Rule> m_extraRules;
-    static bool m_permanentRule;
+    QVector<Rule> m_permanentRules;
+    QVector<Rule> m_extraRules;
+    bool m_permanentRule;
 
     QRegExp commentStartExpression;
     QRegExp commentEndExpression;
@@ -65,10 +66,9 @@ private:
 
     QString curLanguage;
 
-
     QList<Keywords> keywords;
 
-    void setupPermanentRules();
+//    void setupPermanentRules();
     void applyRuleToText(const Rule &rule, const QString &text);
 };
 

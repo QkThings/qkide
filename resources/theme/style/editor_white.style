@@ -1,10 +1,8 @@
 
 
 QTabBar {
- background: #fafafa;
- color: #888;
- /*background: qlineargradient(x1: 0, y1: 1, x2: 0, y2: 0,
-        stop: 0 #eee, stop: 1.0 #fcfcfc);*/
+    background: #fcfcfc;
+    color: #888;
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
     border-bottom: 1px solid #eeeeee;

@@ -32,9 +32,7 @@ Page::Page(const QString &name, QWidget *parent) :
 {
     QPalette p = palette();
     p.setColor(QPalette::Base, Qt::white);
-    p.setColor(QPalette::Text, QColor("#222"));
-//    p.setColor(QPalette::Base, QColor("#333333"));
-//    p.setColor(QPalette::Text, QColor("#eeeeee"));
+    p.setColor(QPalette::Text, QColor("#111"));
     setPalette(p);
 
     setFont(QFont(EDITOR_FONT_NAME, EDITOR_FONT_SIZE));
@@ -871,6 +869,7 @@ void Page::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
     QPainter painter(lineNumberArea);
     painter.fillRect(event->rect(), QColor("#eee"));
+//    painter.fillRect(event->rect(), QColor("#111111"));
 
     QTextBlock block = firstVisibleBlock();
     int blockNumber = block.blockNumber();
@@ -881,6 +880,7 @@ void Page::lineNumberAreaPaintEvent(QPaintEvent *event)
         if (block.isVisible() && bottom >= event->rect().top()) {
             QString number = QString::number(blockNumber + 1);
             painter.setPen(QColor("#888888"));
+//            painter.setPen(QColor("#444444"));
             painter.setFont(font());
             painter.drawText(-2, top, lineNumberArea->width(), fontMetrics().height(),
                              Qt::AlignRight, number);

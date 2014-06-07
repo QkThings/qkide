@@ -8,9 +8,9 @@
 #include "codeparser.h"
 #include "qkide_global.h"
 
-QVector<Highlighter::Rule> Highlighter::m_permanentRules;
-QVector<Highlighter::Rule> Highlighter::m_extraRules;
-bool Highlighter::m_permanentRule;
+//QVector<Highlighter::Rule> Highlighter::m_permanentRules;
+//QVector<Highlighter::Rule> Highlighter::m_extraRules;
+//bool Highlighter::m_permanentRule;
 
 Highlighter::Highlighter(QTextDocument *document) : QSyntaxHighlighter(document)
 {
@@ -22,16 +22,21 @@ Highlighter::Highlighter(QTextDocument *document) : QSyntaxHighlighter(document)
     commentStartExpression = QRegExp("/\\*");
     commentEndExpression = QRegExp("\\*/");
 
-    setupPermanentRules();
+    QString defaultSyntaxPath = qApp->applicationDirPath() + THEME_DIR +
+                                "/syntax/white.syntax";
+
+    setSyntax(defaultSyntaxPath);
 }
 
-void Highlighter::setupPermanentRules()
+bool Highlighter::setSyntax(const QString &filePath)
 {
     QString keywordColor;
     QString keyword;
     QTextCharFormat keywordFormat;
-    //QFile file(":/syntax/" + language);
-    QFile file(":/syntax/qk.kw");
+
+    QFile file(filePath);
+    qDebug() << __FUNCTION__ << file.fileName();
+
     bool stop = false;
     QString elementName, color,weight;
     Rule rule;
@@ -42,15 +47,11 @@ void Highlighter::setupPermanentRules()
                               tr("Error"),
                               tr("Error load syntax higlighter"),
                               QMessageBox::Ok);
-
-        qApp->quit();
     }
 
     QTextStream input(&file);
 
     m_permanentRules.clear();
-
-    //keywordFormat.setFontWeight(QFont::Bold);
 
     while (!input.atEnd())
     {
@@ -77,12 +78,9 @@ void Highlighter::setupPermanentRules()
             keyword = input.readLine();
 
             if (keyword == "stop")
-            {
                 stop = true;
-            }
             else
             {
-                //qDebug() << keyword;
                 rule.elementName = elementName;
                 rule.format  = keywordFormat;
                 rule.pattern = QRegExp(keyword);
@@ -96,6 +94,75 @@ void Highlighter::setupPermanentRules()
         stop = false;
     }
 }
+
+//void Highlighter::setupPermanentRules()
+//{
+//    QString keywordColor;
+//    QString keyword;
+//    QTextCharFormat keywordFormat;
+//    //QFile file(":/syntax/" + language);
+////    QFile file(":/syntax/qk.kw");
+////    QFile file(":/syntax/dark.syntax");
+
+//    bool stop = false;
+//    QString elementName, color,weight;
+//    Rule rule;
+
+//    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+//    {
+//        QMessageBox::critical(new QDialog,
+//                              tr("Error"),
+//                              tr("Error load syntax higlighter"),
+//                              QMessageBox::Ok);
+
+//        qApp->quit();
+//    }
+
+//    QTextStream input(&file);
+
+//    m_permanentRules.clear();
+
+//    while (!input.atEnd())
+//    {
+//        keywordColor = input.readLine();
+
+//        if (keywordColor.contains("#rule"))
+//        {
+//            elementName = keywordColor.section(',',1,1);
+//            color = keywordColor.section(',',2,2);
+//            weight = keywordColor.section(',',3,3);
+//            keywordFormat.setForeground(QBrush(QColor(color)));
+//            if(weight.toLower() == "bold")
+//                keywordFormat.setFontWeight(QFont::Bold);
+//            else
+//                keywordFormat.setFontWeight(QFont::Normal);
+//        }
+
+//        rule.elementName = elementName;
+//        rule.format  = keywordFormat;
+//        rule.pattern = QRegExp();
+
+//        while (stop == false)
+//        {
+//            keyword = input.readLine();
+
+//            if (keyword == "stop")
+//                stop = true;
+//            else
+//            {
+//                rule.elementName = elementName;
+//                rule.format  = keywordFormat;
+//                rule.pattern = QRegExp(keyword);
+//                m_permanentRules.append(rule);
+//            }
+//        }
+
+//        if(rule.pattern.isEmpty())
+//            m_permanentRules.append(rule);
+
+//        stop = false;
+//    }
+//}
 
 void Highlighter::addElements(QList<CodeParser::Element> elements, bool permanent)
 {
@@ -187,7 +254,7 @@ void Highlighter::applyRuleToText(const Rule &rule, const QString &text)
 void Highlighter::highlightBlock(const QString &text)
 {
     foreach (const Rule &rule, m_extraRules)
-      applyRuleToText(rule, text);
+        applyRuleToText(rule, text);
 
     foreach (Rule rule, m_permanentRules)
         applyRuleToText(rule, text);

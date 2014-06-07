@@ -1,0 +1,10 @@
+{
+	"home": {
+		"css": "white.css"
+	},
+    "globalPalette": {
+    },
+    "globalStyle": "white.style",
+	"editorStyle": "editor_white.style",
+    "syntax": "white.syntax"
+}

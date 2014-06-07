@@ -2,6 +2,7 @@
 #include "ui_qkide.h"
 
 #include "qkide_global.h"
+#include "core/theme.h"
 #include "core/qkproject.h"
 #include "core/projectwizard.h"
 #include "widgets/ptextdock.h"
@@ -115,8 +116,9 @@ QkIDE::QkIDE(QWidget *parent) :
     createToolbars();
     createExamples();
     createReference();
-    setupLayout();
     readSettings();
+
+    setTheme(DEFAULT_THEME);
 
     m_targets = QkUtils::supportedTargets(qApp->applicationDirPath() + EMB_DIR);
 
@@ -142,6 +144,7 @@ QkIDE::QkIDE(QWidget *parent) :
 
     connect(m_serialConn, SIGNAL(error(QString)), m_explorerWidget, SLOT(showError(QString)));
 
+    setupLayout();
     slotReloadSerialPorts();
     updateInterface();
 }
@@ -414,7 +417,7 @@ void QkIDE::createExamples()
         menu = m_examplesMenu->addMenu(topic);
         menu->clear();
 
-        QString path = topicsDir.path() + SLASH + topic + SLASH;
+        QString path = topicsDir.path() + "/" + topic + "/";
         projectsDir.setPath(path);
 
         projectNames = projectsDir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
@@ -422,8 +425,9 @@ void QkIDE::createExamples()
         foreach(QString project, projectNames)
         {
             QAction *act = menu->addAction(project);
-            QString projectPath = projectsDir.path() + SLASH +
-                                  project + SLASH + project + ".qkpro";
+            QString projectPath = projectsDir.path() + "/" +
+                                  project + "/" +
+                                  project + ".qkpro";
             act->setData(projectPath);
             connect(act, SIGNAL(triggered()), this, SLOT(slotOpenExample()));
         }
@@ -466,7 +470,14 @@ void QkIDE::createReference()
 void QkIDE::setupLayout()
 {
     setDockOptions(QMainWindow::AllowNestedDocks);
+
     addDockWidget(Qt::BottomDockWidgetArea, m_outputWindow);
+
+    foreach(QDockWidget *dock, m_explorerWidget->docks())
+    {
+        dock->setParent(this);
+        addDockWidget(Qt::RightDockWidgetArea, dock);
+    }
 
     setCentralWidget(m_stackedWidget);
 
@@ -628,8 +639,8 @@ void QkIDE::slotCreateProject()
         slotCloseProject();
         qDebug() << "create project" << name << "under" << path;
         m_curProject = createProject(name);
-        path = path.replace('\\', SLASH);
-        path.append(SLASH + name + SLASH);
+        path = path.replace('\\', "/");
+        path.append("/" + name + "/");
         m_curProject->setPath(path);
         qDebug() << "new project path" << m_curProject->path();
         m_curProject->update();
@@ -682,8 +693,8 @@ void QkIDE::slotSaveProject()
 void QkIDE::slotSaveAsProject()
 {
     QString path = QFileDialog::getExistingDirectory(this,tr("Save As..."));
-    path.replace('\\', SLASH);
-    path.append(SLASH);
+    path.replace('\\', "/");
+    path.append("/");
     path.append(m_curProject->name() + "/");
     QDir().mkdir(path);
     qDebug() << "save as new path" << path;
@@ -712,7 +723,7 @@ void QkIDE::slotSaveAllFiles()
 
     for(int i=0; i < m_editor->countPages(); i++)
     {
-        QString filePath = m_curProject->path() + SLASH + m_editor->page(i)->name();
+        QString filePath = m_curProject->path() + "/" + m_editor->page(i)->name();
         m_editor->savePage(i,filePath);
     }
 
@@ -1022,6 +1033,36 @@ void QkIDE::openProject(const QString &path)
     }
 
     emit currentProjectChanged();
+}
+
+void QkIDE::setTheme(const QString &name)
+{
+    QString path = qApp->applicationDirPath() + THEME_DIR +
+                   "/" + name;
+
+    qDebug() << __FUNCTION__ << path;
+
+    Theme *theme = &m_globalTheme;
+    if(Theme::generate(path, theme))
+    {
+        setPalette(theme->globalPalette);
+
+        QString stylePath = qApp->applicationDirPath() + THEME_DIR +
+                            "/style/" + theme->globalStyle;
+        QFile globalStyleFile(stylePath);
+        if(globalStyleFile.open(QFile::ReadOnly))
+            setStyleSheet(globalStyleFile.readAll());
+        else
+            qDebug() << "failed to open style file:" << globalStyleFile.fileName();
+
+        QString editorStylePath = qApp->applicationDirPath() + THEME_DIR +
+                                  "/style/" + theme->editorStyle;
+        QFile editorStyleFile(editorStylePath);
+        if(editorStyleFile.open(QFile::ReadOnly))
+            m_editor->setStyleSheet(editorStyleFile.readAll());
+        else
+            qDebug() << "failed to open style file:" << editorStyleFile.fileName();
+    }
 }
 
 void QkIDE::setupPage(Page *page)

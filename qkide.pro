@@ -52,7 +52,8 @@ SOURCES += main.cpp\
     gui/editor/codeparser.cpp \
     ../utils/qkutils.cpp \
     core/projectpreferencesdialog.cpp \
-    gui/editor/codetip.cpp
+    gui/editor/codetip.cpp \
+    core/theme.cpp
 
 HEADERS  += qkide.h \
     qkide_global.h \
@@ -73,7 +74,8 @@ HEADERS  += qkide.h \
     gui/editor/codeparser.h \
     ../utils/qkutils.h \
     core/projectpreferencesdialog.h \
-    gui/editor/codetip.h
+    gui/editor/codetip.h \
+    core/theme.h
 
 FORMS    += qkide.ui \
     gui/editor/findreplacedialog.ui \
@@ -86,8 +88,8 @@ RESOURCES += \
     resources/qkide_img.qrc \
     resources/qkide_html.qrc \
     resources/qkide_syntax.qrc \
-    resources/qkide_styles.qrc \
-    resources/qkide_templates.qrc
+    resources/qkide_templates.qrc \
+    resources/qkide_style.qrc
 
 CONFIG(debug, debug|release) {
     DESTDIR = debug

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>syntax/qk.kw</file>
+        <file>theme/syntax/white.syntax</file>
+        <file>theme/syntax/dark.syntax</file>
     </qresource>
 </RCC>

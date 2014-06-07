@@ -62,6 +62,7 @@ def deploy():
 	print " === Copy other resources"
 	cp(TOOLS_DIR, RELEASE_TOOLS_DIR, "ctags")
 	cp("resources", RELEASE_RESOURCES_DIR, "html")
+	cp("resources", RELEASE_RESOURCES_DIR, "theme")
 	cp("", RELEASE_DIR, "examples")
 #	cp(SOFTWARE_SHARED_DIR, RELEASE_RESOURCES_DIR, "info")
 

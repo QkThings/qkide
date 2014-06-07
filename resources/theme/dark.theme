@@ -1,0 +1,19 @@
+{
+	"home": {
+		"ccs": "dark"
+	},
+    "globalPalette": {
+        "window": "#353535",
+        "windowText": "#ffffff",
+        "base": "#191919",
+        "alternateBase": "#353535",
+        "toolTipBase": "#ffffff",
+        "toolTipText": "#ffffff",
+        "text": "#ffffff",
+        "button": "#353535",
+        "buttonText": "#ffffff"
+    },
+    "globalStyle": "dark.style",
+    "editorStyle": "editor_dark.style",
+    "syntax": "dark.syntax"
+}

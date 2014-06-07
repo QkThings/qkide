@@ -12,11 +12,6 @@ pTextDock::pTextDock(const QString &title, const QColor &backgroundColor, QWidge
 {   
     m_textEdit = new pTextEdit(QSize(100, 120), this);
     m_textEdit->setTextColor(m_defaultTextColor);
-/*#ifdef Q_OS_LINUX
-    m_textEdit->setFont(QFont("Monospace",9));
-#else
-    m_textEdit->setFont(QFont("Courier",9));
-#endif*/
     m_textEdit->setFont(QFont(EDITOR_FONT_NAME));
     m_textEdit->setReadOnly(false);
     m_textEdit->setFrameStyle(QFrame::NoFrame);

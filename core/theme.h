@@ -14,6 +14,7 @@ public:
     QString globalStyle;
     QString editorStyle;
     QString syntax;
+    QString htmlCss;
 
 private:
 

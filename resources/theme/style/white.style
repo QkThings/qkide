@@ -1,6 +1,6 @@
 QMenuBar
 {
-    background: #444;
+    background: #333;
     color: white;
     padding: 0px;
 }
@@ -9,7 +9,7 @@ QMenuBar::item
 {
     spacing: 3px;
     padding: 3px 5px;
-    background: #444;
+    background: #333;
 }
 
 QMenuBar::item:selected
@@ -25,7 +25,7 @@ QMenuBar::item:pressed
 
 QToolTip
 {
-    color: #444;
+    color: #333;
     padding: 1px;
     border-radius: 2px;
     background-repeat:no-repeat;

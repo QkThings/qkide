@@ -1,5 +1,5 @@
-#include "qkproject.h"
-#include "../qkide_global.h"
+#include "project.h"
+#include "qkide_global.h"
 
 #include <QDebug>
 #include <QDateTime>
@@ -10,18 +10,18 @@
 #include <QVariant>
 #include <QDir>
 
-QkProject::QkProject(const QString &name, QObject *parent) :
+Project::Project(const QString &name, QObject *parent) :
     QObject(parent)
 {
     if(name.isEmpty())
-        m_name = QkProject::defaultName();
+        m_name = Project::defaultName();
     else
         m_name = name;
 
     m_readOnly = false;
 }
 
-QString QkProject::defaultName()
+QString Project::defaultName()
 {
     QString defaultProjectName("project_");
     QString dateTimeStr(QDateTime::currentDateTime().toString("yyMMddhhmmss"));
@@ -29,17 +29,17 @@ QString QkProject::defaultName()
     return defaultProjectName;
 }
 
-void QkProject::setName(const QString name)
+void Project::setName(const QString name)
 {
     m_name = name;
 }
 
-void QkProject::setPath(const QString path)
+void Project::setPath(const QString path)
 {
     m_path = path;
 }
 
-void QkProject::addFile(const QString fileName)
+void Project::addFile(const QString fileName)
 {
     if(hasFile(fileName)) return;
 
@@ -49,7 +49,7 @@ void QkProject::addFile(const QString fileName)
     emit filesChanged();
 }
 
-void QkProject::removeFile(const QString fileName)
+void Project::removeFile(const QString fileName)
 {
     if(!hasFile(fileName)) return;
 
@@ -59,7 +59,7 @@ void QkProject::removeFile(const QString fileName)
     emit filesChanged();
 }
 
-bool QkProject::hasFile(const QString fileName)
+bool Project::hasFile(const QString fileName)
 {
     foreach(QString file, m_files)
     {
@@ -69,32 +69,32 @@ bool QkProject::hasFile(const QString fileName)
     return false;
 }
 
-void QkProject::setReadOnly(bool readOnly)
+void Project::setReadOnly(bool readOnly)
 {
     m_readOnly = readOnly;
 }
 
-bool QkProject::readOnly()
+bool Project::readOnly()
 {
     return m_readOnly;
 }
 
-QString QkProject::name()
+QString Project::name()
 {
     return m_name;
 }
 
-QString QkProject::path()
+QString Project::path()
 {
     return m_path;
 }
 
-QStringList QkProject::files()
+QStringList Project::files()
 {
     return m_files;
 }
 
-QStringList QkProject::files(const QString &ext)
+QStringList Project::files(const QString &ext)
 {
     QStringList list;
 
@@ -108,13 +108,13 @@ QStringList QkProject::files(const QString &ext)
     return list;
 }
 
-void QkProject::update()
+void Project::update()
 {
     if(!m_path.isEmpty())
         saveToFile(m_path + m_name + ".qkpro");
 }
 
-void QkProject::clear()
+void Project::clear()
 {
     m_name.clear();
     m_path.clear();
@@ -123,7 +123,7 @@ void QkProject::clear()
     emit closed();
 }
 
-void QkProject::save()
+void Project::save()
 {
     /*if(m_path.isEmpty()){
         qDebug() << "can't save files: project path is empty";
@@ -151,7 +151,7 @@ void QkProject::save()
     }*/
 }
 
-bool QkProject::loadFromFile(const QString path)
+bool Project::loadFromFile(const QString path)
 {
     QFile file(path);
     QString nodeName, attrName, projectName, fileName;
@@ -221,7 +221,7 @@ bool QkProject::loadFromFile(const QString path)
     return true;
 }
 
-bool QkProject::saveToFile(const QString filePath)
+bool Project::saveToFile(const QString filePath)
 {
     QVariant var;
 

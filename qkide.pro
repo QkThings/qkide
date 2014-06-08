@@ -17,9 +17,10 @@ QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/../shared/lib/\',-z,origin'
 
 INCLUDEPATH += ../utils
 INCLUDEPATH += core
+INCLUDEPATH += editor
 INCLUDEPATH += gui
 INCLUDEPATH += gui/widgets
-INCLUDEPATH += editor
+INCLUDEPATH += gui/browser
 
 INCLUDEPATH += ../qkcore
 QMAKE_LIBDIR += ../qkcore/release
@@ -37,7 +38,6 @@ SOURCES += main.cpp\
         qkide.cpp \
     gui/editor/editor.cpp \
     gui/editor/pagetab.cpp \
-    core/qkproject.cpp \
     core/projectwizard.cpp \
     gui/editor/page.cpp \
     gui/editor/highlighter.cpp \
@@ -53,12 +53,12 @@ SOURCES += main.cpp\
     ../utils/qkutils.cpp \
     core/projectpreferencesdialog.cpp \
     gui/editor/codetip.cpp \
-    core/theme.cpp
+    core/theme.cpp \
+    core/project.cpp
 
 HEADERS  += qkide.h \
     qkide_global.h \
     gui/editor/pagetab.h \
-    core/qkproject.h \
     core/projectwizard.h \
     gui/editor/editor.h \
     gui/editor/page.h \
@@ -75,7 +75,8 @@ HEADERS  += qkide.h \
     ../utils/qkutils.h \
     core/projectpreferencesdialog.h \
     gui/editor/codetip.h \
-    core/theme.h
+    core/theme.h \
+    core/project.h
 
 FORMS    += qkide.ui \
     gui/editor/findreplacedialog.ui \

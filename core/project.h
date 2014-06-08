@@ -1,14 +1,14 @@
-#ifndef QKPROJECT_H
-#define QKPROJECT_H
+#ifndef PROJECT_H
+#define PROJECT_H
 
 #include <QObject>
 #include <QStringList>
 
-class QkProject : public QObject
+class Project : public QObject
 {
     Q_OBJECT
 public:
-    explicit QkProject(const QString &name = QString(), QObject *parent = 0);
+    explicit Project(const QString &name = QString(), QObject *parent = 0);
 
     static QString defaultName();
 
@@ -47,4 +47,4 @@ private:
     
 };
 
-#endif // QKPROJECT_H
+#endif // PROJECT_H

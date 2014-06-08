@@ -2,11 +2,11 @@
 #include "ui_qkide.h"
 
 #include "qkide_global.h"
-#include "core/theme.h"
-#include "core/qkproject.h"
-#include "core/projectwizard.h"
-#include "widgets/ptextdock.h"
-#include "browser/browser.h"
+#include "theme.h"
+#include "project.h"
+#include "projectwizard.h"
+#include "ptextdock.h"
+#include "browser.h"
 #include "editor/editor.h"
 #include "editor/codeparser.h"
 #include "editor/highlighter.h"
@@ -49,10 +49,10 @@ QkIDE::QkIDE(QWidget *parent) :
     m_curProject = 0;
 
     m_browser = new Browser(this);
+    m_browser->hide();
     connect(m_browser, SIGNAL(createProject()), this, SLOT(slotCreateProject()));
     connect(m_browser, SIGNAL(openProject()), this, SLOT(slotOpenProject()));
     connect(m_browser, SIGNAL(openRecentProject(int)), this, SLOT(slotOpenRecentProject(int)));
-    //m_browser->hide();
 
     m_editor = new Editor(this);
 
@@ -67,7 +67,6 @@ QkIDE::QkIDE(QWidget *parent) :
     m_outputWindow->setFeatures(pTextDock::DockWidgetMovable | pTextDock::DockWidgetClosable);
     m_outputWindow->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::RightDockWidgetArea);
     m_outputWindow->hide();
-
 
     m_testAct = new QAction(tr("TEST"), this);
     connect(m_testAct, SIGNAL(triggered()), this, SLOT(slotTest()));
@@ -111,40 +110,39 @@ QkIDE::QkIDE(QWidget *parent) :
 
     connect(this, SIGNAL(currentProjectChanged()), this, SLOT(slotCurrentProjectChanged()));
 
-    createActions();
-    createMenus();
-    createToolbars();
-    createExamples();
-    createReference();
-    readSettings();
-
-    setTheme(DEFAULT_THEME);
 
     m_targets = QkUtils::supportedTargets(qApp->applicationDirPath() + EMB_DIR);
 
     m_optionsDialog->setTargets(m_targets);
 
-    m_comboTargetName->clear();
-    foreach(QString targetName, m_targets.keys())
-        m_comboTargetName->addItem(targetName);
-
-    m_comboTargetName->setCurrentText("EFM32");
-
     m_serialConn = new QkConnSerial(m_uploadPortName, 38400, this);
+    m_serialConn->setSearchOnConnect(false);
     connect(m_serialConn, SIGNAL(error(QString)), this, SLOT(slotError(QString)));
 
-    m_explorerWindow = new QMainWindow(this, Qt::Tool);
+    m_explorerWindow = new QMainWindow(this);
+    m_explorerWindow->hide();
 
     m_explorerWidget = new QkExplorerWidget(m_explorerWindow);
-    m_explorerWidget->setCurrentConnection(m_serialConn);
-    m_explorerWidget->setModeFlags(QkExplorerWidget::mfSingleNode | QkExplorerWidget::mfSingleConnection);
+
+    m_explorerWidget->setConnection(m_serialConn);
+    m_explorerWidget->setModes(QkExplorerWidget::ModeSingleNode |
+                               QkExplorerWidget::ModeSingleConnection);
+    m_explorerWidget->setFeatures(QkExplorerWidget::FeatureDockableWidgets);
     m_explorerWindow->setCentralWidget(m_explorerWidget);
-    m_explorerWidget->hide();
-//    m_explorerWindow->show();
+
 
     connect(m_serialConn, SIGNAL(error(QString)), m_explorerWidget, SLOT(showError(QString)));
 
+    createReference();
+    createActions();
+    createMenus();
+    createToolbars();
+    createExamples();
+
+    readSettings();
+    setTheme(DEFAULT_THEME);
     setupLayout();
+
     slotReloadSerialPorts();
     updateInterface();
 }
@@ -213,16 +211,16 @@ void QkIDE::createActions()
     connect(m_verifyAct, SIGNAL(triggered()), this, SLOT(slotVerify()));
     connect(m_uploadAct, SIGNAL(triggered()), this, SLOT(slotUpload()));
 
-    m_referenceAct = new QAction(QIcon(":/img/reference_16.png"), tr("Show/Hide Reference"), this);
-    connect(m_referenceAct, SIGNAL(triggered()), this, SLOT(slotShowHideReference()));
+    m_referenceAct = new QAction(QIcon(":/img/reference_16.png"), tr("Show Reference"), this);
+    connect(m_referenceAct, SIGNAL(triggered()), this, SLOT(slotShowReference()));
 
-    m_explorerAct = new QAction(QIcon(":/img/explorer.png"), tr("Show/Hide Explorer"), this);
-    connect(m_explorerAct, SIGNAL(triggered()), this, SLOT(slotShowHideExplorer()));
+    m_explorerAct = new QAction(QIcon(":/img/explorer.png"), tr("Show Explorer"), this);
+    connect(m_explorerAct, SIGNAL(triggered()), this, SLOT(slotShowExplorer()));
 
-    m_targetAct = new QAction(QIcon(":/img/target_16.png"), tr("Show/Hide Target"), this);
-    connect(m_targetAct, SIGNAL(triggered()), this, SLOT(slotShowHideTarget()));
+//    m_targetAct = new QAction(QIcon(":/img/target_16.png"), tr("Show Target"), this);
+//    connect(m_targetAct, SIGNAL(triggered()), this, SLOT(slotShowHideTarget()));
 
-//    m_connectAct = new QAction(QIcon(":/img/connect_16.png"), tr("Show/Hide Target"), this);
+//    m_connectAct = new QAction(QIcon(":/img/connect_16.png"), tr("Show Target"), this);
 //    connect(m_connectAct, SIGNAL(triggered()), this, SLOT(slotShowHideConnection()));
 
     m_toggleFoldAct = new QAction(tr("Toggle Fold"),this);
@@ -249,10 +247,11 @@ void QkIDE::createActions()
     //connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
 
     m_exitAct = new QAction(tr("Exit"), this);
-    //connect(exitAct, SIGNAL(triggered()), this, SLOT(close()))
+    connect(m_exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
 
-    for (int i = 0; i < MaxRecentProjects; ++i) {
+    for (int i = 0; i < MaxRecentProjects; ++i)
+    {
         m_recentProjectsActs[i] = new QAction(QString::number(i),this);
         m_recentProjectsActs[i]->setVisible(false);
         connect(m_recentProjectsActs[i], SIGNAL(triggered()),
@@ -479,6 +478,14 @@ void QkIDE::setupLayout()
         addDockWidget(Qt::RightDockWidgetArea, dock);
     }
 
+    updateRecentProjects();
+
+    m_comboTargetName->clear();
+    foreach(QString targetName, m_targets.keys())
+        m_comboTargetName->addItem(targetName);
+
+    m_comboTargetName->setCurrentText("EFM32");
+
     setCentralWidget(m_stackedWidget);
 
     resize(680,600);
@@ -516,8 +523,6 @@ void QkIDE::readSettings()
             m_recentProjects.append(recent);
     }
     settings.endArray();
-
-    updateRecentProjects();
 }
 
 void QkIDE::writeSettings()
@@ -908,42 +913,38 @@ void QkIDE::slotProcessFinished()
     ui->statusBar->showMessage(tr("Done"), 1500);
 }
 
-void QkIDE::slotShowHideReference()
+void QkIDE::slotShowReference()
 {
-    if(m_referenceWindow->isVisible())
-        m_referenceWindow->hide();
-    else
-        m_referenceWindow->show();
+    m_referenceWindow->show();
+    m_referenceWindow->raise();
 }
 
-void QkIDE::slotShowHideExplorer()
+void QkIDE::slotShowExplorer()
 {
-    if(m_explorerWidget->isVisible())
-        m_explorerWidget->hide();
-    else
-        m_explorerWidget->show();
+    m_explorerWidget->show();
+    m_explorerWidget->raise();
 }
 
-void QkIDE::slotShowHideTarget()
-{
-    if(m_comboTargetName->isVisible())
-    {
-        //m_comboTargetName->hide();
-        m_comboTargetVariant->hide();
-    }
-    else
-    {
-        //m_comboTargetName->show();
-        m_comboTargetVariant->show();
-    }
-}
+//void QkIDE::slotShowHideTarget()
+//{
+//    if(m_comboTargetName->isVisible())
+//    {
+//        //m_comboTargetName->hide();
+//        m_comboTargetVariant->hide();
+//    }
+//    else
+//    {
+//        //m_comboTargetName->show();
+//        m_comboTargetVariant->show();
+//    }
+//}
 
-void QkIDE::slotShowHideConnect()
-{
-//    bool hide = m_buttonConnect->isVisible();
-//    m_buttonConnect->setHidden(hide);
-//    m_comboPort->setHidden(hide);
-}
+//void QkIDE::slotShowHideConnect()
+//{
+////    bool hide = m_buttonConnect->isVisible();
+////    m_buttonConnect->setHidden(hide);
+////    m_comboPort->setHidden(hide);
+//}
 
 void QkIDE::slotToggleFold()
 {
@@ -958,7 +959,7 @@ void QkIDE::slotFullScreen(bool on)
         showNormal();
 }
 
-QkProject* QkIDE::createProject(const QString &name)
+Project* QkIDE::createProject(const QString &name)
 {
     QString cName, hName;
     if(!name.isEmpty())
@@ -987,7 +988,7 @@ QkProject* QkIDE::createProject(const QString &name)
     m_editor->addPage(hName)->setPlainText(hTemplate);
     m_editor->setCurrentPage(0);
 
-    QkProject *project = new QkProject(name);
+    Project *project = new Project(name);
     project->addFile(cName);
     project->addFile(hName);
 
@@ -999,7 +1000,7 @@ void QkIDE::openProject(const QString &path)
     Page *page;
 
     slotCloseProject();
-    m_curProject = new QkProject;
+    m_curProject = new Project;
 
     qDebug() << "load project from file" << path;
 
@@ -1078,7 +1079,7 @@ void QkIDE::setupPage(Page *page)
     highlighter->addElements(m_libElements, true);
 }
 
-void QkIDE::createMakefile(QkProject *project)
+void QkIDE::createMakefile(Project *project)
 {
     QFile makefileTemplateFile(":/templates/makefile_template");
 
@@ -1118,7 +1119,7 @@ void QkIDE::createMakefile(QkProject *project)
     makefileFile.close();
 }
 
-void QkIDE::deleteMakefile(QkProject *project)
+void QkIDE::deleteMakefile(Project *project)
 {
     QFile::remove(project->path() + "/Makefile");
 }
@@ -1232,6 +1233,7 @@ void QkIDE::updateRecentProjects()
     QTextStream out(&homeFile);
     QString html = in.readAll();
 
+    html.replace("{{css}}", m_globalTheme.htmlCss);
     html.replace("{{recentProjects}}", htmlText);
 
     out << html;

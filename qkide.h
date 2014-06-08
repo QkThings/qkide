@@ -9,7 +9,7 @@
 
 //using namespace QkUtils;
 
-class QkProject;
+class Project;
 class Browser;
 class Editor;
 class Page;
@@ -83,10 +83,8 @@ private slots:
     void slotUpload();
     void slotConnect();
 
-    void slotShowHideReference();
-    void slotShowHideExplorer();
-    void slotShowHideTarget();
-    void slotShowHideConnect();
+    void slotShowReference();
+    void slotShowExplorer();
 
     void slotToggleFold();
     void slotFullScreen(bool on);
@@ -114,10 +112,10 @@ private:
     void setupLayout();
     void readSettings();
     void writeSettings();
-    QkProject* createProject(const QString &name = QString());
+    Project* createProject(const QString &name = QString());
     void openProject(const QString &path);
-    void createMakefile(QkProject *project);
-    void deleteMakefile(QkProject *project);
+    void createMakefile(Project *project);
+    void deleteMakefile(Project *project);
     void updateWindowTitle();
     void updateCurrentProject();
     void updateRecentProjects();
@@ -145,8 +143,8 @@ private:
 
     OptionsDialog *m_optionsDialog;
 
-    QkProject *m_curProject;
-    QList<QkProject*> m_projects;
+    Project *m_curProject;
+    QList<Project*> m_projects;
 
     CodeParser *m_codeParser;
     CodeParserThread *m_codeParserThread;
@@ -182,8 +180,8 @@ private:
 
     QAction *m_referenceAct;
     QAction *m_explorerAct;
-    QAction *m_connectAct;
-    QAction *m_targetAct;
+//    QAction *m_connectAct;
+//    QAction *m_targetAct;
     QAction *m_testAct;
 
     QAction *m_toggleFoldAct;

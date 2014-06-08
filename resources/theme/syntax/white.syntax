@@ -27,14 +27,14 @@ stop
 \>>
 \<<
 stop
-#rule,string,#1086e2,normal
+#rule,string,#ED6C02,normal
 \".*\"
 <.*>
 stop
 #rule,comment,#aaaaaa,normal
 \//.*
 stop
-#rule,include,#1086e2,normal
+#rule,include,#1C9952,normal
 ^\s*#include
 ^\s*#ifndef
 ^\s*#ifdef

@@ -1,5 +1,5 @@
 #include <qk_program.h>
-#include "bareminimum.h"
+#include "BareMinimum.h"
 
 /*
 	This is the most minimal program you can compile.

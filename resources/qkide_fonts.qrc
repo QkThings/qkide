@@ -1,10 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>fonts/Monaco.ttf</file>
-        <file>fonts/Inconsolata.otf</file>
-        <file>fonts/EnvyCodeR.ttf</file>
-        <file>fonts/Saxmono.ttf</file>
-        <file>fonts/SourceCodePro.otf</file>
         <file>fonts/Ubuntu-R.ttf</file>
         <file>fonts/Roboto-Regular.ttf</file>
         <file>fonts/Roboto-Thin.ttf</file>

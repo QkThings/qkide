@@ -13,7 +13,7 @@ TEMPLATE = app
 
 QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/../shared/lib/\',-z,origin'
 
-#DEFINES += QT_NO_DEBUG_OUTPUT
+DEFINES += QT_NO_DEBUG_OUTPUT
 
 INCLUDEPATH += ../utils
 INCLUDEPATH += core
@@ -25,10 +25,6 @@ INCLUDEPATH += gui/browser
 INCLUDEPATH += ../qkcore
 QMAKE_LIBDIR += ../qkcore/release
 LIBS += -L../qkcore/release -lqkcore
-
-#INCLUDEPATH += ../qkconnect
-#QMAKE_LIBDIR += ../qkconnect/release
-#LIBS += -L../qkconnect/release -lqkconnect
 
 INCLUDEPATH += ../qkwidget
 QMAKE_LIBDIR += ../qkwidget/release

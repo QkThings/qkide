@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources/qkide_img.qrc">
-    <normaloff>:/img/qk_48.png</normaloff>:/img/qk_48.png</iconset>
+    <normaloff>:/img/logo_48.png</normaloff>:/img/logo_48.png</iconset>
   </property>
   <property name="iconSize">
    <size>

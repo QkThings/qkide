@@ -1259,7 +1259,7 @@ void QkIDE::updateRecentProjects()
 void QkIDE::updateInterface()
 {
     bool projectActEnabled = m_curProject != 0;
-    bool buildActEnabled = (m_curProject != 0 && !m_curProject->readOnly());
+    bool buildActEnabled = m_curProject != 0;
 
     m_redoAct->setEnabled(projectActEnabled);
     m_undoAct->setEnabled(projectActEnabled);

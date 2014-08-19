@@ -1,24 +1,13 @@
 <RCC>
     <qresource prefix="/">
-        <file>img/arrow_redo.png</file>
-        <file>img/arrow_undo.png</file>
-        <file>img/config.png</file>
-        <file>img/page_add.png</file>
         <file>img/save.png</file>
         <file>img/upload.png</file>
         <file>img/verify.png</file>
-        <file>img/zoom_in.png</file>
-        <file>img/zoom_out.png</file>
         <file>img/splash.png</file>
         <file>img/open_project.png</file>
-        <file>img/application.png</file>
-        <file>img/cfile.png</file>
-        <file>img/header.png</file>
         <file>img/bullet_green.png</file>
         <file>img/create_project.png</file>
         <file>img/home.png</file>
-        <file>img/close.png</file>
-        <file>img/undock.png</file>
         <file>img/clean.png</file>
         <file>img/reload.png</file>
         <file>img/explorer.png</file>
@@ -27,9 +16,7 @@
         <file>img/icon_enum.png</file>
         <file>img/icon_define.png</file>
         <file>img/bullet_white.png</file>
-        <file>img/connect_16.png</file>
-        <file>img/target_16.png</file>
         <file>img/reference_16.png</file>
-        <file>img/qk_48.png</file>
+        <file>img/logo_48.png</file>
     </qresource>
 </RCC>

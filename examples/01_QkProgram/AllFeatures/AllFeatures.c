@@ -35,7 +35,6 @@ void sample_callback()
   		evt_args[0] = 123.123+(float)counter;
   		evt_args[1] = 456.456+(float)counter;
 		qk_event_set_args(0, evt_args, 2);
-		//qk_event_generate(0, "event fired with some arguments");		
   		qk_event_generate(0, "testing");
 	}
 	if((counter % 25) == 0)

@@ -22,6 +22,7 @@ class QProcess;
 class QStackedWidget;
 class pTextDock;
 class HomeHeader;
+class QkReferenceWidget;
 class QkExplorerWidget;
 class QkConnSerial;
 class CodeParser;
@@ -237,6 +238,8 @@ private:
 
     QComboBox *m_comboTargetName;
     QComboBox *m_comboTargetVariant;
+
+    QkReferenceWidget *m_referenceWidget;
 
     QkExplorerWidget *m_explorerWidget;
     QDockWidget *m_explorerDock;

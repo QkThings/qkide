@@ -54,7 +54,8 @@ SOURCES += main.cpp\
     core/projectpreferencesdialog.cpp \
     gui/editor/codetip.cpp \
     core/theme.cpp \
-    core/project.cpp
+    core/project.cpp \
+    gui/widgets/qkreferencewidget.cpp
 
 HEADERS  += qkide.h \
     qkide_global.h \
@@ -76,13 +77,15 @@ HEADERS  += qkide.h \
     core/projectpreferencesdialog.h \
     gui/editor/codetip.h \
     core/theme.h \
-    core/project.h
+    core/project.h \
+    gui/widgets/qkreferencewidget.h
 
 FORMS    += qkide.ui \
     gui/editor/findreplacedialog.ui \
     core/optionsdialog.ui \
     core/projectpreferencesdialog.ui \
-    gui/editor/codetip.ui
+    gui/editor/codetip.ui \
+    gui/widgets/qkreferencewidget.ui
 
 RESOURCES += \
     resources/qkide_fonts.qrc \

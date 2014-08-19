@@ -3,8 +3,8 @@
 
 /*
 	This is the most minimal program you can compile.
-	It is so minimal it does nothing but initialize the hardware and
-	prepare it for the program you'll want to write.
+	It is so minimal it does nothing but to initialize the hardware and
+	to prepare it for the program you will write.
 */
 
 void qk_setup()
@@ -22,7 +22,7 @@ int main()
 	/* 
 	Every C program needs a "main" function and this is no exception.
 	The special thing here is that qkprogram also provides you the 
-	main loop of you program which is included in the qk_main function,
+	main loop of you program which is called inside the qk_main() function,
 	called bellow.
 	*/
 	return qk_main();

@@ -17,6 +17,7 @@
 
 #include "qkconnect.h"
 #include "qkconnserial.h"
+#include "qkreferencewidget.h"
 #include "qkexplorerwidget.h"
 
 #include <QtGlobal>
@@ -116,7 +117,7 @@ QkIDE::QkIDE(QWidget *parent) :
     m_optionsDialog->setTargets(m_targets);
 
     m_serialConn = new QkConnSerial(m_uploadPortName, 38400, this);
-    m_serialConn->setSearchOnConnect(false);
+    m_serialConn->setSearchOnConnect(true);
     connect(m_serialConn, SIGNAL(error(QString)), this, SLOT(slotError(QString)));
 
     m_explorerWindow = new QMainWindow(this);
@@ -404,7 +405,7 @@ void QkIDE::createExamples()
     qDebug() << "create examples";
 
     QMenu *menu;
-    QDir projectsDir, topicsDir("examples/");
+    QDir projectsDir, topicsDir(qApp->applicationDirPath() + "/examples");
     QStringList topicNames;
     QStringList projectNames;
 
@@ -439,32 +440,40 @@ void QkIDE::createExamples()
 void QkIDE::createReference()
 {
     qDebug() << __FUNCTION__;
-    m_referenceWindow = new QMainWindow(this);
 
-    QWidget *referenceWidget = new QWidget(m_referenceWindow);
+    m_referenceWidget = new QkReferenceWidget(this);
 
-    QComboBox *comboReference = new QComboBox(referenceWidget);
-    QStringList referenceItems;
-    referenceItems << "qkprogram";
-    comboReference->addItems(referenceItems);
+//    m_referenceWindow = new QMainWindow(this);
 
-    QString qkprogramRef = QKPROGRAM_DOC_DIR + "/html/index.html";
+//    QWidget *referenceWidget = new QWidget(m_referenceWindow);
 
-    QString urlStr = "file://" + qApp->applicationDirPath() + qkprogramRef;
-    qDebug() << "reference:" << urlStr;
+////    QComboBox *comboReference = new QComboBox(referenceWidget);
+//    m_comboReference = new QComboBox(referenceWidget);
+//    QComboBox *comboReference = m_comboReference;
+//    QStringList referenceItems;
+//    referenceItems << "QkProgram" << "QkPeripheral" << "QkDSP";
+//    comboReference->addItems(referenceItems);
 
-    Browser *referenceBrowser = new Browser(referenceWidget);
-    referenceBrowser->load(QUrl(urlStr));
+//    QString qkprogramRef = QKPROGRAM_DOC_DIR + "/html/index.html";
 
-    QVBoxLayout *vBox = new QVBoxLayout;
-    vBox->addWidget(comboReference);
-    vBox->addWidget(referenceBrowser);
-    referenceWidget->setLayout(vBox);
+//    QString urlStr = "file://" + qApp->applicationDirPath() + qkprogramRef;
+//    qDebug() << "reference:" << urlStr;
 
-    m_referenceWindow->setCentralWidget(referenceWidget);
-    m_referenceWindow->setWindowTitle("qkreference");
-    m_referenceWindow->resize(750,600);
+//    Browser *referenceBrowser = new Browser(referenceWidget);
+//    referenceBrowser->load(QUrl(urlStr));
+
+//    QVBoxLayout *vBox = new QVBoxLayout;
+//    vBox->addWidget(comboReference);
+//    vBox->addWidget(referenceBrowser);
+//    referenceWidget->setLayout(vBox);
+
+//    m_referenceWindow->setCentralWidget(referenceWidget);
+//    m_referenceWindow->setWindowTitle("qkreference");
+//    m_referenceWindow->resize(750,600);
+
+//    connect(comboReference, SIGNAL(currentIndexChanged(int)), this, SLOT(slotReloadReference()));
 }
+
 
 void QkIDE::setupLayout()
 {
@@ -484,7 +493,8 @@ void QkIDE::setupLayout()
     foreach(QString targetName, m_targets.keys())
         m_comboTargetName->addItem(targetName);
 
-    m_comboTargetName->setCurrentText("EFM32");
+    //m_comboTargetName->setCurrentText("EFM32");
+    m_comboTargetName->setCurrentText("Arduino");
 
     setCentralWidget(m_stackedWidget);
 
@@ -915,8 +925,8 @@ void QkIDE::slotProcessFinished()
 
 void QkIDE::slotShowReference()
 {
-    m_referenceWindow->show();
-    m_referenceWindow->raise();
+    m_referenceWidget->show();
+    m_referenceWidget->raise();
 }
 
 void QkIDE::slotShowExplorer()
@@ -1420,6 +1430,7 @@ void QkIDE::slotReloadSerialPorts()
     }
     m_comboPort->clear();
     m_comboPort->addItems(list);
+    updateInterface();
 }
 
 void QkIDE::slotTest()

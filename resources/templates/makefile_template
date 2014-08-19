@@ -7,11 +7,12 @@ EMB_DIR = {{embDir}}
 TARGET = {{target}}
 APP = {{appDir}}
 
+
 .SUFFIXES:
 .PHONY: lib app test clean upload savetarget
 
 ####################################################################
-# INIT                                                      
+# INIT
 ####################################################################
 
 #PRINT_MESSAGES = 1
@@ -91,10 +92,10 @@ LIB_DIR = $(BUILD_DIR)/lib/$(TARGET_NAME)/$(TARGET_VARIANT)
 ifeq ($(TARGET),)
   -include target/saved.target
   ifeq ($(TARGET),)
-    $(info TARGET not defined, using default target "arduino.uno")
-    TARGET=arduino.uno
+	$(info TARGET not defined, using default target "arduino.uno")
+	TARGET=arduino.uno
   else
-    $(info TARGET not defined, using saved target $(TARGET))
+	$(info TARGET not defined, using saved target $(TARGET))
   endif
 else
   ${info TARGET  = $(TARGET)}
@@ -116,22 +117,22 @@ ifeq ($(SHELLNAMES),)
 else
   QUOTE :="
   ifneq ($(COMSPEC),)
-    # Assume we are making on a mingw/msys/cygwin platform running on Windows
-    # This is a convenient place to override TOOLDIR, DO NOT add trailing
-    # whitespace chars, they do matter !
-    ifeq ($(findstring cygdrive,$(shell set)),)
-      # We were not on a cygwin platform
-      NULLDEVICE := NUL
-    endif
+	# Assume we are making on a mingw/msys/cygwin platform running on Windows
+	# This is a convenient place to override TOOLDIR, DO NOT add trailing
+	# whitespace chars, they do matter !
+	ifeq ($(findstring cygdrive,$(shell set)),)
+	  # We were not on a cygwin platform
+	  NULLDEVICE := NUL
+	endif
   else
-    # Assume we are making on a Windows platform
-    # This is a convenient place to override TOOLDIR, DO NOT add trailing
-    # whitespace chars, they do matter !
-    SHELL      := $(SHELLNAMES)
-    RMDIRS     := rd /s /q
-    RMFILES    := del /s /q
-    ALLFILES   := \*.*
-    NULLDEVICE := NUL
+	# Assume we are making on a Windows platform
+	# This is a convenient place to override TOOLDIR, DO NOT add trailing
+	# whitespace chars, they do matter !
+	SHELL      := $(SHELLNAMES)
+	RMDIRS     := rd /s /q
+	RMFILES    := del /s /q
+	ALLFILES   := \*.*
+	NULLDEVICE := NUL
   endif
 endif
 
@@ -142,36 +143,36 @@ NULLDEVICE := /dev/null
 SHELLNAMES := $(ComSpec)$(COMSPEC)
 
 ####################################################################
-# DEFINITIONS                                                      
+# DEFINITIONS
 ####################################################################
 
 OPTIMIZE = s
 OFORMAT = binary
 
 ####################################################################
-# DIRS AND FLAGS                     
+# DIRS AND FLAGS
 ####################################################################
-
+#($(and $(APP),$(TEST)),)
 ifeq ($(MAKECMDGOALS),lib)
 #-------------------------------------------------------------------
   include $(PROJECT_NAME)/build/$(PROJECT_NAME).mk
 #-------------------------------------------------------------------
 else
 #-------------------------------------------------------------------
-CFLAGS += -DBUILD_DEVICE
 
-QKLIB_NAMES = \
-qkprogram
+QKLIB_PATHS += $(addsuffix /build/lib/$(TARGET_NAME)/$(TARGET_VARIANT)/device, $(EMB_DIR)/qkprogram)
+QKLIB_INCLUDES += $(addsuffix /include, $(EMB_DIR)/qkprogram)
 
-QKLIB_PATHS = $(addsuffix /build/lib/$(TARGET_NAME)/$(TARGET_VARIANT), $(QKLIB_NAMES))
-LIBS += $(addprefix -L$(EMB_DIR)/, $(QKLIB_PATHS)) $(addprefix -l, $(QKLIB_NAMES))
+QKLIB_PATHS += $(addsuffix /build/lib/$(TARGET_NAME)/$(TARGET_VARIANT), $(EMB_DIR)/qkperipheral)
+QKLIB_INCLUDES += $(addsuffix /include, $(EMB_DIR)/qkperipheral)
 
-INCLUDE_DIR += \
-$(EMB_DIR)/qkprogram/include
-
-include $(TARGET_GLOBAL)
+LIBS += $(addprefix -L, $(QKLIB_PATHS)) #$(addprefix -l, $(QKLIB_NAMES))
+INCLUDE_DIR += $(QKLIB_INCLUDES)
 
 ifeq ($(MAKECMDGOALS),app)
+CFLAGS += -DBUILD_DEVICE
+LIBS += -lqkprogram
+
 INCLUDE_DIR += \
 $(APP)
 C_SRC_DIR += \
@@ -181,10 +182,15 @@ endif
 ifeq ($(MAKECMDGOALS),test)
 C_SRC += test/$(TEST).c
 endif
+
+include $(TARGET_GLOBAL)
+
 #-------------------------------------------------------------------
 endif
 
 CFLAGS += -O$(OPTIMIZE) -g3 -Wall
+CFLAGS += -DINIT_CLKFREQ=$(INIT_CLKFREQ)
+CFLAGS += $(addprefix -D, $(DEFINES))
 LIBS += -lm
 ARFLAGS = rcs
 
@@ -201,9 +207,9 @@ ifeq ($(MAKECMDGOALS),lib)
 endif
 ifeq (clean,$(findstring clean, $(MAKECMDGOALS)))
   ifneq ($(filter $(MAKECMDGOALS),all debug release),)
-    $(shell $(RMFILES) $(OBJ_DIR)$(ALLFILES)>$(NULLDEVICE) 2>&1)
-    $(shell $(RMFILES) $(BIN_DIR)$(ALLFILES)>$(NULLDEVICE) 2>&1)
-    $(shell $(RMFILES) $(LIB_DIR)$(ALLFILES)>$(NULLDEVICE) 2>&1)
+	$(shell $(RMFILES) $(OBJ_DIR)$(ALLFILES)>$(NULLDEVICE) 2>&1)
+	$(shell $(RMFILES) $(BIN_DIR)$(ALLFILES)>$(NULLDEVICE) 2>&1)
+	$(shell $(RMFILES) $(LIB_DIR)$(ALLFILES)>$(NULLDEVICE) 2>&1)
   endif
 endif
 
@@ -250,7 +256,7 @@ $(OBJ_DIR)/%.o: %.S
 $(BIN_DIR)/$(PROJECT_NAME).out: $(OBJS)
 	@echo Linking target: $@
 	$(CC) $(LDFLAGS) $(OBJS) $(LIBS) -o $(BIN_DIR)/$(PROJECT_NAME).out
-	
+
 # Create static library
 $(LIB_DIR)/lib$(PROJECT_NAME).a: $(OBJS)
 	@echo Creating static library: $@
@@ -282,8 +288,13 @@ savetarget:
 ###############################################################################
 # UPLOAD
 ###############################################################################
-PORT ?= comm_port
-FILE ?= file_to_upload
+ifeq ($(MAKECMDGOALS),upload)
+  ifeq ($(PORT),)
+	$(error PORT must be defined)
+  endif
+  ifeq ($(FILE),)
+	$(error FILE must be defined)
+  endif
+endif
 upload:
 	$(UPLOAD_CMD)
-

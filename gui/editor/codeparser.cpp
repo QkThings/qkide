@@ -33,7 +33,7 @@ void CodeParser::parse()
     QStringList arguments;
     //QString output = "-f " + TAGS_DIR + "/tags";
     QString tagsDir = TAGS_DIR;
-    QString output = "-f " + tagsDir.remove(0,1) + "/tags";
+    QString output = "-f " + qApp->applicationDirPath() + TAGS_DIR + "/tags";
     arguments << output << "--languages=-Make" << "--c-kinds=+p-m" << "-R" << path;
     //arguments << "-R" << "--c-kinds=+l" << "--languages=-Make" << path << "--verbose";
     //arguments << "-R" << path;
@@ -42,7 +42,7 @@ void CodeParser::parse()
     process.setProcessChannelMode(QProcess::MergedChannels);
     //process.setWorkingDirectory(path);    
 
-    qDebug() << program << arguments;
+    qDebug() << __FUNCTION__ << program << arguments;
 
 
     process.start(program, arguments);

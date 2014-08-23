@@ -240,7 +240,6 @@ private:
     QComboBox *m_comboTargetVariant;
 
     QkReferenceWidget *m_referenceWidget;
-
     QkExplorerWidget *m_explorerWidget;
     QDockWidget *m_explorerDock;
 

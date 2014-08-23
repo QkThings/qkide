@@ -19,7 +19,7 @@ def deploy():
 
 	rootdir = getcwd()
 	
-	deploy_embedded = False
+	deploy_embedded = True
 	cp_toolchain = False
 
 	# Paths
@@ -45,7 +45,7 @@ def deploy():
 	QKDSP_DIR = path.join(EMBEDDED_DIR, "qkdsp")
 	EMBEDDED_SHARED_DIR = path.join(EMBEDDED_DIR, "shared")
 
-	TOOLS_DIR = path.join(SOFTWARE_SHARED_DIR, "linux/tools")
+	TOOLS_DIR = path.join(rootdir, "../tools/linux")
 	CTAGS_DIR = path.join(TOOLS_DIR, "ctags")
 
 	RELEASE_DIR = path.join(rootdir, "release")
@@ -97,7 +97,6 @@ def deploy():
 	cp("resources", RELEASE_RESOURCES_DIR, "html")
 	cp("resources", RELEASE_RESOURCES_DIR, "theme")
 	cp("", RELEASE_DIR, "examples")
-#	cp(SOFTWARE_SHARED_DIR, RELEASE_RESOURCES_DIR, "info")
 
 	print "Done"
 

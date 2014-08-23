@@ -16,9 +16,6 @@
     <height>400</height>
    </size>
   </property>
-  <property name="windowTitle">
-   <string>qkide</string>
-  </property>
   <property name="windowIcon">
    <iconset resource="resources/qkide_img.qrc">
     <normaloff>:/img/logo_48.png</normaloff>:/img/logo_48.png</iconset>

@@ -5,6 +5,8 @@
 #include <QFile>
 #include <QWebPage>
 #include <QMouseEvent>
+#include <QDesktopServices>
+#include <QUrl>
 
 Browser::Browser(QWidget *parent) :
     QWebView(parent)
@@ -26,17 +28,21 @@ void Browser::slotHandleLink(const QUrl &url)
     int i;
 
 
-    if(fields.at(0) == "prj") {
-        if(fields.at(1) == "create") {
+    if(fields.at(0) == "prj")
+    {
+        if(fields.at(1) == "create")
             emit createProject();
-        }
-        else if(fields.at(1) == "open") {
+        else if(fields.at(1) == "open")
             emit openProject();
-        }
-        else if(fields.at(1) == "recent") {
+        else if(fields.at(1) == "recent")
+        {
             i = fields.at(2).toInt();
             emit openRecentProject(i);
         }
+    }
+    else if(fields.at(0) == "link")
+    {
+        QDesktopServices::openUrl(QUrl("http://" + fields.at(1)));
     }
 }
 

@@ -276,6 +276,7 @@ void QkIDE::createMenus()
     for(int i = 0; i < MaxRecentProjects; i++)
         m_recentProjectsMenu->addAction(m_recentProjectsActs[i]);
 
+
     m_fileMenu->addMenu(m_recentProjectsMenu);
     m_fileMenu->addMenu(m_examplesMenu);
     m_fileMenu->addSeparator();
@@ -372,6 +373,7 @@ void QkIDE::createToolbars()
     m_comboPort = new QComboBox(m_qkToolbar);
     m_comboTargetName = new QComboBox(m_qkToolbar);
     m_comboTargetVariant = new QComboBox(m_qkToolbar);
+    m_comboTargetVariant->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
     connect(m_comboTargetName, SIGNAL(currentIndexChanged(int)), this, SLOT(updateInterface()));
 
@@ -441,37 +443,12 @@ void QkIDE::createReference()
 {
     qDebug() << __FUNCTION__;
 
-    m_referenceWidget = new QkReferenceWidget(this);
-
-//    m_referenceWindow = new QMainWindow(this);
-
-//    QWidget *referenceWidget = new QWidget(m_referenceWindow);
-
-////    QComboBox *comboReference = new QComboBox(referenceWidget);
-//    m_comboReference = new QComboBox(referenceWidget);
-//    QComboBox *comboReference = m_comboReference;
-//    QStringList referenceItems;
-//    referenceItems << "QkProgram" << "QkPeripheral" << "QkDSP";
-//    comboReference->addItems(referenceItems);
-
-//    QString qkprogramRef = QKPROGRAM_DOC_DIR + "/html/index.html";
-
-//    QString urlStr = "file://" + qApp->applicationDirPath() + qkprogramRef;
-//    qDebug() << "reference:" << urlStr;
-
-//    Browser *referenceBrowser = new Browser(referenceWidget);
-//    referenceBrowser->load(QUrl(urlStr));
-
-//    QVBoxLayout *vBox = new QVBoxLayout;
-//    vBox->addWidget(comboReference);
-//    vBox->addWidget(referenceBrowser);
-//    referenceWidget->setLayout(vBox);
-
-//    m_referenceWindow->setCentralWidget(referenceWidget);
-//    m_referenceWindow->setWindowTitle("qkreference");
-//    m_referenceWindow->resize(750,600);
-
-//    connect(comboReference, SIGNAL(currentIndexChanged(int)), this, SLOT(slotReloadReference()));
+    m_referenceWindow = new QMainWindow(this);
+    m_referenceWindow->hide();
+    m_referenceWidget = new QkReferenceWidget();
+    m_referenceWidget->show();
+    m_referenceWindow->setCentralWidget(m_referenceWidget);
+    m_referenceWindow->setWindowTitle("QkReference");
 }
 
 
@@ -497,6 +474,7 @@ void QkIDE::setupLayout()
     m_comboTargetName->setCurrentText("Arduino");
 
     setCentralWidget(m_stackedWidget);
+    setWindowTitle(QK_IDE_NAME_STR);
 
     resize(680,600);
 
@@ -925,8 +903,8 @@ void QkIDE::slotProcessFinished()
 
 void QkIDE::slotShowReference()
 {
-    m_referenceWidget->show();
-    m_referenceWidget->raise();
+    m_referenceWindow->show();
+    m_referenceWindow->raise();
 }
 
 void QkIDE::slotShowExplorer()
@@ -1195,6 +1173,8 @@ void QkIDE::updateRecentProjects()
     int i;
     QString text;
     int numRecentProjects = qMin(m_recentProjects.count(),(int)MaxRecentProjects);
+
+
 
     for (i = 0; i < numRecentProjects; ++i)
     {

@@ -1,4 +1,21 @@
-#include "qkreferencewidget.h"
+/*
+ * QkThings LICENSE
+ * The open source framework and modular platform for smart devices.
+ * Copyright (C) 2014 <http://qkthings.com>
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "ui_qkreferencewidget.h"
 #include "browser.h"
 
@@ -21,37 +38,6 @@ QkReferenceWidget::QkReferenceWidget(QWidget *parent) :
     setWindowFlags(Qt::Tool);
     setWindowTitle("QkReference");
     resize(750,600);
-
-
-//        m_referenceWindow = new QMainWindow(this);
-
-//        QWidget *referenceWidget = new QWidget(m_referenceWindow);
-
-//    //    QComboBox *comboReference = new QComboBox(referenceWidget);
-//        m_comboReference = new QComboBox(referenceWidget);
-//        QComboBox *comboReference = m_comboReference;
-//        QStringList referenceItems;
-//        referenceItems << "QkProgram" << "QkPeripheral" << "QkDSP";
-//        comboReference->addItems(referenceItems);
-
-//        QString qkprogramRef = QKPROGRAM_DOC_DIR + "/html/index.html";
-
-//        QString urlStr = "file://" + qApp->applicationDirPath() + qkprogramRef;
-//        qDebug() << "reference:" << urlStr;
-
-//        Browser *referenceBrowser = new Browser(referenceWidget);
-//        referenceBrowser->load(QUrl(urlStr));
-
-//        QVBoxLayout *vBox = new QVBoxLayout;
-//        vBox->addWidget(comboReference);
-//        vBox->addWidget(referenceBrowser);
-//        referenceWidget->setLayout(vBox);
-
-//        m_referenceWindow->setCentralWidget(referenceWidget);
-//        m_referenceWindow->setWindowTitle("qkreference");
-//        m_referenceWindow->resize(750,600);
-
-//        connect(comboReference, SIGNAL(currentIndexChanged(int)), this, SLOT(slotReloadReference()));
 }
 
 QkReferenceWidget::~QkReferenceWidget()

@@ -1,4 +1,21 @@
-#include "project.h"
+/*
+ * QkThings LICENSE
+ * The open source framework and modular platform for smart devices.
+ * Copyright (C) 2014 <http://qkthings.com>
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "qkide_global.h"
 
 #include <QDebug>
@@ -125,30 +142,7 @@ void Project::clear()
 
 void Project::save()
 {
-    /*if(m_path.isEmpty()){
-        qDebug() << "can't save files: project path is empty";
-        return;
-    }
 
-    if(m_files.isEmpty()) {
-        qDebug() << "project has no files to be saved";
-        return;
-    }
-
-    foreach(QString file, m_files) {
-        QString filePath = m_path + "/" + file;
-
-        qDebug() << "saveFile" << filePath;
-
-        QFile file(filePath);
-        if(!file.open(QIODevice::WriteOnly))
-        {
-            qDebug() << "Can't open" << filePath;
-            return;
-        }
-        //file.write(page(index)->text().toLatin1());
-        file.close();
-    }*/
 }
 
 bool Project::loadFromFile(const QString path)
@@ -244,7 +238,6 @@ bool Project::saveToFile(const QString filePath)
 
         stream.writeStartElement("project");
         stream.writeAttribute("name", m_name);
-        //var.setValue(m_readOnly);
         var.setValue(false);
         stream.writeAttribute("readOnly", var.toString());
 

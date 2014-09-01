@@ -1,4 +1,21 @@
-#include "newprojectpage.h"
+/*
+ * QkThings LICENSE
+ * The open source framework and modular platform for smart devices.
+ * Copyright (C) 2014 <http://qkthings.com>
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "../qkide_global.h"
 
@@ -17,30 +34,18 @@
 NewProjectPage::NewProjectPage(const QString &path, QWidget *parent) :
     QWizardPage(parent)
 {
-    QFormLayout *projectInfoLayout, *targetInfoLayout;
+    QFormLayout *projectInfoLayout;
     QVBoxLayout *mainLayout;
     QHBoxLayout *hBox;
 
 
     m_defaultProjectPath = path;
-    //setTitle(tr("Project Information"));
-    //setSubTitle(tr("Specify basic information about the class for which you "
-                        //"want to generate skeleton source code files."));
-    //setPixmap(QWizard::LogoPixmap, QPixmap(":/img/qk_small.png"));
 
     mainLayout = new QVBoxLayout(this);
 
     projectInfoLayout = new QFormLayout(this);
     projectNameEdit = new QLineEdit(this);
     projectInfoLayout->addRow(tr("Project name"), projectNameEdit);
-
-//    comboTargetName = new QComboBox(this);
-//    comboTargetVariant = new QComboBox(this);
-//    hBox = new QHBoxLayout(this);
-//    hBox->addWidget(comboTargetName);
-//    hBox->addWidget(comboTargetVariant);
-
-//    projectInfoLayout->addRow(tr("Target"), hBox);
 
     createInEdit = new QLineEdit;
     createInEdit->setReadOnly(true);
@@ -58,14 +63,9 @@ NewProjectPage::NewProjectPage(const QString &path, QWidget *parent) :
     warningLabel->setPalette(p);
     warningLabel->hide();
 
-//    QFormLayout *targetLayout = new QFormLayout(this);
-//    targetLayout->addRow(tr("Target"), hBox);
-
     mainLayout->addLayout(projectInfoLayout);
     mainLayout->addWidget(defaultPathCheck);
     mainLayout->addWidget(warningLabel);
-//    mainLayout->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Minimum,QSizePolicy::Expanding));
-//    mainLayout->addLayout(targetLayout);
 
     setLayout(mainLayout);
 

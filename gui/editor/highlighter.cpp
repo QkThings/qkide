@@ -1,4 +1,21 @@
-#include "highlighter.h"
+/*
+ * QkThings LICENSE
+ * The open source framework and modular platform for smart devices.
+ * Copyright (C) 2014 <http://qkthings.com>
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <QDebug>
 #include <QMessageBox>
@@ -8,16 +25,9 @@
 #include "codeparser.h"
 #include "qkide_global.h"
 
-//QVector<Highlighter::Rule> Highlighter::m_permanentRules;
-//QVector<Highlighter::Rule> Highlighter::m_extraRules;
-//bool Highlighter::m_permanentRule;
-
 Highlighter::Highlighter(QTextDocument *document) : QSyntaxHighlighter(document)
 {
-    Rule rule;
-
     multiLineCommentFormat.setForeground(QColor("#999999"));
-    //multiLineCommentFormat.setFontWeight(QFont::Bold);
 
     commentStartExpression = QRegExp("/\\*");
     commentEndExpression = QRegExp("\\*/");
@@ -94,75 +104,6 @@ bool Highlighter::setSyntax(const QString &filePath)
         stop = false;
     }
 }
-
-//void Highlighter::setupPermanentRules()
-//{
-//    QString keywordColor;
-//    QString keyword;
-//    QTextCharFormat keywordFormat;
-//    //QFile file(":/syntax/" + language);
-////    QFile file(":/syntax/qk.kw");
-////    QFile file(":/syntax/dark.syntax");
-
-//    bool stop = false;
-//    QString elementName, color,weight;
-//    Rule rule;
-
-//    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-//    {
-//        QMessageBox::critical(new QDialog,
-//                              tr("Error"),
-//                              tr("Error load syntax higlighter"),
-//                              QMessageBox::Ok);
-
-//        qApp->quit();
-//    }
-
-//    QTextStream input(&file);
-
-//    m_permanentRules.clear();
-
-//    while (!input.atEnd())
-//    {
-//        keywordColor = input.readLine();
-
-//        if (keywordColor.contains("#rule"))
-//        {
-//            elementName = keywordColor.section(',',1,1);
-//            color = keywordColor.section(',',2,2);
-//            weight = keywordColor.section(',',3,3);
-//            keywordFormat.setForeground(QBrush(QColor(color)));
-//            if(weight.toLower() == "bold")
-//                keywordFormat.setFontWeight(QFont::Bold);
-//            else
-//                keywordFormat.setFontWeight(QFont::Normal);
-//        }
-
-//        rule.elementName = elementName;
-//        rule.format  = keywordFormat;
-//        rule.pattern = QRegExp();
-
-//        while (stop == false)
-//        {
-//            keyword = input.readLine();
-
-//            if (keyword == "stop")
-//                stop = true;
-//            else
-//            {
-//                rule.elementName = elementName;
-//                rule.format  = keywordFormat;
-//                rule.pattern = QRegExp(keyword);
-//                m_permanentRules.append(rule);
-//            }
-//        }
-
-//        if(rule.pattern.isEmpty())
-//            m_permanentRules.append(rule);
-
-//        stop = false;
-//    }
-//}
 
 void Highlighter::addElements(QList<CodeParser::Element> elements, bool permanent)
 {

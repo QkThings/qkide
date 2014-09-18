@@ -9,7 +9,10 @@ QMAKE_EXE = "/opt/Qt5.1.1/5.1.1/gcc/bin/qmake"
 
 def cp(root_src,root_dest,rel_path):
 	print "Copying %s from %s to %s" % (rel_path, root_src, root_dest)
-	copy_tree(path.join(root_src, rel_path), path.join(root_dest, rel_path))	
+	if not path.isdir(path.join(root_src, rel_path)):
+		print "Warning: %s doesn't exists!", path.join(root_src, rel_path)
+	else:
+		copy_tree(path.join(root_src, rel_path), path.join(root_dest, rel_path))	
 
 def deploy():
 

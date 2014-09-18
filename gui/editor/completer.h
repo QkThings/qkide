@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef COMPLETER_H
+#define COMPLETER_H
+
 #include <QCompleter>
 #include "codeparser.h"
 

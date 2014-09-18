@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef QKREFERENCEWIDGET_H
+#define QKREFERENCEWIDGET_H
+
 #include <QWidget>
 
 namespace Ui {

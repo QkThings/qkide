@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef THEME_H
+#define THEME_H
+
 #include <QPalette>
 
 class Theme

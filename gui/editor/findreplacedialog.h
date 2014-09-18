@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef FINDREPLACEDIALOG_H
+#define FINDREPLACEDIALOG_H
+
 #include <QDialog>
 
 class Page;

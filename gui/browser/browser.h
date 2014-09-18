@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef BROWSER_H
+#define BROWSER_H
+
 //#include <QtWebKit/QWebView>
 #include <QtWebKitWidgets>
 

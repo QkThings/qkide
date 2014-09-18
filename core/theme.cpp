@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+#include "theme.h"
 #include "qkutils.h"
 #include "qkide_global.h"
 

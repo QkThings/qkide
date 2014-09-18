@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef EDITOR_H
+#define EDITOR_H
+
 #include <QWidget>
 #include <QRegExp>
 #include "page.h"

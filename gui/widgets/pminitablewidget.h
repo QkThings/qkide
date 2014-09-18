@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef PMINITABLEWIDGET_H
+#define PMINITABLEWIDGET_H
+
 #include <QTableWidget>
 
 class pMiniTableWidget : public QTableWidget

@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef NEWPROJECTPAGE_H
+#define NEWPROJECTPAGE_H
+
 #include <QWizardPage>
 
 class QLabel;

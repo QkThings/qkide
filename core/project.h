@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef PROJECT_H
+#define PROJECT_H
+
 #include <QObject>
 #include <QStringList>
 

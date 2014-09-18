@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "pminitablewidget.h"
+
 #include <QHeaderView>
 #include <QFont>
 #include <QDebug>

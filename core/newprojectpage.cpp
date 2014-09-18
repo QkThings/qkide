@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "newprojectpage.h"
 #include "../qkide_global.h"
 
 #include <QLabel>

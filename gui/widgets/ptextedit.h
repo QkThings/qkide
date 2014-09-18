@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef PTEXTEDIT_H
+#define PTEXTEDIT_H
+
 #include <QTextEdit>
 
 class pTextEdit : public QTextEdit

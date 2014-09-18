@@ -102,14 +102,7 @@ MOC_DIR = build/moc
 RCC_DIR = build/rcc
 UI_DIR = build/ui
 
-win32 {
-  deploy.commands = python deploy.py
-}
-unix {
-  deploy.commands = python deploy.py
-}
-macx {
+deploy.commands = python deploy.py --emb
 
-}
 QMAKE_EXTRA_TARGETS += deploy
 POST_TARGETDEPS += deploy

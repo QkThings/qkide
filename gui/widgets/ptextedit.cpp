@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ptextedit.h"
+
 pTextEdit::pTextEdit(QSize customSizeHint, QWidget *parent) :
     QTextEdit(parent)
 {

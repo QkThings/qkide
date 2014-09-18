@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef PTEXTDOCK_H
+#define PTEXTDOCK_H
+
 #include <QDockWidget>
 
 class pTextEdit;

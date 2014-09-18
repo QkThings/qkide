@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef PROJECTPREFERENCESDIALOG_H
+#define PROJECTPREFERENCESDIALOG_H
+
 #include <QDialog>
 
 namespace Ui {

@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef CODEPARSER_H
+#define CODEPARSER_H
+
 #include <QObject>
 #include <QRunnable>
 #include <QThread>

@@ -76,6 +76,7 @@ def deploy():
 			cp(path.join(EMB_DIR, emb_lib), path.join(RELEASE_EMB_DIR, emb_lib), "doc")
 			cp(path.join(EMB_DIR, emb_lib), path.join(RELEASE_EMB_DIR, emb_lib), "include")
 			cp(path.join(EMB_DIR, emb_lib), path.join(RELEASE_EMB_DIR, emb_lib), "build/lib")
+			cp(path.join(EMB_DIR, emb_lib), path.join(RELEASE_EMB_DIR, emb_lib), "build/target")
 
 
 	print "! Copy other resources"

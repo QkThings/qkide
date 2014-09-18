@@ -160,30 +160,42 @@ ifeq ($(MAKECMDGOALS),lib)
 else
 #-------------------------------------------------------------------
 
-QKLIB_PATHS += $(addsuffix /build/lib/$(TARGET_NAME)/$(TARGET_VARIANT)/device, $(EMB_DIR)/qkprogram)
-QKLIB_INCLUDES += $(addsuffix /include, $(EMB_DIR)/qkprogram)
-
-QKLIB_PATHS += $(addsuffix /build/lib/$(TARGET_NAME)/$(TARGET_VARIANT), $(EMB_DIR)/qkperipheral)
-QKLIB_INCLUDES += $(addsuffix /include, $(EMB_DIR)/qkperipheral)
-
-LIBS += $(addprefix -L, $(QKLIB_PATHS)) #$(addprefix -l, $(QKLIB_NAMES))
-INCLUDE_DIR += $(QKLIB_INCLUDES)
-
-ifeq ($(MAKECMDGOALS),app)
-CFLAGS += -DBUILD_DEVICE
-LIBS += -lqkprogram
-
+#include $(APP)/app.mk
 INCLUDE_DIR += \
 $(APP)
 C_SRC_DIR += \
 $(APP)
-endif
 
-ifeq ($(MAKECMDGOALS),test)
-C_SRC += test/$(TEST).c
+#$(info BUILD_TARGET=$(BUILD_TARGET))
+#ifeq ($(BUILD_TARGET),)
+#  $(error BUILD_TARGET not defined (BUILD_COMM or BUILD_DEVICE?))
+#endif
+BUILD_TARGET = BUILD_DEVICE
+DEFINES += $(BUILD_TARGET)
+
+QKLIB_PATHS += $(addsuffix /build/lib/$(TARGET_NAME)/$(TARGET_VARIANT), $(EMB_DIR)/qkperipheral)
+QKLIB_INCLUDES += $(addsuffix /include, $(EMB_DIR)/qkperipheral)
+QKLIB_INCLUDES += $(addsuffix /include/board/$(TARGET_NAME)/$(TARGET_VARIANT), $(EMB_DIR)/qkperipheral)
+
+
+ifeq ($(BUILD_TARGET), BUILD_DEVICE)
+#LIB_DIR := $(LIB_DIR)/device
+QKLIB_PATHS += $(addsuffix /build/lib/$(TARGET_NAME)/$(TARGET_VARIANT)/device, $(EMB_DIR)/qkprogram)
 endif
+ifeq ($(BUILD_TARGET), BUILD_COMM)
+QKLIB_PATHS += $(addsuffix /build/lib/$(TARGET_NAME)/$(TARGET_VARIANT)/comm, $(EMB_DIR)/qkprogram)
+endif
+QKLIB_INCLUDES += $(addsuffix /include, $(EMB_DIR)/qkprogram)
+
+QK_LIBS = qkprogram qkperipheral
+
+LIBS += $(addprefix -L, $(QKLIB_PATHS)) #$(addprefix -l, $(QKLIB_NAMES))
+LIBS += $(addprefix -l, $(QK_LIBS))
+
+INCLUDE_DIR += $(QKLIB_INCLUDES)
 
 include $(TARGET_GLOBAL)
+include $(EMB_DIR)/qkperipheral/build/target/$(TARGET_NAME)/board/$(TARGET_VARIANT).mk
 
 #-------------------------------------------------------------------
 endif

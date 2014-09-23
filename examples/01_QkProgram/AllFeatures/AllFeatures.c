@@ -15,8 +15,8 @@ uint16_t	 counter = 10;
 void sample_callback()
 {
 	// Send a debug string	
-	QK_LOG_DEBUG("test_sample() [called %d times]", counter++);
-		
+	QK_LOG_DEBUG("hello %d", counter++);
+	
 	// Generate some data
 	time += 0.01;
 	wave = sin(2.0*M_PI*3.0*time)*cos(2.0*M_PI*time);
@@ -32,25 +32,21 @@ void sample_callback()
 	// Generate some events
 	if((counter % 10) == 0)
 	{
-  		evt_args[0] = 123.123+(float)counter;
-  		evt_args[1] = 456.456+(float)counter;
-		qk_event_set_args(0, evt_args, 2);
-  		qk_event_generate(0, "testing");
+		qk_event_generate(0, "event without args");	
 	}
 	if((counter % 25) == 0)
 	{
 		evt_args[0] = 1.123+(float)counter;
 		evt_args[1] = 2.456+(float)counter;
-		evt_args[2] = 3.456+(float)counter;
-		qk_event_set_args(0, evt_args, 3);
-		qk_event_generate(0, "arguments: %0, %1 and %2.");
+		qk_event_set_args(0, evt_args, 2);
+		qk_event_generate(0, "event args: %0 and %1.");	
 	}
 }
 
 void action_callback(qk_action_id id)
 {
 	if(id == 0)
-		hal_setLED(qk_action_get_value_b(0));
+		qk_board_led_set(qk_action_get_value_b(0));
 }
 
 void qk_setup()
@@ -77,10 +73,10 @@ void qk_setup()
 	qk_config_set_label(3, "FLOAT");
 	qk_config_set_type(3, QK_CONFIG_TYPE_FLOAT);
 	qk_config_set_value_f(3, 10.123);
-	
+
 	qk_datetime dt;
-	qk_datetime_set_date(&dt, 14, 5, 19);
-	qk_datetime_set_time(&dt, 22, 12, 45);
+	qk_datetime_set_date(&dt, 13, 8, 17);
+	qk_datetime_set_time(&dt, 22, 38, 1);
 
 	qk_config_set_label(4, "DATETIME");
 	qk_config_set_type(4, QK_CONFIG_TYPE_DATETIME);
@@ -107,11 +103,13 @@ void qk_setup()
 	qk_action_set_type(0, QK_ACTION_TYPE_BOOL);
 	qk_action_set_label(1, "ACT_INT");
 	qk_action_set_type(1, QK_ACTION_TYPE_INT);
-	
+
 	qk_action_set_callback(action_callback);
 
-	qk_sampling_set_callback(QK_SAMPLING_CALLBACK_SAMPLE, sample_callback);
-	qk_sampling_set_frequency(5);
+	qk_sampling_set_callback(QK_SAMPLING_CALLBACK_SAMPLE, sample_callback);	
+	qk_sampling_set_frequency(10);
+	
+
 }
 
 int main(void)

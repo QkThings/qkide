@@ -102,7 +102,7 @@ MOC_DIR = build/moc
 RCC_DIR = build/rcc
 UI_DIR = build/ui
 
-deploy.commands = python deploy.py
+deploy.commands = python deploy.py --qmake_path $$QMAKE_QMAKE
 
 QMAKE_EXTRA_TARGETS += deploy
 POST_TARGETDEPS += deploy

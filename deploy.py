@@ -5,7 +5,7 @@ from distutils.dir_util import copy_tree, remove_tree
 from subprocess import call
 import argparse
 
-QMAKE_EXE = "/opt/Qt5.1.1/5.1.1/gcc/bin/qmake"
+
 
 def cp(root_src,root_dest,rel_path):
 	print "Copying %s from %s to %s" % (rel_path, root_src, root_dest)
@@ -20,14 +20,16 @@ def deploy():
 	parser.add_argument("--emb", action="store_true", help='deploy embedded')
 	parser.add_argument("--toolchain", action="store_true", help='copy toolchain')
 	parser.add_argument("--clean", action="store_true", help='clean')
+	parser.add_argument("--qmake_path", action="store", type=str, help='qmake exe path', default="/opt/Qt5.1.1/5.1.1/gcc/bin/qmake")
 	args = parser.parse_args()
 
 	rootdir = getcwd()
 	
+	qmake_exe = args.qmake_path	
 	deploy_embedded = args.emb
 	copy_toolchain = args.toolchain
 
-	call([QMAKE_EXE])
+	call([qmake_exe])
 
 	if args.clean:
 		print "! Cleaning"
@@ -53,7 +55,7 @@ def deploy():
 	for lib in libs:
 		print "! Build %s" % (lib)
 		chdir(path.join(SOFTWARE_DIR, lib))
-		call(QMAKE_EXE)
+		call(qmake_exe)
 #		if args.clean:
 #			call(["make","clean"])
 		call("make")

@@ -48,13 +48,13 @@ void CodeParser::parse(const QString &path)
 void CodeParser::parse()
 {
     QString path = m_path;
-    QString program = QApplication::applicationDirPath() + CTAGS_EXE;
+    QString program = qApp->applicationDirPath() + CTAGS_EXE;
     QStringList arguments;
     //QString output = "-f " + TAGS_DIR + "/tags";
     QString tagsDir = TAGS_DIR;
-    QString output = "-f " + qApp->applicationDirPath() + TAGS_DIR + "/tags";
-    arguments << output << "--languages=-Make" << "--c-kinds=+p-m" << "-R" << path;
-    //arguments << "-R" << "--c-kinds=+l" << "--languages=-Make" << path << "--verbose";
+    QString output = qApp->applicationDirPath() + TAGS_DIR + "/tags";
+    arguments << "-f" << output << "--languages=-Make" << "--c-kinds=+p-m" << "-R" << path;
+    //arguments << "--languages=-Make" << "-R" << path;
     //arguments << "-R" << path;
 
     QProcess process;
@@ -65,12 +65,19 @@ void CodeParser::parse()
 
 
     process.start(program, arguments);
-    process.waitForFinished(30000);
+    if(!process.waitForFinished(30000))
+    {
+        qDebug() << "parse failed";
+        return;
+    }
+
+    qDebug() << process.readAll();
 
     QFile tags(QApplication::applicationDirPath() + TAGS_DIR + "/tags");
     if(!tags.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         qDebug() << "failed to open tags file:" << tags.fileName();
+        return;
     }
 
     clear();

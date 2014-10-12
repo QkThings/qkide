@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
     QFontDatabase::addApplicationFont("://fonts/Ubuntu-R.ttf");
     QFontDatabase::addApplicationFont("://fonts/Roboto-Regular.ttf");
     QFontDatabase::addApplicationFont("://fonts/Roboto-Thin.ttf");
+    QFontDatabase::addApplicationFont("://fonts/DejaVuSansMono.ttf");
 
     QStyle *style = QStyleFactory::create("Fusion");
     a.setStyle(style);

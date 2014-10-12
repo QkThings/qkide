@@ -11,9 +11,11 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets webkitwidgets serialport
 TARGET = qkide
 TEMPLATE = app
 
+unix {
 QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/../shared/lib/\',-z,origin'
+}
 
-DEFINES += QT_NO_DEBUG_OUTPUT
+#DEFINES += QT_NO_DEBUG_OUTPUT
 
 INCLUDEPATH += ../utils
 INCLUDEPATH += core
@@ -88,8 +90,7 @@ RESOURCES += \
     resources/qkide_img.qrc \
     resources/qkide_html.qrc \
     resources/qkide_syntax.qrc \
-    resources/qkide_templates.qrc \
-    resources/qkide_style.qrc
+    resources/qkide_templates.qrc
 
 CONFIG(debug, debug|release) {
     DESTDIR = debug

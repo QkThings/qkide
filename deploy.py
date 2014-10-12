@@ -10,7 +10,7 @@ import argparse
 def cp(root_src,root_dest,rel_path):
 	print "Copying %s from %s to %s" % (rel_path, root_src, root_dest)
 	if not path.isdir(path.join(root_src, rel_path)):
-		print "Warning: %s doesn't exists!", path.join(root_src, rel_path)
+		print "Warning: %s doesn't exists!" % path.join(root_src, rel_path)
 	else:
 		copy_tree(path.join(root_src, rel_path), path.join(root_dest, rel_path))	
 
@@ -44,7 +44,7 @@ def deploy():
 	EMB_SHARED_DIR = path.join(EMB_DIR, "shared")
 
 	RC_DIR = path.join(rootdir, "resources")
-	TOOLS_DIR = path.join(rootdir, "../tools/linux")
+	SHARED_DIR = path.join(rootdir, "../shared/win/")
 
 	RELEASE_DIR = path.join(rootdir, "release")
 	RELEASE_RC_DIR = path.join(RELEASE_DIR, "resources")
@@ -85,7 +85,7 @@ def deploy():
 	cp(".", RELEASE_DIR, "examples")
 	cp(RC_DIR, RELEASE_RC_DIR, "html")
 	cp(RC_DIR, RELEASE_RC_DIR, "theme")
-	cp(TOOLS_DIR, RELEASE_TOOLS_DIR, "ctags")
+	cp(SHARED_DIR, RELEASE_RC_DIR, "tools")
 
 
 

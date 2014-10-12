@@ -37,10 +37,20 @@ const QString QK_IDE_NAME_STR = "QkIDE";
 const QString QK_IDE_C_DEF_STR = "my_board.c";
 const QString QK_IDE_H_DEF_STR = "my_board.h";
 
+
+#ifdef Q_OS_WIN
+const QString EDITOR_FONT_NAME = "Consolas";
+const int     EDITOR_FONT_SIZE = 10;
+#else
 const QString EDITOR_FONT_NAME = "DejaVuSansMono";
 const int     EDITOR_FONT_SIZE = 9;
+#endif
 
+#ifdef Q_OS_WIN
+const QString CTAGS_EXE = "/resources/tools/ctags/ctags.exe";
+#else
 const QString CTAGS_EXE = "/resources/tools/ctags/bin/ctags";
+#endif
 const QString EMB_DIR = "/resources/embedded";
 const QString THEME_DIR = "/resources/theme";
 const QString TOOLCHAIN_DIR = EMB_DIR + "/toolchain";

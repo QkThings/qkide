@@ -10,7 +10,7 @@ import argparse
 def cp(root_src,root_dest,rel_path):
 	print "Copying %s from %s to %s" % (rel_path, root_src, root_dest)
 	if not path.isdir(path.join(root_src, rel_path)):
-		print "Warning: %s doesn't exists!" % path.join(root_src, rel_path)
+		print "Warning: %s doesn't exist!" % path.join(root_src, rel_path)
 	else:
 		copy_tree(path.join(root_src, rel_path), path.join(root_dest, rel_path))	
 
@@ -39,6 +39,8 @@ def deploy():
 		print "! Building QkIDE"
 		call(["make"])
 
+	DEV_DIR = path.join(rootdir,"../../dev")
+
 	SOFTWARE_DIR = path.join(rootdir, "../")
 	EMB_DIR  = path.join(rootdir, "../../embedded")
 	EMB_SHARED_DIR = path.join(EMB_DIR, "shared")
@@ -63,8 +65,9 @@ def deploy():
 
 	if copy_toolchain:
 		print "! Copy toolchain"
-		cp(EMB_SHARED_DIR, RELEASE_EMB_DIR, "toolchain/common")
-		cp(EMB_SHARED_DIR, RELEASE_EMB_DIR, "toolchain/linux")
+		chdir(DEV_DIR)
+		call(["python", "toolman.py", "-t","arduino", "-r %s/toolchain" % RELEASE_EMB_DIR, "--dist=linux"])
+		call(["python", "toolman.py", "-t","efm32", "-r %s/toolchain" % RELEASE_EMB_DIR, "--dist=linux"])
 
 	if deploy_embedded:
 		print "! Deploy embedded"
@@ -85,7 +88,7 @@ def deploy():
 	cp(".", RELEASE_DIR, "examples")
 	cp(RC_DIR, RELEASE_RC_DIR, "html")
 	cp(RC_DIR, RELEASE_RC_DIR, "theme")
-	cp(SHARED_DIR, RELEASE_RC_DIR, "tools")
+	cp(RC_DIR, RELEASE_RC_DIR, "tools/linux")
 
 
 

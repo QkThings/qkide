@@ -83,6 +83,9 @@ QkIDE::QkIDE(QWidget *parent) :
     m_outputWindow = new pTextDock(tr("Output"), QColor("#333"), this);
     m_outputWindow->textEdit()->setReadOnly(true);
     m_outputWindow->textEdit()->setWordWrapMode(QTextOption::WordWrap);
+#ifdef Q_OS_LINUX
+    m_outputWindow->textEdit()->setFontPointSize(9);
+#endif
     m_outputWindow->setDefaultTextColor(Qt::white);
     m_outputWindow->setFeatures(pTextDock::DockWidgetMovable | pTextDock::DockWidgetClosable);
     m_outputWindow->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::RightDockWidgetArea);

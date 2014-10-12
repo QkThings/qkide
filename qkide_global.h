@@ -42,14 +42,14 @@ const QString QK_IDE_H_DEF_STR = "my_board.h";
 const QString EDITOR_FONT_NAME = "Consolas";
 const int     EDITOR_FONT_SIZE = 10;
 #else
-const QString EDITOR_FONT_NAME = "DejaVuSansMono";
+const QString EDITOR_FONT_NAME = "Monospace";
 const int     EDITOR_FONT_SIZE = 9;
 #endif
 
 #ifdef Q_OS_WIN
-const QString CTAGS_EXE = "/resources/tools/ctags/ctags.exe";
+const QString CTAGS_EXE = "/resources/tools/win/ctags/ctags.exe";
 #else
-const QString CTAGS_EXE = "/resources/tools/ctags/bin/ctags";
+const QString CTAGS_EXE = "/resources/tools/linux/ctags/ctags";
 #endif
 const QString EMB_DIR = "/resources/embedded";
 const QString THEME_DIR = "/resources/theme";

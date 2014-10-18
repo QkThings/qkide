@@ -17,19 +17,23 @@ def cp(root_src,root_dest,rel_path):
 def deploy():
 
 	parser = argparse.ArgumentParser()
+	parser.add_argument("--root", help='qkthings root dir')
 	parser.add_argument("--emb", action="store_true", help='deploy embedded')
 	parser.add_argument("--toolchain", action="store_true", help='copy toolchain')
 	parser.add_argument("--clean", action="store_true", help='clean')
-	parser.add_argument("--qmake_path", action="store", type=str, help='qmake exe path', default="/opt/Qt5.1.1/5.1.1/gcc/bin/qmake")
+	parser.add_argument("--qmake_path", action="store", type=str, help='qmake exe path', default="/opt/Qt5.3.2/5.3/gcc/bin/qmake")
 	args = parser.parse_args()
 
+	#rootdir = getcwd()
 	rootdir = getcwd()
+	if args.root != None:
+		rootdir = str(args.root)
 	
 	qmake_exe = args.qmake_path	
 	deploy_embedded = args.emb
 	copy_toolchain = args.toolchain
 
-	call([qmake_exe])
+#	call([qmake_exe])
 
 	if args.clean:
 		print "! Cleaning"
@@ -39,8 +43,6 @@ def deploy():
 		print "! Building QkIDE"
 		call(["make"])
 
-	DEV_DIR = path.join(rootdir,"../../dev")
-
 	SOFTWARE_DIR = path.join(rootdir, "../")
 	EMB_DIR  = path.join(rootdir, "../../embedded")
 	EMB_SHARED_DIR = path.join(EMB_DIR, "shared")
@@ -48,12 +50,16 @@ def deploy():
 	RC_DIR = path.join(rootdir, "resources")
 	SHARED_DIR = path.join(rootdir, "../shared/win/")
 
-	RELEASE_DIR = path.join(rootdir, "release")
+	QKTHINGS_LOCAL = path.expanduser("~/qkthings_local")
+	RELEASE_DIR = QKTHINGS_LOCAL + "/build/qt/qkide/release"
+
 	RELEASE_RC_DIR = path.join(RELEASE_DIR, "resources")
 	RELEASE_TOOLS_DIR = path.join(RELEASE_RC_DIR, "tools")
 	RELEASE_EMB_DIR  = path.join(RELEASE_RC_DIR, "embedded")
 
-	libs = ["qkcore", "qkwidget"]
+	#libs = ["qkcore", "qkwidget"]
+	'''
+	libs = []
 	for lib in libs:
 		print "! Build %s" % (lib)
 		chdir(path.join(SOFTWARE_DIR, lib))
@@ -62,12 +68,11 @@ def deploy():
 #			call(["make","clean"])
 		call("make")
 		chdir(rootdir)
+	'''
 
 	if copy_toolchain:
 		print "! Copy toolchain"
-		chdir(DEV_DIR)
-		call(["python", "toolman.py", "-t","arduino", "-r %s/toolchain" % RELEASE_EMB_DIR, "--dist=linux"])
-		call(["python", "toolman.py", "-t","efm32", "-r %s/toolchain" % RELEASE_EMB_DIR, "--dist=linux"])
+		cp(QKTHINGS_LOCAL, RELEASE_EMB_DIR, "toolchain")
 
 	if deploy_embedded:
 		print "! Deploy embedded"

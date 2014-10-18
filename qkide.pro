@@ -13,6 +13,8 @@ TEMPLATE = app
 
 unix {
 QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/../shared/lib/\',-z,origin'
+QMAKE_RPATHDIR += /home/$$(USER)/qkthings_local/build/qt/qkcore/release
+QMAKE_RPATHDIR += /home/$$(USER)/qkthings_local/build/qt/qkwidget/release
 }
 
 #DEFINES += QT_NO_DEBUG_OUTPUT
@@ -25,12 +27,12 @@ INCLUDEPATH += gui/widgets
 INCLUDEPATH += gui/browser
 
 INCLUDEPATH += ../qkcore
-QMAKE_LIBDIR += ../qkcore/release
-LIBS += -L../qkcore/release -lqkcore
+QMAKE_LIBDIR += /home/$$(USER)/qkthings_local/build/qt/qkcore/release
+LIBS += -L../../qkcore/release -lqkcore
 
 INCLUDEPATH += ../qkwidget
-QMAKE_LIBDIR += ../qkwidget/release
-LIBS += -L../qkwidget/release -lqkwidget
+QMAKE_LIBDIR += /home/$$(USER)/qkthings_local/build/qt/qkwidget/release
+LIBS += -L/home/$$(USER)/qkthings_local/build/qt/qkwidget/release -lqkwidget
 
 SOURCES += main.cpp\
         qkide.cpp \
@@ -103,7 +105,7 @@ MOC_DIR = build/moc
 RCC_DIR = build/rcc
 UI_DIR = build/ui
 
-deploy.commands = python deploy.py --emb --toolchain --qmake_path $$QMAKE_QMAKE
+deploy.commands = python $$PWD/deploy.py --root=$$PWD --emb --toolchain --qmake_path=$$QMAKE_QMAKE
 
 QMAKE_EXTRA_TARGETS += deploy
 POST_TARGETDEPS += deploy
